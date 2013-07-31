@@ -100,7 +100,7 @@ namespace dxfTest
 
         public string[] Readfile()
         {
-            return System.IO.File.ReadAllLines(@"C:\Users\obod001\Desktop\Drawing1.dxf");
+            return System.IO.File.ReadAllLines(String.Format("{0}\\Files\\Drawing1.dxf",Application.StartupPath));
         }
         public class Line
         {
