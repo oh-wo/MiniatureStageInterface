@@ -92,14 +92,14 @@ namespace dxfTest
                         if (i != (pline.noVerticies - 1))
                         {
                             //link to next vertex in list
-                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, 10));
+                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, 1));
                         }
                         else
                         {
                             if (pline.closed)
                             {
                                 //link back to the original vertex
-                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, 10));
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, 1));
                             }
                         };
                     };
@@ -333,13 +333,44 @@ namespace dxfTest
             //Now we have a circle, but we need an arc. So, relative to the center of the circle and in the direction of the x axis, find the starting angle and ending angle
              double startTheta = Math.Atan((start.Y-center.Y)/(start.X-center.X));
              double endTheta = Math.Atan((end.Y - center.Y) / (end.X - center.X));
-             if ((start.X - center.X) < 0) { startTheta += Math.PI; };
-             if ((end.X - center.X) < 0) { endTheta += Math.PI; };
+             if ((start.X - center.X) < 0)
+             {
+                 startTheta += Math.PI;
+             }
+             if ((end.X - center.X) < 0)
+             {
+                 endTheta += Math.PI;
+             }
+             /*if ((start.X - center.X) < 0 && (start.Y - center.Y)>0)
+              { 
+                  startTheta += Math.PI; 
+              }else{
+                  if (((start.X - center.X) < 0 && (start.Y - center.Y) < 0))
+                  {
+                      startTheta = Math.PI - Math.Abs(startTheta);
+                 }
+              }
+              if ((end.X - center.X) < 0 && (end.Y - center.Y) > 0)
+              {
+                  endTheta += Math.PI;
+              }
+              else
+              {
+                  if (((end.X - center.X) < 0 && (end.Y - center.Y) < 0))
+                  {
+                      endTheta = Math.PI - Math.Abs(endTheta);
+                  }
+              }*/
+             //So now we need to move between startTheta and endTheta, at points of size "lineSpacing", saving each of these points to the output line list
 
-            //So now we need to move between startTheta and endTheta, at points of size "lineSpacing", saving each of these points to the output line list
 
+            //Apply direction from bulge sign
+             if (bulge < 0)
+             {
+                 endTheta -= 2*Math.PI;
+             }
             //Find the arc length
-            double arcLength = (double)radius*Math.Abs(endTheta-startTheta);
+             double arcLength = (double)radius * Math.Abs(endTheta - startTheta);//this is incorrect - wrong arcs.. (basic math ok..)
             //Find number of lines to split the arc up into (this is actually n-1)
             int noLines = int.Parse(Math.Round((arcLength / lineSpacing)).ToString());
             if(noLines==0){
@@ -412,8 +443,8 @@ namespace dxfTest
             {
                 scale = (float)1.0;
             }
-            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth/scale;
-            float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight/scale-2000;
+            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth/scale+2000;
+            float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight/scale;
             foreach (Polyline pLine in Polylines)
             {
                 for (int i = 0; i < pLine.laserLines.Count; i++)
