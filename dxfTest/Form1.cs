@@ -23,15 +23,6 @@ namespace dxfTest
             panel1.Scroll += new ScrollEventHandler(panel1_Scroll);*/
             image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             
-            PointF start = new PointF(){
-                X = (float)3994.449,
-                Y = (float)2363.032,
-            };
-            PointF end = new PointF(){
-                X = (float)3894.407,
-                Y = (float)2193.638,
-            };
-            ConvertBulgeToLines(start, end, (float)-0.7179035,40);
 
             string[] file = Readfile();
             //Read in the file and get all the data out
@@ -57,13 +48,64 @@ namespace dxfTest
             foreach (Polyline pline in Polylines)
             {
                 this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed?"closed":"open");
-                int i = 0;
-                foreach (polyPoint pt in pline.verticies)
+                pline.laserLines = new List<Line>();
+                for(int i=0; i<pline.noVerticies; i++)
                 {
-                    this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i,pt.Point.X,pt.Point.Y,pt.Buldge!=null?pt.Buldge.ToString():"");
-                    i++;
+                    //display verticies to the user
+                    this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i,pline.verticies[i].Point.X,pline.verticies[i].Point.Y,pline.verticies[i].Buldge!=null?pline.verticies[i].Buldge.ToString():"");
+                  
+
+                    //convert vertex to laser line and convert bulges to lines if necessary. 
+                    
+                    if(pline.verticies[i].Buldge==null){
+                        Line laserLine = new Line();
+                        //straight line
+                        laserLine.p1=new PointF{
+                            X = pline.verticies[i].Point.X,
+                            Y = pline.verticies[i].Point.Y,
+                        };
+                        if (i != (pline.noVerticies - 1))
+                        {
+                            //link to next vertex in list
+                            laserLine.p2 = new PointF
+                            {
+                                X = pline.verticies[i + 1].Point.X,
+                                Y = pline.verticies[i + 1].Point.Y,
+                            };
+                        }else{
+                            if (pline.closed)
+                            {
+                                //link back to the original vertex
+                                laserLine.p2 = new PointF
+                                {
+                                    X = pline.verticies[0].Point.X,
+                                    Y = pline.verticies[0].Point.Y,
+                                };
+                            }
+                            else
+                            {
+                                //do nothing
+                            }
+                        };
+                        pline.laserLines.Add(laserLine);
+                    }else{
+                        if (i != (pline.noVerticies - 1))
+                        {
+                            //link to next vertex in list
+                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, 1));
+                        }
+                        else
+                        {
+                            if (pline.closed)
+                            {
+                                //link back to the original vertex
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, 1));
+                            }
+                        };
+                    };
+                    
                 }
-                
+
             };
             DrawPolyLines();
             //panel1.Invalidate();
@@ -282,20 +324,53 @@ namespace dxfTest
             PointF center = new PointF()
             {
                 X = (start.X + end.X) / 2 + K * (start.Y - end.Y),
-                Y = (start.X + end.X) / 2 - K * (start.X - end.X),
+                Y = (start.Y + end.Y) / 2 - K * (start.X - end.X),
             };
             
             //Find the radius of the circle
             double radius = Math.Sqrt(Math.Pow(start.X - center.X, (double)2) + Math.Pow(start.Y - center.Y, (double)2));
 
             //Now we have a circle, but we need an arc. So, relative to the center of the circle and in the direction of the x axis, find the starting angle and ending angle
-            double startTheta = Math.Acos((start.X-center.X) / radius);
-            double endTheta = Math.Acos((end.X -center.X)/ radius);
+             double startTheta = Math.Atan((start.Y-center.Y)/(start.X-center.X));
+             double endTheta = Math.Atan((end.Y - center.Y) / (end.X - center.X));
+             if ((start.X - center.X) < 0)
+             {
+                 startTheta += Math.PI;
+             }
+             if ((end.X - center.X) < 0)
+             {
+                 endTheta += Math.PI;
+             }
+             /*if ((start.X - center.X) < 0 && (start.Y - center.Y)>0)
+              { 
+                  startTheta += Math.PI; 
+              }else{
+                  if (((start.X - center.X) < 0 && (start.Y - center.Y) < 0))
+                  {
+                      startTheta = Math.PI - Math.Abs(startTheta);
+                 }
+              }
+              if ((end.X - center.X) < 0 && (end.Y - center.Y) > 0)
+              {
+                  endTheta += Math.PI;
+              }
+              else
+              {
+                  if (((end.X - center.X) < 0 && (end.Y - center.Y) < 0))
+                  {
+                      endTheta = Math.PI - Math.Abs(endTheta);
+                  }
+              }*/
+             //So now we need to move between startTheta and endTheta, at points of size "lineSpacing", saving each of these points to the output line list
 
-            //So now we need to move between startTheta and endTheta, at points of size "lineSpacing", saving each of these points to the output line list
 
+            //Apply direction from bulge sign
+             if (bulge < 0)
+             {
+                 endTheta -= 2*Math.PI;
+             }
             //Find the arc length
-            double arcLength = radius*(endTheta-startTheta);
+             double arcLength = (double)radius * Math.Abs(endTheta - startTheta);//this is incorrect - wrong arcs.. (basic math ok..)
             //Find number of lines to split the arc up into (this is actually n-1)
             int noLines = int.Parse(Math.Round((arcLength / lineSpacing)).ToString());
             if(noLines==0){
@@ -353,29 +428,7 @@ namespace dxfTest
         Pen _pen = new Pen(Color.Black, 1);
         private Graphics _Graphics;
         private Bitmap image;
-
-        public List<Line> CreateLines()
-        {
-            List<Line> _Lines = new List<Line>();
-            Random rand = new Random();
-            for (int i = 0; i < 10; i++)
-            {
-                Line line = new Line()
-                {
-                    p1 = new PointF(){
-                        X= float.Parse(rand.Next(image.Width).ToString()),
-                        Y = float.Parse(rand.Next(image.Height).ToString()),
-                    },
-                    p2= new PointF(){
-                        X = float.Parse(rand.Next(image.Width).ToString()),
-
-                        Y = float.Parse(rand.Next(image.Height).ToString()),
-                    },
-                };
-                _Lines.Add(line);
-            }
-            return _Lines;
-        }
+        
         public void DrawPolyLines()
         {
              _Graphics = Graphics.FromImage(image);
@@ -384,30 +437,19 @@ namespace dxfTest
             try
             {
                  scale= float.Parse(this.textScale.Text.Trim());
+                 if (scale == (float)0) { scale = 1; };
             }
             catch
             {
                 scale = (float)1.0;
             }
-            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth/scale;
+            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth/scale+2000;
             float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight/scale;
             foreach (Polyline pLine in Polylines)
             {
-
-
-                int noLinesToDraw = pLine.closed ? pLine.noVerticies : (pLine.noVerticies - 1);
-                for (int i = 0; i < noLinesToDraw; i++)
+                for (int i = 0; i < pLine.laserLines.Count; i++)
                 {
-                    if (i != (noLinesToDraw - 1))
-                    {
-                        //draw indexed point, connect this to the next indexed point
-                        _Graphics.DrawLine(_pen, int.Parse(Math.Round((pLine.verticies[i].Point.X - xOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[i].Point.Y - yOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[i+1].Point.X - xOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[i + 1].Point.Y - yOffset) / scale).ToString()));
-                    }
-                    else
-                    {
-                        //draw indexed point, connect this to the very first point
-                        _Graphics.DrawLine(_pen, int.Parse(Math.Round((pLine.verticies[i].Point.X - xOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[i].Point.Y - yOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[0].Point.X - xOffset) / scale).ToString()), int.Parse(Math.Round((pLine.verticies[0].Point.Y - yOffset) / scale).ToString()));
-                    };
+                    _Graphics.DrawLine(_pen, int.Parse(Math.Round((pLine.laserLines[i].p1.X - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - pLine.laserLines[i].p1.Y - yOffset) / scale).ToString()), int.Parse(Math.Round((pLine.laserLines[i].p2.X - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - pLine.laserLines[i].p2.Y - yOffset) / scale).ToString()));
 
 
                 }
