@@ -365,7 +365,7 @@ namespace dxfTest
 
 
             //Apply direction from bulge sign
-             if (bulge < 0)
+             if (bulge < 0 && (endTheta - startTheta)>0)
              {
                  endTheta -= 2*Math.PI;
              }
