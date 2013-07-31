@@ -15,3 +15,12 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfT
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csproj.GenerateResource.Cache
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.exe
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.pdb
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\dxfTest.exe.config
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.exe
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.pdb
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\dxfTest.exe
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\dxfTest.pdb
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csprojResolveAssemblyReference.cache
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.Form1.resources
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.Properties.Resources.resources
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csproj.GenerateResource.Cache
