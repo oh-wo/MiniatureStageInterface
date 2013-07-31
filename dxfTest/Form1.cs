@@ -14,6 +14,7 @@ namespace dxfTest
     {
         public float drawingWidth = (float)0;
         public float drawingHeight = (float)0;
+        public float lineSpacing = 100;
         public Form1()
         {
             InitializeComponent();
@@ -36,6 +37,9 @@ namespace dxfTest
                     case "AcDbPolyline":
                         GetPolylineProperties(file, i);
                         break;
+                    case "AcDbCircle":
+                        GetCircleProperties(file, i);
+                        break;
                 }
             }
             //Display the results to the user
@@ -45,6 +49,10 @@ namespace dxfTest
                 this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X,line.p1.Y,line.p2.X,line.p2.Y, line.GetLength);
             };
             this.textOutput.Text += String.Format("\r\n");
+            foreach (Circle circle in Circles)
+            {
+                circle.laserLines = ConvertCircleToLines(circle, lineSpacing);
+            }
             foreach (Polyline pline in Polylines)
             {
                 this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed?"closed":"open");
@@ -92,14 +100,14 @@ namespace dxfTest
                         if (i != (pline.noVerticies - 1))
                         {
                             //link to next vertex in list
-                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, 1));
+                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
                         }
                         else
                         {
                             if (pline.closed)
                             {
                                 //link back to the original vertex
-                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, 1));
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
                             }
                         };
                     };
@@ -107,7 +115,7 @@ namespace dxfTest
                 }
 
             };
-            DrawPolyLines();
+            DrawDrawing();
             //panel1.Invalidate();
         }
         void panel1_Scroll(object sender, ScrollEventArgs e)
@@ -123,6 +131,7 @@ namespace dxfTest
         public List<Line> Lines = new List<Line>();
         public List<Polyline> Polylines = new List<Polyline>();
         public List<Arc> Arcs = new List<Arc>();
+        public List<Circle> Circles = new List<Circle>();
         public const int LaserPrecision = 10;
         
         public class Polyline
@@ -164,6 +173,14 @@ namespace dxfTest
             public double sweepAngle { get; set; }
             public List<Line> laserLines { get; set; }
         }
+        public class Circle
+        {
+            public PointF center { get; set; }
+            public double diameter { get; set; }
+            public double? startAngle { get; set; }
+            public double? endAngle { get; set; }
+            public List<Line> laserLines { get; set; }
+        }
 
         public void GetLineProperties(string[] file, int startLine)
         {
@@ -201,7 +218,9 @@ namespace dxfTest
                     case "21"://second y coord
                         tempPoint = line.p2;
                         tempPoint.Y = float.Parse(file[lineNo + 1].Trim());
-                        line.p1 = tempPoint;
+                        line.p2 = tempPoint;
+                        break;
+                    case "0":
                         line.readComplete = true;//we're all done now
                         break;
                 }
@@ -258,7 +277,7 @@ namespace dxfTest
             };
             Polylines.Add(pline);
         }
-        public void GetArcProperties(string[] file, int startLine)
+       /* public void GetArcProperties(string[] file, int startLine)
         {
             //read from startLine until end of line is reached
             bool done = false;
@@ -297,6 +316,60 @@ namespace dxfTest
                 lineNo++;   //in future can move in 2s probably
             };
             Arcs.Add(arc);
+        }*/
+        public void GetCircleProperties(string[] file, int startLine)
+        {
+            //read from startLine until end of line is reached
+            bool done = false;
+            int lineNo = startLine;
+            Circle circle = new Circle();
+            bool readComplete = false;
+            PointF tempPoint; 
+
+            while (!done)
+            {
+                switch (file[lineNo].Trim())//assumes that line is always in the following structure.
+                {
+                    case "39"://thickness, optional & default =0
+                        //disregard
+                        break;
+                    case "10"://center point x value
+                        circle.center = new PointF
+                        {
+                            X = float.Parse(file[lineNo + 1].Trim()),
+                        };
+                        break;
+                    case "20"://center point y value
+                        tempPoint = circle.center;
+                        circle.center = new PointF()
+                        {
+                            X=tempPoint.X,
+                            Y = float.Parse(file[lineNo + 1].Trim()),
+                        };
+                        break;
+                    case "30"://center point z value
+                        //neglect
+                        break;
+                    case "40"://radius
+                        circle.diameter = double.Parse(file[lineNo + 1].Trim()) * 2;
+                        break;
+                    case "AcDbArc":
+                        //is an arc- not a circle.. do nothing. 
+                        break;
+                    case "50":
+                        circle.startAngle = double.Parse(file[lineNo + 1].Trim());
+                        break;
+                    case"51":
+                        circle.endAngle = double.Parse(file[lineNo + 1].Trim());
+                        break;
+                    case "0"://all done now.. 
+                        readComplete = true;
+                        break;
+                }
+                if (readComplete) { break; }
+                lineNo++;   //in future can move in 2s probably
+            };
+            Circles.Add(circle);
         }
 
         public void GetDrawingUnits(string[] file, int startLine)
@@ -341,29 +414,6 @@ namespace dxfTest
              {
                  endTheta += Math.PI;
              }
-             /*if ((start.X - center.X) < 0 && (start.Y - center.Y)>0)
-              { 
-                  startTheta += Math.PI; 
-              }else{
-                  if (((start.X - center.X) < 0 && (start.Y - center.Y) < 0))
-                  {
-                      startTheta = Math.PI - Math.Abs(startTheta);
-                 }
-              }
-              if ((end.X - center.X) < 0 && (end.Y - center.Y) > 0)
-              {
-                  endTheta += Math.PI;
-              }
-              else
-              {
-                  if (((end.X - center.X) < 0 && (end.Y - center.Y) < 0))
-                  {
-                      endTheta = Math.PI - Math.Abs(endTheta);
-                  }
-              }*/
-             //So now we need to move between startTheta and endTheta, at points of size "lineSpacing", saving each of these points to the output line list
-
-
             //Apply direction from bulge sign
              if (bulge < 0 && (endTheta - startTheta)>0)
              {
@@ -380,9 +430,11 @@ namespace dxfTest
                 //all good
             };
 
-            double thetaIncrement = (endTheta - startTheta) / noLines;
-            double currentTheta = startTheta;
-            double nextTheta;
+            double thetaIncrement = (endTheta - startTheta) / noLines;//the increment for each line wrt the center point
+            double currentTheta = startTheta;//current theta, eqivalent to theoretical angles[i]
+            double nextTheta;//angle following the current theta, equivalent to theoretical angles[i+1]
+
+            //Make all the lines from the given information. (Finally!)
             for (int i = 0; i <noLines ; i++)
             {
                 nextTheta = currentTheta+thetaIncrement;
@@ -405,6 +457,48 @@ namespace dxfTest
 
             return output;
         }
+        public List<Line> ConvertCircleToLines(Circle circle, float lineSpacing)
+        {
+            /*
+             * Function converts a circle (ie defined by a center point and radius)
+             * to a bunch of lines approximating the circle's perimeter
+             * */
+            //create output list
+            List<Line> output = new List<Line>();
+            //convert incoming properties
+            float radius = (float)circle.diameter / 2;
+            //working variables
+
+            double startTheta = circle.startAngle != null ? (double)circle.startAngle : 0;
+            double endTheta = circle.endAngle != null ? (double)circle.endAngle : 0;
+            double currentTheta = startTheta;//current theta, eqivalent to theoretical angles[i]
+            double nextTheta;//angle following the current theta, equivalent to theoretical angles[i+1]
+            double arcLength = circle.startAngle == null ? (Math.PI * 2) * radius : Math.Abs((double)(circle.endAngle - circle.startAngle)) * radius * Math.PI / 180;//need to convert to radians
+            int noLines = int.Parse(Math.Round((arcLength / lineSpacing)).ToString());
+            double thetaIncrement = (arcLength/radius) / noLines;//the increment for each line wrt the center point
+
+            //Make all the lines from the given information. (Finally!)
+            for (int i = 0; i < noLines; i++)
+            {
+                nextTheta = currentTheta + thetaIncrement;
+                Line line = new Line()
+                {
+                    p1 = new PointF()
+                    {
+                        X = (float)(radius * Math.Cos(currentTheta) + circle.center.X),
+                        Y = (float)(radius * Math.Sin(currentTheta) + circle.center.Y),
+                    },
+                    p2 = new PointF()
+                    {
+                        X = (float)(radius * Math.Cos(nextTheta) + circle.center.X),
+                        Y = (float)(radius * Math.Sin(nextTheta) + circle.center.Y),
+                    },
+                };
+                currentTheta = nextTheta;
+                output.Add(line);
+            }
+            return output;
+        }
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -413,23 +507,23 @@ namespace dxfTest
 
         public void textScale_textChanged(object sender, EventArgs e)
         {
-            DrawPolyLines();
+            DrawDrawing();
         }
         public void vScrollBar1_valueChanged(object sender, EventArgs e)
         {
-                DrawPolyLines();
+                DrawDrawing();
             
         }
         public void hScrollBar1_valueChanged(object sender, EventArgs e)
         {
-            DrawPolyLines();
+            DrawDrawing();
         }
 
         Pen _pen = new Pen(Color.Black, 1);
         private Graphics _Graphics;
         private Bitmap image;
         
-        public void DrawPolyLines()
+        public void DrawDrawing()
         {
              _Graphics = Graphics.FromImage(image);
             _Graphics.Clear(System.Drawing.Color.White);
@@ -449,14 +543,28 @@ namespace dxfTest
             {
                 for (int i = 0; i < pLine.laserLines.Count; i++)
                 {
-                    _Graphics.DrawLine(_pen, int.Parse(Math.Round((pLine.laserLines[i].p1.X - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - pLine.laserLines[i].p1.Y - yOffset) / scale).ToString()), int.Parse(Math.Round((pLine.laserLines[i].p2.X - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - pLine.laserLines[i].p2.Y - yOffset) / scale).ToString()));
-
-
+                    DrawLine(pLine.laserLines[i].p1.X, pLine.laserLines[i].p1.Y, pLine.laserLines[i].p2.X, pLine.laserLines[i].p2.Y,xOffset,yOffset,scale);
+                }
+            }
+            foreach (Line line in Lines)
+            {
+                DrawLine(line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, xOffset, yOffset, scale);
+            }
+            foreach(Circle circle in Circles)
+            {
+                for (int i = 0; i < circle.laserLines.Count; i++)
+                {
+                    DrawLine(circle.laserLines[i].p1.X, circle.laserLines[i].p1.Y, circle.laserLines[i].p2.X, circle.laserLines[i].p2.Y, xOffset, yOffset, scale);
                 }
             }
             this.pictureBox1.Image = image;
             this.pictureBox1.Refresh();
             this.pictureBox1.Invalidate();
+        }
+
+        public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale)
+        {
+            _Graphics.DrawLine(_pen, int.Parse(Math.Round((X1 - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - Y1 - yOffset) / scale).ToString()), int.Parse(Math.Round((X2 - xOffset) / scale).ToString()), int.Parse(Math.Round((drawingHeight - Y2 - yOffset) / scale).ToString()));
         }
         public void pictureBox1_Paint(object sender, EventArgs e)
         {
