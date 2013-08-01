@@ -25,3 +25,4 @@ C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest
 C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.Properties.Resources.resources
 C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csproj.GenerateResource.Cache
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csprojResolveAssemblyReference.cache
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\MetroFramework.dll
