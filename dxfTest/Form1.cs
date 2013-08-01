@@ -518,9 +518,9 @@ namespace dxfTest
                             Point = new PointF
                             {
                                 X = (float.Parse(file[lineNo + 1].Trim())),//* units.LinearConversionFactor
-                                Y = (float.Parse(file[lineNo + 3].Trim())),
+                                Y = (float.Parse(file[lineNo + 3].Trim()) ),
                             },
-                            Buldge = file[lineNo + 4].Trim() == "42" ? (Val42 * units.LinearConversionFactor) : null,
+                            Buldge = file[lineNo + 4].Trim() == "42" ? (Val42 ) : null,
                         };
                         if(pt.Point.Y>drawingHeight){drawingHeight=pt.Point.Y;};//find drawing height
                         if(pt.Point.Y>drawingWidth){drawingWidth=pt.Point.X;};//find drawing width
@@ -759,7 +759,7 @@ namespace dxfTest
             //Apply direction from bulge sign
              if (bulge < 0 && (endTheta - startTheta)>0)
              {
-                 endTheta -= 2*Math.PI;
+                 endTheta-= 2*Math.PI;
              }
             //Find the arc length
              double arcLength = (double)radius * Math.Abs(endTheta - startTheta);//this is incorrect - wrong arcs.. (basic math ok..)
@@ -913,8 +913,9 @@ namespace dxfTest
             {
                 scale = (float)1.0;
             }
-            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth/scale;
-            float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight/scale;
+            scale /= (pictureBox1.Width - drawingWidth);
+            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth / scale -pictureBox1.Width / 2;// +drawingWidth / (2 * scale);
+            float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight / scale - pictureBox1.Height / 2;
             foreach (Polyline pLine in Polylines)
             {
                 for (int i = 0; i < pLine.laserLines.Count; i++)
@@ -935,7 +936,7 @@ namespace dxfTest
             }
             if (this.checkDisplayOrigin.Checked)
             {
-                DrawOrigin();
+                DrawOrigin(xOffset, yOffset, scale);
             }
             else
             {
@@ -943,7 +944,7 @@ namespace dxfTest
             }
             if (this.checkStageBounds.Checked)
             {
-                DrawStageBounds(xOffset,yOffset,scale);
+                DrawStageBounds(xOffset, yOffset, scale);
             }
             else
             {
@@ -967,16 +968,16 @@ namespace dxfTest
         {
             DrawLine(X1, Y1, X2, Y2, xOffset, yOffset, scale, fromAutoCad, _pen);
         }
-        public void DrawOrigin()
+        public void DrawOrigin(float xOffset, float yOffset, float scale)
         {
             //x-axis
-            _Graphics.DrawLine(xaxisPen, 0, Origin.Y, drawingWidth, Origin.Y);
+            DrawLine(Origin.X - drawingWidth, Origin.Y, Origin.X + drawingWidth, Origin.Y, xOffset, yOffset, scale, false, xaxisPen);
             //y-axis
-            _Graphics.DrawLine(yaxisPen, Origin.X, 0, Origin.X, drawingHeight);
+            DrawLine(Origin.X, Origin.Y - drawingHeight, Origin.X, Origin.Y + drawingHeight, xOffset, yOffset, scale, false, yaxisPen);
         }
         public void DrawStageBounds(float xOffset, float yOffset, float scale)
         {
-            DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[0],xOffset,yOffset,scale,false,stageBoundsPen);//bottom
+            DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[0], xOffset, yOffset, scale, false, stageBoundsPen);//bottom
             DrawLine(stageBounds.X[0], stageBounds.Y[1], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//top
             DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[0], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//left
             DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//right
