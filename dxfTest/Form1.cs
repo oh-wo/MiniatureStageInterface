@@ -17,8 +17,9 @@ namespace dxfTest
         public Color drawingBackgroundColour = Color.FromArgb(34, 41, 51);
         public Color drawingPenColour = Color.White;
         public float drawingHeight = (float)0;
-        public float lineSpacing = 100;
+        public float lineSpacing = 10;
         public Pen _pen;
+
         public Pen yaxisPen;
         public Pen xaxisPen;
         public Pen stageBoundsPen;
@@ -32,6 +33,7 @@ namespace dxfTest
             panel1.Scroll += new ScrollEventHandler(panel1_Scroll);*/
             image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             _pen = new Pen(drawingPenColour, 1);
+            _pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
             xaxisPen = new Pen(System.Drawing.Color.Red, 1);
             yaxisPen = new Pen(System.Drawing.Color.Green, 1);
             stageBoundsPen = new Pen(System.Drawing.Color.Green, 1);
@@ -39,20 +41,20 @@ namespace dxfTest
             file = Readfile();
             InterpretFile();
             this.textLineSpacing.Text = lineSpacing.ToString();
-            
+
             DisplayUnits();
             DrawDrawing();
             //panel1.Invalidate();
         }
         void panel1_Scroll(object sender, ScrollEventArgs e)
         {
-           // panel1.Invalidate();
+            // panel1.Invalidate();
         }
         void panel1_Paint(object sender, PaintEventArgs e)
         {
-           // e.Graphics.TranslateTransform(panel1.AutoScrollPosition.X, panel1.AutoScrollPosition.Y);
-            
-          // e.Graphics.DrawLine(Pens.Black, 0, 0, 1000, 1000);
+            // e.Graphics.TranslateTransform(panel1.AutoScrollPosition.X, panel1.AutoScrollPosition.Y);
+
+            // e.Graphics.DrawLine(Pens.Black, 0, 0, 1000, 1000);
         }
         public List<Line> Lines = new List<Line>();
         public List<Polyline> Polylines = new List<Polyline>();
@@ -63,10 +65,12 @@ namespace dxfTest
         {
             //Angular units
             public int AngularUnitsCode { get; set; }
-            public string AngularUnitsString { get {return _getAngularUnits(AngularUnitsCode);}}
-            private string _getAngularUnits(int code){
-                string angularUnits="";
-                switch(code){
+            public string AngularUnitsString { get { return _getAngularUnits(AngularUnitsCode); } }
+            private string _getAngularUnits(int code)
+            {
+                string angularUnits = "";
+                switch (code)
+                {
                     case 0:
                         angularUnits = "Decimal degrees";
                         break;
@@ -96,13 +100,13 @@ namespace dxfTest
                 switch (code)
                 {
                     case 0:
-                        factor = (float)(Math.PI/180);//"Decimal degrees";
+                        factor = (float)(Math.PI / 180);//"Decimal degrees";
                         break;
                     case 1:
                         //factor = (float);//"Degrees/minutes/seconds";
                         break;
                     case 2:
-                        factor = (float)(Math.PI/200);//"Gradians";
+                        factor = (float)(Math.PI / 200);//"Gradians";
                         break;
                     case 3:
                         factor = (float)1;//"Radians";
@@ -222,22 +226,22 @@ namespace dxfTest
                         factor = (float)1000;//"Kilometers";
                         break;
                     case 8:
-                        factor = (float)(2.5400*Math.Pow(10,-8));//"Microinches";
+                        factor = (float)(2.5400 * Math.Pow(10, -8));//"Microinches";
                         break;
                     case 9:
-                        factor = (float)(2.54*Math.Pow(10,-5));//"Mils";
+                        factor = (float)(2.54 * Math.Pow(10, -5));//"Mils";
                         break;
                     case 10:
                         factor = (float)0.9144;//"Yards";
                         break;
                     case 11:
-                        factor = (float)(1.0*Math.Pow(10,-10));//"Angstroms";
+                        factor = (float)(1.0 * Math.Pow(10, -10));//"Angstroms";
                         break;
                     case 12:
-                        factor = (float)(1.0*Math.Pow(10,-9));//"Nanometers";
+                        factor = (float)(1.0 * Math.Pow(10, -9));//"Nanometers";
                         break;
                     case 13:
-                        factor = (float)(1.0*Math.Pow(10,-6));//"Microns";
+                        factor = (float)(1.0 * Math.Pow(10, -6));//"Microns";
                         break;
                     case 14:
                         factor = (float)0.1;//"Decimeters";
@@ -249,21 +253,21 @@ namespace dxfTest
                         factor = (float)100;//"Hectometers";
                         break;
                     case 17:
-                        factor = (float)(1.0*Math.Pow(10,9));//"Gigameters";
+                        factor = (float)(1.0 * Math.Pow(10, 9));//"Gigameters";
                         break;
                     case 18:
                         factor = (float)149597870700;//"Astronomical units";
                         break;
                     case 19:
-                        factor = (float)(9.4605284*Math.Pow(10,15));//"Light years";
+                        factor = (float)(9.4605284 * Math.Pow(10, 15));//"Light years";
                         break;
                     case 20:
-                        factor = (float)(3.08567758*Math.Pow(10,16));//"Parsecs";
+                        factor = (float)(3.08567758 * Math.Pow(10, 16));//"Parsecs";
                         break;
                 }
                 return factor;
             }
-            
+
         }
         public class Polyline
         {
@@ -276,7 +280,7 @@ namespace dxfTest
         public Units units = new Units();
         public class polyPoint
         {
-            public PointF Point {get;set;}
+            public PointF Point { get; set; }
             public float? Buldge { get; set; }
         }
         public PointF Origin;
@@ -293,7 +297,7 @@ namespace dxfTest
 
         public string[] Readfile()
         {
-            return System.IO.File.ReadAllLines(String.Format("{0}\\Files\\Drawing1.dxf",Application.StartupPath));
+            return System.IO.File.ReadAllLines(String.Format("{0}\\Files\\Drawing1.dxf", Application.StartupPath));
         }
         public void InterpretFile()
         {
@@ -306,9 +310,9 @@ namespace dxfTest
             {
                 switch (file[i])
                 {
-                        //Header properties
+                    //Header properties
                     case "$UCSORG"://location of machining origin
-                        GetOrigin(file,i);
+                        GetOrigin(file, i);
                         break;
                     case "$DIMAUNIT":
                         GetAngleUnits(file, i);
@@ -316,7 +320,7 @@ namespace dxfTest
                     case "$INSUNITS":
                         GetLinearUnits(file, i);
                         break;
-                        //Entities
+                    //Entities
                     case "AcDbLine":
                         GetLineProperties(file, i);//in future return i
                         break;
@@ -330,7 +334,7 @@ namespace dxfTest
             }
             //Display the results to the user
             //g.DrawLine(Pens.Black, 0, 100, 0, 100);
-            
+
             foreach (Line line in Lines)
             {
                 this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
@@ -415,10 +419,10 @@ namespace dxfTest
             public PointF p2 { get; set; }
             //disregard z
             public bool readComplete { get; set; }
-            public double GetLength { get { return length(p1,p2); } }
+            public double GetLength { get { return length(p1, p2); } }
             private static double length(PointF p1, PointF p2)
             {
-                return Math.Sqrt(Math.Pow((p2.X - p1.X), 2.0) + Math.Pow((p2.Y-p1.Y), 2.0));
+                return Math.Sqrt(Math.Pow((p2.X - p1.X), 2.0) + Math.Pow((p2.Y - p1.Y), 2.0));
             }
         }
         public class Arc
@@ -518,12 +522,12 @@ namespace dxfTest
                             Point = new PointF
                             {
                                 X = (float.Parse(file[lineNo + 1].Trim())),//* units.LinearConversionFactor
-                                Y = (float.Parse(file[lineNo + 3].Trim()) ),
+                                Y = (float.Parse(file[lineNo + 3].Trim())),
                             },
-                            Buldge = file[lineNo + 4].Trim() == "42" ? (Val42 ) : null,
+                            Buldge = file[lineNo + 4].Trim() == "42" ? (Val42) : null,
                         };
-                        if(pt.Point.Y>drawingHeight){drawingHeight=pt.Point.Y;};//find drawing height
-                        if(pt.Point.Y>drawingWidth){drawingWidth=pt.Point.X;};//find drawing width
+                        if (pt.Point.Y > drawingHeight) { drawingHeight = pt.Point.Y; };//find drawing height
+                        if (pt.Point.Y > drawingWidth) { drawingWidth = pt.Point.X; };//find drawing width
                         pline.verticies.Add(pt);
                         break;
                     case "0"://all done now.. 
@@ -535,46 +539,46 @@ namespace dxfTest
             };
             Polylines.Add(pline);
         }
-       /* public void GetArcProperties(string[] file, int startLine)
-        {
-            //read from startLine until end of line is reached
-            bool done = false;
-            int lineNo = startLine;
-            Arc arc = new Arc();
-            bool readComplete = false;
+        /* public void GetArcProperties(string[] file, int startLine)
+         {
+             //read from startLine until end of line is reached
+             bool done = false;
+             int lineNo = startLine;
+             Arc arc = new Arc();
+             bool readComplete = false;
 
-            while (!done)
-            {
-                switch (file[lineNo].Trim())//assumes that line is always in the following structure.
-                {
-                    case "39"://thickness, optional & default =0
-                        //disregard
-                        break;
-                    case "10"://center point x value
-                        arc.center = new Point()
-                        {
-                            X = int.Parse(file[lineNo + 1].Trim()),
-                        };
-                        break;
-                    case "20"://center point y value
-                        arc.center = new Point()
-                        {
-                            Y = int.Parse(file[lineNo + 1].Trim()),
-                        };
-                        break;
-                    case "40"://radius
-                        arc.diameter = double.Parse(file[lineNo+1].Trim())*2;
-                        break;
+             while (!done)
+             {
+                 switch (file[lineNo].Trim())//assumes that line is always in the following structure.
+                 {
+                     case "39"://thickness, optional & default =0
+                         //disregard
+                         break;
+                     case "10"://center point x value
+                         arc.center = new Point()
+                         {
+                             X = int.Parse(file[lineNo + 1].Trim()),
+                         };
+                         break;
+                     case "20"://center point y value
+                         arc.center = new Point()
+                         {
+                             Y = int.Parse(file[lineNo + 1].Trim()),
+                         };
+                         break;
+                     case "40"://radius
+                         arc.diameter = double.Parse(file[lineNo+1].Trim())*2;
+                         break;
                     
-                    case "AcDbEntity"://all done now.. 
-                        readComplete = true;
-                        break;
-                }
-                if (readComplete) { break; }
-                lineNo++;   //in future can move in 2s probably
-            };
-            Arcs.Add(arc);
-        }*/
+                     case "AcDbEntity"://all done now.. 
+                         readComplete = true;
+                         break;
+                 }
+                 if (readComplete) { break; }
+                 lineNo++;   //in future can move in 2s probably
+             };
+             Arcs.Add(arc);
+         }*/
         public void GetCircleProperties(string[] file, int startLine)
         {
             //read from startLine until end of line is reached
@@ -582,7 +586,7 @@ namespace dxfTest
             int lineNo = startLine;
             Circle circle = new Circle();
             bool readComplete = false;
-            PointF tempPoint; 
+            PointF tempPoint;
 
             while (!done)
             {
@@ -601,7 +605,7 @@ namespace dxfTest
                         tempPoint = circle.center;
                         circle.center = new PointF()
                         {
-                            X=tempPoint.X,
+                            X = tempPoint.X,
                             Y = float.Parse(file[lineNo + 1].Trim()),
                         };
                         break;
@@ -617,7 +621,7 @@ namespace dxfTest
                     case "50":
                         circle.startAngle = double.Parse(file[lineNo + 1].Trim());
                         break;
-                    case"51":
+                    case "51":
                         circle.endAngle = double.Parse(file[lineNo + 1].Trim());
                         break;
                     case "0"://all done now.. 
@@ -642,7 +646,8 @@ namespace dxfTest
                 switch (file[lineNo].Trim())//assumes that line is always in the following structure.
                 {
                     case "10"://center point x value
-                        Origin = new PointF(){
+                        Origin = new PointF()
+                        {
                             X = float.Parse(file[lineNo + 1].Trim())
                         };
                         break;
@@ -741,58 +746,99 @@ namespace dxfTest
                 X = (start.X + end.X) / 2 + K * (start.Y - end.Y),
                 Y = (start.Y + end.Y) / 2 - K * (start.X - end.X),
             };
-            
+
             //Find the radius of the circle
             double radius = Math.Sqrt(Math.Pow(start.X - center.X, (double)2) + Math.Pow(start.Y - center.Y, (double)2));
 
             //Now we have a circle, but we need an arc. So, relative to the center of the circle and in the direction of the x axis, find the starting angle and ending angle
-             double startTheta = Math.Atan((start.Y-center.Y)/(start.X-center.X));
-             double endTheta = Math.Atan((end.Y - center.Y) / (end.X - center.X));
-             if ((start.X - center.X) < 0)
-             {
-                 startTheta += Math.PI;
-             }
-             if ((end.X - center.X) < 0)
-             {
-                 endTheta += Math.PI;
-             }
+            double startTheta = Math.Abs(Math.Atan((start.Y - center.Y) / (start.X - center.X)));//get absolute accute angles
+            double endTheta = Math.Abs(Math.Atan((end.Y - center.Y) / (end.X - center.X)));//get absolute accute angles
+            
+            //by default - modify later on
+            bool endThetaPos = true;
+            bool startThetaPos = true;
+
+            //Find out which quadrant each angle is in and convert from acute to in the range 0<180 and 0>-180
+            if (center.X > start.X)
+            {
+                if (start.Y > center.Y)
+                {
+                    //2nd quadrant
+                    startTheta = Math.PI - startTheta;
+                    startThetaPos = true;
+                }
+                else
+                {
+                    //3rd quadrant
+                    startTheta = -(Math.PI - startTheta);
+                    startThetaPos = false;
+                }
+            }
+            if (start.Y < center.Y)
+                startThetaPos = false;//4th quadrant
+
+            if (center.X > end.X)
+            {
+                if (end.Y  > center.Y)
+                {
+                    //2nd quadrant
+                    endTheta = Math.PI - endTheta;
+                    endThetaPos = true;
+                }
+                else
+                {
+                    //3rd quadrant
+                    endTheta = -(Math.PI - endTheta);
+                    endThetaPos = true;
+                }
+            }
+            if (start.Y < center.Y)
+                endThetaPos = false;//4th quadrant.
+            
             //Apply direction from bulge sign
-             if (bulge < 0 && (endTheta - startTheta)>0)
-             {
-                 endTheta-= 2*Math.PI;
-             }
+            /*if (bulge < 0 && (endTheta - startTheta)>0)
+            {
+                endTheta-= 2*Math.PI;
+            }*/
+           
             //Find the arc length
-             double arcLength = (double)radius * Math.Abs(endTheta - startTheta);//this is incorrect - wrong arcs.. (basic math ok..)
+            double rawAngle = (startThetaPos && endThetaPos) || (!startThetaPos && !endThetaPos) ? Math.Abs(Math.Abs(endTheta) - Math.Abs(startTheta)) : Math.Abs(Math.Abs(endTheta) + Math.Abs(startTheta));
+            double includedAngle = (bulge > 0 && startThetaPos) ? rawAngle : Math.PI * 2 - rawAngle;
+            double arcLength = (double)radius * Math.Abs(includedAngle);//this is incorrect - wrong arcs.. (basic math ok..)
             //Find number of lines to split the arc up into (this is actually n-1)
-            int noLines = int.Parse(Math.Round((arcLength / lineSpacing)).ToString());
-            if(noLines==0){
+            int noLines = int.Parse(Math.Round((arcLength / (lineSpacing))).ToString());
+            if (noLines == 0)
+            {
                 //need at least one line
                 noLines++;
-            }else{
+            }
+            else
+            {
                 //all good
             };
 
-            double thetaIncrement = (endTheta - startTheta) / noLines;//the increment for each line wrt the center point
-            double currentTheta = startTheta;//current theta, eqivalent to theoretical angles[i]
+            double thetaIncrement = (bulge < 0 ? -1 : 1) * arcLength / (radius * noLines);//the increment for each line wrt the center point
+            double currentTheta = (startThetaPos?1:-1)* startTheta;//current theta, eqivalent to theoretical angles[i]
             double nextTheta;//angle following the current theta, equivalent to theoretical angles[i+1]
 
             //Make all the lines from the given information. (Finally!)
-            for (int i = 0; i <noLines ; i++)
+            for (int i = 0; i < noLines; i++)
             {
-                nextTheta = currentTheta+thetaIncrement;
-                Line line = new Line()
-                {
-                    p1 = new PointF()
-                    {
-                        X = (float)(radius * Math.Cos(currentTheta) + center.X),
-                        Y = (float)(radius * Math.Sin(currentTheta) + center.Y),
-                    },
-                    p2 = new PointF()
-                    {
-                        X = (float)(radius * Math.Cos(nextTheta) + center.X),
-                        Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
-                    },
-                };
+                nextTheta = currentTheta + thetaIncrement;
+                
+               Line line = new Line()
+               {
+                   p1 = new PointF()
+                   {
+                       X = (float)(radius * Math.Cos(currentTheta) + center.X),
+                       Y = (float)(radius * Math.Sin(currentTheta) + center.Y),
+                   },
+                   p2 = new PointF()
+                   {
+                       X = (float)(radius * Math.Cos(nextTheta) + center.X),
+                       Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
+                   },
+               };
                 currentTheta = nextTheta;
                 output.Add(line);
             }
@@ -817,7 +863,7 @@ namespace dxfTest
             double nextTheta;//angle following the current theta, equivalent to theoretical angles[i+1]
             double arcLength = circle.startAngle == null ? (Math.PI * 2) * radius : Math.Abs((double)(circle.endAngle - circle.startAngle)) * radius * Math.PI / 180;//need to convert to radians
             int noLines = int.Parse(Math.Round((arcLength / lineSpacing)).ToString());
-            double thetaIncrement = (arcLength/radius) / noLines;//the increment for each line wrt the center point
+            double thetaIncrement = (arcLength / radius) / noLines;//the increment for each line wrt the center point
 
             //Make all the lines from the given information. (Finally!)
             for (int i = 0; i < noLines; i++)
@@ -844,7 +890,7 @@ namespace dxfTest
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+
         }
 
         public void textScale_LostFocus(object sender, EventArgs e)
@@ -853,8 +899,8 @@ namespace dxfTest
         }
         public void vScrollBar1_valueChanged(object sender, EventArgs e)
         {
-                DrawDrawing();
-            
+            DrawDrawing();
+
         }
         public void hScrollBar1_valueChanged(object sender, EventArgs e)
         {
@@ -893,41 +939,63 @@ namespace dxfTest
         {
             DrawDrawing();
         }
+        public void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
+        {
+            int newScale = (int.Parse(this.textScale.Text) - e.Delta / 10);
+            if (newScale > 0)
+            {
+                if (int.Parse(this.textScale.Text) > 8)
+                {
+                    //do big scrolling
+                    this.textScale.Text = newScale.ToString();
+                }
+                else
+                {
+                    //do tiny scrolling
+                    this.textScale.Text = (int.Parse(this.textScale.Text) - e.Delta / 80).ToString();
+                }
+            }
+            DrawDrawing();
+        }
+        public void pictureBox1_MouseEnter(object sender, EventArgs e)
+        {
+            this.ActiveControl = this.pictureBox1;
+        }
 
         private Graphics _Graphics;
         private Bitmap image;
-        
+
         public void DrawDrawing()
         {
-             _Graphics = Graphics.FromImage(image);
-             
-             _Graphics.Clear(drawingBackgroundColour);
-             
+            _Graphics = Graphics.FromImage(image);
+
+            _Graphics.Clear(drawingBackgroundColour);
+
             float scale;
             try
             {
-                 scale= float.Parse(this.textScale.Text.Trim());
-                 if (scale == (float)0) { scale = 1; };
+                scale = float.Parse(this.textScale.Text.Trim());
+                if (scale == (float)0) { scale = 1; };
             }
             catch
             {
                 scale = (float)1.0;
             }
             scale /= (pictureBox1.Width - drawingWidth);
-            float xOffset = (float)this.hScrollBar1.Value / 100 * drawingWidth / scale -pictureBox1.Width / 2;// +drawingWidth / (2 * scale);
-            float yOffset = (float)this.vScrollBar1.Value / 100 * drawingHeight / scale - pictureBox1.Height / 2;
+            float xOffset = (float)this.hScrollBar1.Value / 100 * pictureBox1.Width / 2; // // +drawingWidth / (2 * scale);
+            float yOffset = (float)this.vScrollBar1.Value / 100 * pictureBox1.Height / 2;//
             foreach (Polyline pLine in Polylines)
             {
                 for (int i = 0; i < pLine.laserLines.Count; i++)
                 {
-                    DrawLine(pLine.laserLines[i].p1.X, pLine.laserLines[i].p1.Y, pLine.laserLines[i].p2.X, pLine.laserLines[i].p2.Y, xOffset, yOffset, scale,true);
+                    DrawLine(pLine.laserLines[i].p1.X, pLine.laserLines[i].p1.Y, pLine.laserLines[i].p2.X, pLine.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
                 }
             }
             foreach (Line line in Lines)
             {
                 DrawLine(line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, xOffset, yOffset, scale, true);
             }
-            foreach(Circle circle in Circles)
+            foreach (Circle circle in Circles)
             {
                 for (int i = 0; i < circle.laserLines.Count; i++)
                 {
@@ -955,17 +1023,19 @@ namespace dxfTest
             this.pictureBox1.Invalidate();
         }
 
-        public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale,bool fromAutoCad, Pen pen)
+        public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, Pen pen)
         {
+
             //if from autocad then have to flip the y-axis
-            int x1 = int.Parse(Math.Round((X1 - xOffset) / scale).ToString());
-            int y1 = !fromAutoCad ? int.Parse(Math.Round((Y1 - yOffset) / scale).ToString()) : int.Parse(Math.Round((drawingHeight - Y1 - yOffset) / scale).ToString());
-            int x2 = int.Parse(Math.Round((X2 - xOffset) / scale).ToString());
-            int y2 = !fromAutoCad ? int.Parse(Math.Round((Y2 - yOffset) / scale).ToString()) : int.Parse(Math.Round((drawingHeight - Y2 - yOffset) / scale).ToString());
+            int x1 = int.Parse(Math.Round((X1 - xOffset) / scale + pictureBox1.Width / 2).ToString());
+            int y1 = !fromAutoCad ? int.Parse(Math.Round((Y1 - yOffset) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y1 - yOffset) / scale + pictureBox1.Height / 2).ToString());
+            int x2 = int.Parse(Math.Round((X2 - xOffset) / scale + pictureBox1.Width / 2).ToString());
+            int y2 = !fromAutoCad ? int.Parse(Math.Round((Y2 - yOffset) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y2 - yOffset) / scale + pictureBox1.Height / 2).ToString());
             _Graphics.DrawLine(pen, x1, y1, x2, y2);
         }
         public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad)
         {
+
             DrawLine(X1, Y1, X2, Y2, xOffset, yOffset, scale, fromAutoCad, _pen);
         }
         public void DrawOrigin(float xOffset, float yOffset, float scale)
@@ -983,7 +1053,7 @@ namespace dxfTest
             DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//right
 
         }
-        
-        
+
+
     }
 }

@@ -58,6 +58,8 @@
             this.pictureBox1.Size = new System.Drawing.Size(517, 520);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseEnter += new System.EventHandler(this.pictureBox1_MouseEnter);
+            this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseWheel);
             // 
             // textScale
             // 
@@ -65,7 +67,7 @@
             this.textScale.Name = "textScale";
             this.textScale.Size = new System.Drawing.Size(44, 20);
             this.textScale.TabIndex = 2;
-            this.textScale.Text = "10";
+            this.textScale.Text = "200";
             this.textScale.LostFocus += new System.EventHandler(this.textScale_LostFocus);
             // 
             // vScrollBar1
@@ -130,7 +132,7 @@
             this.checkDisplayOrigin.TabIndex = 9;
             this.checkDisplayOrigin.Text = "origin";
             this.checkDisplayOrigin.UseVisualStyleBackColor = true;
-            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(checkDisplayOrigin_CheckedChanged);
+            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(this.checkDisplayOrigin_CheckedChanged);
             // 
             // checkStageBounds
             // 
@@ -143,7 +145,7 @@
             this.checkStageBounds.TabIndex = 9;
             this.checkStageBounds.Text = "stage bounds";
             this.checkStageBounds.UseVisualStyleBackColor = true;
-            this.checkStageBounds.CheckedChanged += new System.EventHandler(checkStageBounds_CheckedChanged);
+            this.checkStageBounds.CheckedChanged += new System.EventHandler(this.checkStageBounds_CheckedChanged);
             // 
             // Form1
             // 
