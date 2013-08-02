@@ -751,8 +751,8 @@ namespace dxfTest
             double radius = Math.Sqrt(Math.Pow(start.X - center.X, (double)2) + Math.Pow(start.Y - center.Y, (double)2));
 
             //Now we have a circle, but we need an arc. So, relative to the center of the circle and in the direction of the x axis, find the starting angle and ending angle
-            double startTheta = Math.Abs(Math.Atan((start.Y - center.Y) / (start.X - center.X)));//get absolute accute angles
-            double endTheta = Math.Abs(Math.Atan((end.Y - center.Y) / (end.X - center.X)));//get absolute accute angles
+            double startTheta = Math.Abs(Math.Atan((Math.Abs(start.Y - center.Y) / (Math.Abs(start.X - center.X)))));//get absolute accute angles
+            double endTheta = Math.Abs(Math.Atan((Math.Abs(end.Y - center.Y) / (Math.Abs(end.X - center.X)))));//get absolute accute angles
             
             //by default - modify later on
             bool endThetaPos = true;
@@ -770,7 +770,7 @@ namespace dxfTest
                 else
                 {
                     //3rd quadrant
-                    startTheta = -(Math.PI - startTheta);
+                    startTheta = Math.Abs(-(Math.PI - startTheta));
                     startThetaPos = false;
                 }
             }
@@ -788,11 +788,11 @@ namespace dxfTest
                 else
                 {
                     //3rd quadrant
-                    endTheta = -(Math.PI - endTheta);
+                    endTheta = Math.Abs(-(Math.PI - endTheta));
                     endThetaPos = true;
                 }
             }
-            if (start.Y < center.Y)
+            if (end.Y < center.Y)
                 endThetaPos = false;//4th quadrant.
             
             //Apply direction from bulge sign
