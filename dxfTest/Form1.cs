@@ -348,70 +348,73 @@ namespace dxfTest
             {
                 this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed ? "closed" : "open");
                 pline.laserLines = new List<Line>();
-                for (int i = 0; i < pline.noVerticies; i++)
+                if (pline.noVerticies > 0)
                 {
-                    //display verticies to the user
-                    this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].Point.X, pline.verticies[i].Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
-
-
-                    //convert vertex to laser line and convert bulges to lines if necessary. 
-
-                    if (pline.verticies[i].Buldge == null)
+                    for (int i = 0; i < pline.noVerticies; i++)
                     {
-                        Line laserLine = new Line();
-                        //straight line
-                        laserLine.p1 = new PointF
+                        //display verticies to the user
+                        this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].Point.X, pline.verticies[i].Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
+
+
+                        //convert vertex to laser line and convert bulges to lines if necessary. 
+
+                        if (pline.verticies[i].Buldge == null)
                         {
-                            X = pline.verticies[i].Point.X,
-                            Y = pline.verticies[i].Point.Y,
-                        };
-                        if (i != (pline.noVerticies - 1))
-                        {
-                            //link to next vertex in list
-                            laserLine.p2 = new PointF
+                            Line laserLine = new Line();
+                            //straight line
+                            laserLine.p1 = new PointF
                             {
-                                X = pline.verticies[i + 1].Point.X,
-                                Y = pline.verticies[i + 1].Point.Y,
+                                X = pline.verticies[i].Point.X,
+                                Y = pline.verticies[i].Point.Y,
                             };
-                        }
-                        else
-                        {
-                            if (pline.closed)
+                            if (i != (pline.noVerticies - 1))
                             {
-                                //link back to the original vertex
+                                //link to next vertex in list
                                 laserLine.p2 = new PointF
                                 {
-                                    X = pline.verticies[0].Point.X,
-                                    Y = pline.verticies[0].Point.Y,
+                                    X = pline.verticies[i + 1].Point.X,
+                                    Y = pline.verticies[i + 1].Point.Y,
                                 };
                             }
                             else
                             {
-                                //do nothing
-                            }
-                        };
-                        pline.laserLines.Add(laserLine);
-                    }
-                    else
-                    {
-                        if (i != (pline.noVerticies - 1))
-                        {
-                            //link to next vertex in list
-                            pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
+                                if (pline.closed)
+                                {
+                                    //link back to the original vertex
+                                    laserLine.p2 = new PointF
+                                    {
+                                        X = pline.verticies[0].Point.X,
+                                        Y = pline.verticies[0].Point.Y,
+                                    };
+                                }
+                                else
+                                {
+                                    //do nothing
+                                }
+                            };
+                            pline.laserLines.Add(laserLine);
                         }
                         else
                         {
-                            if (pline.closed)
+                            if (i != (pline.noVerticies - 1))
                             {
-                                //link back to the original vertex
-                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
+                                //link to next vertex in list
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
                             }
+                            else
+                            {
+                                if (pline.closed)
+                                {
+                                    //link back to the original vertex
+                                    pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Buldge ?? (float)0, lineSpacing));
+                                }
+                            };
                         };
-                    };
 
-                }
+                    }
 
-            };
+                };
+            }
         }
         public class Line
         {
@@ -506,6 +509,7 @@ namespace dxfTest
                         break;
                     case "70"://polyline flag - 0:open, 1:closed, 128:Plinegen
                         pline.closed = (file[lineNo + 1].Trim() == "1");//assuming Plinegen never comes up
+                        lineNo++;//otherwise this sets of the readcomplete switch if the polyline is open (0)
                         break;
                     case "43"://constant width ?
                         //disregard because this is laser machining after all
@@ -537,6 +541,13 @@ namespace dxfTest
                 if (pline.readComplete) { break; }
                 lineNo++;   //in future can move in 2s probably
             };
+            /*This was to remove double points if in autocad the user had effectively closed the polyline, but then pressed "cl" afterwards - putting two points on the same location
+             * 
+             * if (pline.verticies.First().Point.X == pline.verticies.Last().Point.X && pline.verticies.First().Point.Y == pline.verticies.Last().Point.Y)
+            {
+                pline.verticies.Remove(pline.verticies.Last());
+                pline.noVerticies--;
+            }*/
             Polylines.Add(pline);
         }
         /* public void GetArcProperties(string[] file, int startLine)
@@ -789,7 +800,7 @@ namespace dxfTest
                 {
                     //3rd quadrant
                     endTheta = Math.Abs(-(Math.PI - endTheta));
-                    endThetaPos = true;
+                    endThetaPos = false;
                 }
             }
             if (end.Y < center.Y)
@@ -803,7 +814,7 @@ namespace dxfTest
            
             //Find the arc length
             double rawAngle = (startThetaPos && endThetaPos) || (!startThetaPos && !endThetaPos) ? Math.Abs(Math.Abs(endTheta) - Math.Abs(startTheta)) : Math.Abs(Math.Abs(endTheta) + Math.Abs(startTheta));
-            double includedAngle = (bulge > 0 && startThetaPos) ? rawAngle : Math.PI * 2 - rawAngle;
+            double includedAngle = (Math.Abs(bulge) > 1) ? (rawAngle > Math.PI ? rawAngle : Math.PI * 2 - rawAngle) : (rawAngle < Math.PI ? rawAngle : Math.PI * 2 - rawAngle);//Greater than 1, return major radius
             double arcLength = (double)radius * Math.Abs(includedAngle);//this is incorrect - wrong arcs.. (basic math ok..)
             //Find number of lines to split the arc up into (this is actually n-1)
             int noLines = int.Parse(Math.Round((arcLength / (lineSpacing))).ToString());

@@ -67,7 +67,7 @@
             this.textScale.Name = "textScale";
             this.textScale.Size = new System.Drawing.Size(44, 20);
             this.textScale.TabIndex = 2;
-            this.textScale.Text = "200";
+            this.textScale.Text = "3";
             this.textScale.LostFocus += new System.EventHandler(this.textScale_LostFocus);
             // 
             // vScrollBar1
