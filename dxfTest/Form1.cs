@@ -8,10 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using MetroFramework;
-
+using System.Threading;
 namespace dxfTest
 {
-    public partial class Form1 : MetroFramework.Forms.MetroForm
+    public partial class Form1 : MetroFramework.Forms.MetroForm, IForm1
     {
         public float drawingWidth = (float)0;
         public Color drawingBackgroundColour = Color.FromArgb(34, 41, 51);
@@ -19,25 +19,35 @@ namespace dxfTest
         public float drawingHeight = (float)0;
         public float lineSpacing = 10;
         public Pen _pen;
+        /*
+        System.Threading.Timer t1 = new System.Threading.Timer(timerDelegate, null, 0, 200);
+        static TimerCallback timerDelegate =  new TimerCallback(TimerTick);
+        
+        public static void TimerTick(Object stateInfo)
+        {
+            SerialComs.SetLaserPointValues();
+        }*/
 
         public Pen yaxisPen;
         public Pen xaxisPen;
+        public Pen _laserPen;
         public Pen stageBoundsPen;
         string[] file;
         public Form1()
         {
             InitializeComponent();
-            /*panel1.AutoScroll = true;
-            panel1.AutoScrollMinSize = new Size(1000, 1000);
-            panel1.Paint += new PaintEventHandler(panel1_Paint);
-            panel1.Scroll += new ScrollEventHandler(panel1_Scroll);*/
+            //SERIAL stuff
+            DisplayAvailableSerialPorts();
+
+            
+            //DXF stuff
             image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
             _pen = new Pen(drawingPenColour, 1);
             _pen.StartCap = System.Drawing.Drawing2D.LineCap.Round;
+            _laserPen = new Pen(System.Drawing.Color.Aquamarine, 5);
             xaxisPen = new Pen(System.Drawing.Color.Red, 1);
             yaxisPen = new Pen(System.Drawing.Color.Green, 1);
             stageBoundsPen = new Pen(System.Drawing.Color.Green, 1);
-            //stageBoundsPen.DashStyle = System.Drawing.Drawing2D.DashStyle.DashDot;
             file = Readfile();
             InterpretFile();
             this.textLineSpacing.Text = lineSpacing.ToString();
@@ -46,6 +56,44 @@ namespace dxfTest
             DrawDrawing();
             //panel1.Invalidate();
         }
+        #region serial stuff
+        SerialComs sComms;
+        public void DisplayAvailableSerialPorts()
+        {
+            foreach (string comPort in SerialComs.GetAvailableSerialPorts())
+            {
+                this.comboSerialPorts.Items.Add(comPort);
+            }
+            this.comboSerialPorts.SelectedIndex = 1;
+        }
+        private void toggleSerialConnect_Changed(object sender, System.EventArgs e)
+        {
+            if (this.toggleSerialConnect.Checked)
+            {
+                //start serial thread
+                this.comboSerialPorts.Enabled = false;
+                sComms = new SerialComs();
+                sComms.StartComms();
+                this.tabErrythang.SelectedIndex = 1;
+            }
+            else
+            {
+                //stop serial thread
+                sComms.EndComms();
+                this.comboSerialPorts.Enabled = true;
+            }
+        }
+        public string SelectedSerialPort
+        {
+            get
+            {
+                return this.comboSerialPorts.SelectedItem.ToString();
+
+            }
+        }
+        #endregion
+
+        #region dxf stuff
         void panel1_Scroll(object sender, ScrollEventArgs e)
         {
             // panel1.Invalidate();
@@ -289,12 +337,7 @@ namespace dxfTest
             public float[] X { get; set; }//min, max
             public float[] Y { get; set; }//min, max
         }
-        StageBounds stageBounds = new StageBounds()
-        {
-            X = new float[2] { (float)-0.04, (float)0.04 },
-            Y = new float[2] { (float)-0.04, (float)0.04 },
-        };
-
+        
         public string[] Readfile()
         {
             return System.IO.File.ReadAllLines(String.Format("{0}\\Files\\Drawing1.dxf", Application.StartupPath));
@@ -764,7 +807,7 @@ namespace dxfTest
             //Now we have a circle, but we need an arc. So, relative to the center of the circle and in the direction of the x axis, find the starting angle and ending angle
             double startTheta = Math.Abs(Math.Atan((Math.Abs(start.Y - center.Y) / (Math.Abs(start.X - center.X)))));//get absolute accute angles
             double endTheta = Math.Abs(Math.Atan((Math.Abs(end.Y - center.Y) / (Math.Abs(end.X - center.X)))));//get absolute accute angles
-            
+
             //by default - modify later on
             bool endThetaPos = true;
             bool startThetaPos = true;
@@ -790,7 +833,7 @@ namespace dxfTest
 
             if (center.X > end.X)
             {
-                if (end.Y  > center.Y)
+                if (end.Y > center.Y)
                 {
                     //2nd quadrant
                     endTheta = Math.PI - endTheta;
@@ -805,13 +848,13 @@ namespace dxfTest
             }
             if (end.Y < center.Y)
                 endThetaPos = false;//4th quadrant.
-            
+
             //Apply direction from bulge sign
             /*if (bulge < 0 && (endTheta - startTheta)>0)
             {
                 endTheta-= 2*Math.PI;
             }*/
-           
+
             //Find the arc length
             double rawAngle = (startThetaPos && endThetaPos) || (!startThetaPos && !endThetaPos) ? Math.Abs(Math.Abs(endTheta) - Math.Abs(startTheta)) : Math.Abs(Math.Abs(endTheta) + Math.Abs(startTheta));
             double includedAngle = (Math.Abs(bulge) > 1) ? (rawAngle > Math.PI ? rawAngle : Math.PI * 2 - rawAngle) : (rawAngle < Math.PI ? rawAngle : Math.PI * 2 - rawAngle);//Greater than 1, return major radius
@@ -829,27 +872,27 @@ namespace dxfTest
             };
 
             double thetaIncrement = (bulge < 0 ? -1 : 1) * arcLength / (radius * noLines);//the increment for each line wrt the center point
-            double currentTheta = (startThetaPos?1:-1)* startTheta;//current theta, eqivalent to theoretical angles[i]
+            double currentTheta = (startThetaPos ? 1 : -1) * startTheta;//current theta, eqivalent to theoretical angles[i]
             double nextTheta;//angle following the current theta, equivalent to theoretical angles[i+1]
 
             //Make all the lines from the given information. (Finally!)
             for (int i = 0; i < noLines; i++)
             {
                 nextTheta = currentTheta + thetaIncrement;
-                
-               Line line = new Line()
-               {
-                   p1 = new PointF()
-                   {
-                       X = (float)(radius * Math.Cos(currentTheta) + center.X),
-                       Y = (float)(radius * Math.Sin(currentTheta) + center.Y),
-                   },
-                   p2 = new PointF()
-                   {
-                       X = (float)(radius * Math.Cos(nextTheta) + center.X),
-                       Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
-                   },
-               };
+
+                Line line = new Line()
+                {
+                    p1 = new PointF()
+                    {
+                        X = (float)(radius * Math.Cos(currentTheta) + center.X),
+                        Y = (float)(radius * Math.Sin(currentTheta) + center.Y),
+                    },
+                    p2 = new PointF()
+                    {
+                        X = (float)(radius * Math.Cos(nextTheta) + center.X),
+                        Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
+                    },
+                };
                 currentTheta = nextTheta;
                 output.Add(line);
             }
@@ -952,20 +995,8 @@ namespace dxfTest
         }
         public void pictureBox1_MouseWheel(object sender, MouseEventArgs e)
         {
-            int newScale = (int.Parse(this.textScale.Text) - e.Delta / 10);
-            if (newScale > 0)
-            {
-                if (int.Parse(this.textScale.Text) > 8)
-                {
-                    //do big scrolling
-                    this.textScale.Text = newScale.ToString();
-                }
-                else
-                {
-                    //do tiny scrolling
-                    this.textScale.Text = (int.Parse(this.textScale.Text) - e.Delta / 80).ToString();
-                }
-            }
+            float oldScale = float.Parse(this.textScale.Text);
+            this.textScale.Text = (oldScale + (e.Delta > 0 ? 1 : -1) * oldScale * 0.1).ToString();
             DrawDrawing();
         }
         public void pictureBox1_MouseEnter(object sender, EventArgs e)
@@ -973,76 +1004,88 @@ namespace dxfTest
             this.ActiveControl = this.pictureBox1;
         }
 
+        
+
         private Graphics _Graphics;
         private Bitmap image;
 
         public void DrawDrawing()
         {
-            _Graphics = Graphics.FromImage(image);
-
-            _Graphics.Clear(drawingBackgroundColour);
-
-            float scale;
-            try
+            if (InvokeRequired)
             {
-                scale = float.Parse(this.textScale.Text.Trim());
-                if (scale == (float)0) { scale = 1; };
-            }
-            catch
-            {
-                scale = (float)1.0;
-            }
-            scale /= (pictureBox1.Width - drawingWidth);
-            float xOffset = (float)this.hScrollBar1.Value / 100 * pictureBox1.Width / 2; // // +drawingWidth / (2 * scale);
-            float yOffset = (float)this.vScrollBar1.Value / 100 * pictureBox1.Height / 2;//
-            foreach (Polyline pLine in Polylines)
-            {
-                for (int i = 0; i < pLine.laserLines.Count; i++)
-                {
-                    DrawLine(pLine.laserLines[i].p1.X, pLine.laserLines[i].p1.Y, pLine.laserLines[i].p2.X, pLine.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
-                }
-            }
-            foreach (Line line in Lines)
-            {
-                DrawLine(line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, xOffset, yOffset, scale, true);
-            }
-            foreach (Circle circle in Circles)
-            {
-                for (int i = 0; i < circle.laserLines.Count; i++)
-                {
-                    DrawLine(circle.laserLines[i].p1.X, circle.laserLines[i].p1.Y, circle.laserLines[i].p2.X, circle.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
-                }
-            }
-            if (this.checkDisplayOrigin.Checked)
-            {
-                DrawOrigin(xOffset, yOffset, scale);
+                Invoke(new MethodInvoker(() => { DrawDrawing(); }));
             }
             else
             {
-                //user doesn't want to display the origin
+                _Graphics = Graphics.FromImage(image);
+
+                _Graphics.Clear(drawingBackgroundColour);
+
+                float scale;
+                try
+                {
+                    scale = float.Parse(this.textScale.Text.Trim());
+                    if (scale == (float)0) { scale = 1; };
+                }
+                catch
+                {
+                    scale = (float)1.0;
+                }
+                scale /= (pictureBox1.Width - drawingWidth);
+                float xOffset = (float)this.hScrollBar1.Value / 100 * pictureBox1.Width / 2; // // +drawingWidth / (2 * scale);
+                float yOffset = (float)this.vScrollBar1.Value / 100 * pictureBox1.Height / 2;//
+                foreach (Polyline pLine in Polylines)
+                {
+                    for (int i = 0; i < pLine.laserLines.Count; i++)
+                    {
+                        DrawLine(pLine.laserLines[i].p1.X, pLine.laserLines[i].p1.Y, pLine.laserLines[i].p2.X, pLine.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
+                    }
+                }
+                foreach (Line line in Lines)
+                {
+                    DrawLine(line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, xOffset, yOffset, scale, true);
+                }
+                foreach (Circle circle in Circles)
+                {
+                    for (int i = 0; i < circle.laserLines.Count; i++)
+                    {
+                        DrawLine(circle.laserLines[i].p1.X, circle.laserLines[i].p1.Y, circle.laserLines[i].p2.X, circle.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
+                    }
+                }
+                if (this.checkDisplayOrigin.Checked)
+                {
+                    DrawOrigin(xOffset, yOffset, scale);
+                }
+                else
+                {
+                    //user doesn't want to display the origin
+                }
+                if (this.checkStageBounds.Checked)
+                {
+                    DrawStageBounds(xOffset, yOffset, scale);
+                }
+                else
+                {
+                    //user doesn't want to display the origin
+                }
+                DrawLaser(xOffset, yOffset, scale);
+                this.Invoke(new Action(() =>
+                {
+                    this.pictureBox1.Image = image;
+                    this.pictureBox1.Refresh();
+                    this.pictureBox1.Invalidate();
+                }));
             }
-            if (this.checkStageBounds.Checked)
-            {
-                DrawStageBounds(xOffset, yOffset, scale);
-            }
-            else
-            {
-                //user doesn't want to display the origin
-            }
-            this.pictureBox1.Image = image;
-            this.pictureBox1.Refresh();
-            this.pictureBox1.Invalidate();
         }
-
         public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, Pen pen)
         {
 
             //if from autocad then have to flip the y-axis
-            int x1 = int.Parse(Math.Round((X1 - xOffset) / scale + pictureBox1.Width / 2).ToString());
-            int y1 = !fromAutoCad ? int.Parse(Math.Round((Y1 - yOffset) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y1 - yOffset) / scale + pictureBox1.Height / 2).ToString());
-            int x2 = int.Parse(Math.Round((X2 - xOffset) / scale + pictureBox1.Width / 2).ToString());
-            int y2 = !fromAutoCad ? int.Parse(Math.Round((Y2 - yOffset) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y2 - yOffset) / scale + pictureBox1.Height / 2).ToString());
-            _Graphics.DrawLine(pen, x1, y1, x2, y2);
+            float x1 = (X1 - xOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Width / 2;
+            int y1 = !fromAutoCad ? int.Parse(Math.Round((Y1 - yOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y1 - yOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Height / 2).ToString());
+            int x2 = int.Parse(Math.Round((X2 - xOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Width / 2).ToString());
+            int y2 = !fromAutoCad ? int.Parse(Math.Round((Y2 - yOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Height / 2).ToString()) : int.Parse(Math.Round((drawingHeight - Y2 - yOffset) * (fromAutoCad ? units.LinearConversionFactor : 1) / scale + pictureBox1.Height / 2).ToString());
+            _Graphics.DrawLine(pen, int.Parse(Math.Round(x1).ToString()), y1, x2, y2);
         }
         public void DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad)
         {
@@ -1051,20 +1094,92 @@ namespace dxfTest
         }
         public void DrawOrigin(float xOffset, float yOffset, float scale)
         {
-            //x-axis
-            DrawLine(Origin.X - drawingWidth, Origin.Y, Origin.X + drawingWidth, Origin.Y, xOffset, yOffset, scale, false, xaxisPen);
-            //y-axis
-            DrawLine(Origin.X, Origin.Y - drawingHeight, Origin.X, Origin.Y + drawingHeight, xOffset, yOffset, scale, false, yaxisPen);
+            if (SerialComs.stageBounds != null)
+            {
+                float xWidth = (SerialComs.stageBounds.X[1] - SerialComs.stageBounds.X[0]) / 4;
+                float yWidth = (SerialComs.stageBounds.Y[1] - SerialComs.stageBounds.Y[0]) / 4;
+                //x-axis
+                DrawLine(Origin.X - xWidth, Origin.Y, Origin.X + xWidth, Origin.Y, xOffset, yOffset, scale, false, xaxisPen);
+                //y-axis
+                DrawLine(Origin.X, Origin.Y - yWidth, Origin.X, Origin.Y + yWidth, xOffset, yOffset, scale, false, yaxisPen);
+            }
         }
         public void DrawStageBounds(float xOffset, float yOffset, float scale)
         {
-            DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[0], xOffset, yOffset, scale, false, stageBoundsPen);//bottom
-            DrawLine(stageBounds.X[0], stageBounds.Y[1], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//top
-            DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[0], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//left
-            DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//right
+            if (SerialComs.stageBounds != null)
+            {
+                DrawLine(SerialComs.stageBounds.X[0], SerialComs.stageBounds.Y[0], SerialComs.stageBounds.X[1], SerialComs.stageBounds.Y[0], xOffset, yOffset, scale, false, stageBoundsPen);//bottom
+                DrawLine(SerialComs.stageBounds.X[0], SerialComs.stageBounds.Y[1], SerialComs.stageBounds.X[1], SerialComs.stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//top
+                DrawLine(SerialComs.stageBounds.X[0], SerialComs.stageBounds.Y[0], SerialComs.stageBounds.X[0], SerialComs.stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//left
+                DrawLine(SerialComs.stageBounds.X[1], SerialComs.stageBounds.Y[0], SerialComs.stageBounds.X[1], SerialComs.stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen);//right
+            }
+        }
+        public void DrawLaser(float xOffset, float yOffset,float scale)
+        {
+            float xPos = (SerialComs.LaserPt.X - xOffset)/100/scale + pictureBox1.Width / 2;
+            float yPos = (SerialComs.LaserPt.Y - yOffset)/100/scale + pictureBox1.Height / 2;
+            _Graphics.DrawEllipse(_laserPen, new Rectangle(int.Parse(Math.Round(xPos).ToString()), int.Parse(Math.Round(yPos).ToString()), 10, 10));
+        }
+        #endregion
+
+        #region manual control stuff
+        private void but0Xaxis_Click(object sender, EventArgs e)
+        {
 
         }
 
+        private void butYMinus_Click(object sender, EventArgs e)
+        {
 
+        }
+
+        private void butYPlus_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void but0YAxis_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void butXMinus_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void butXPlus_Click(object sender, EventArgs e)
+        {
+            //SerialInterface sI = new SerialComs();
+            //sI.MoveRight();
+            PointF tempPoint = new PointF(){
+                X = (float)(SerialComs.LaserPt.X + 1),
+                Y = (float)(SerialComs.LaserPt.Y + 1),
+            };
+            SerialComs.sp.WriteLine(String.Format("1 mov 1 {0}", tempPoint.X));//SerialComs.LaserPt.X
+            SerialComs.sp.WriteLine(String.Format("2 mov 1 {0}", tempPoint.Y));//SerialComs.LaserPt.X
+            SerialComs.SetLaserPointValues();
+            DrawDrawing();
+        }
+        #endregion
+
+        
+    }
+
+
+
+    public interface IForm1
+    {
+        string SelectedSerialPort { get; }
+        void DrawDrawing();
+    }
+
+    class SomeClass
+    {
+        private readonly IForm1 form;
+        public SomeClass(IForm1 form)
+        {
+            this.form = form;
+        }
     }
 }
