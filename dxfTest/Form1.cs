@@ -11,13 +11,14 @@ using MetroFramework;
 using System.Threading;
 namespace dxfTest
 {
+    
     public partial class Form1 : MetroFramework.Forms.MetroForm, IForm1
     {
         public float drawingWidth = (float)0;
         public Color drawingBackgroundColour = Color.FromArgb(34, 41, 51);
         public Color drawingPenColour = Color.White;
         public float drawingHeight = (float)0;
-        public float lineSpacing = 10;
+        public float lineSpacing = 1;
         public Pen _pen;
         /*
         System.Threading.Timer t1 = new System.Threading.Timer(timerDelegate, null, 0, 200);
@@ -27,18 +28,23 @@ namespace dxfTest
         {
             SerialComs.SetLaserPointValues();
         }*/
-
+        
         public Pen yaxisPen;
         public Pen xaxisPen;
         public Pen _laserPen;
         public Pen stageBoundsPen;
         string[] file;
+        //testing
+        
         public Form1()
         {
             InitializeComponent();
+            updatePosition = new updatePositionDelegate(updatePosition1);
+            
+            
             //SERIAL stuff
             DisplayAvailableSerialPorts();
-
+         
             
             //DXF stuff
             image = new Bitmap(pictureBox1.Width, pictureBox1.Height);
@@ -73,7 +79,7 @@ namespace dxfTest
                 //start serial thread
                 this.comboSerialPorts.Enabled = false;
                 sComms = new SerialComs();
-                sComms.StartComms();
+                sComms.StartComms(this);
                 this.tabErrythang.SelectedIndex = 1;
             }
             else
@@ -345,7 +351,7 @@ namespace dxfTest
         public void InterpretFile()
         {
             //clear text in output textbox
-            this.textOutput.Clear();
+            //this.textOutput.Clear();
             //clear all polylines
             Lines.Clear(); Polylines.Clear(); Arcs.Clear(); Circles.Clear();
             //Read in the file and get all the data out
@@ -380,23 +386,23 @@ namespace dxfTest
 
             foreach (Line line in Lines)
             {
-                this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
+                //this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
             };
-            this.textOutput.Text += String.Format("\r\n");
+            //this.textOutput.Text += String.Format("\r\n");
             foreach (Circle circle in Circles)
             {
                 circle.laserLines = ConvertCircleToLines(circle, lineSpacing);
             }
             foreach (Polyline pline in Polylines)
             {
-                this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed ? "closed" : "open");
+                //this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed ? "closed" : "open");
                 pline.laserLines = new List<Line>();
                 if (pline.noVerticies > 0)
                 {
                     for (int i = 0; i < pline.noVerticies; i++)
                     {
                         //display verticies to the user
-                        this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].Point.X, pline.verticies[i].Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
+                        //this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].Point.X, pline.verticies[i].Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
 
 
                         //convert vertex to laser line and convert bulges to lines if necessary. 
@@ -1018,7 +1024,6 @@ namespace dxfTest
             else
             {
                 _Graphics = Graphics.FromImage(image);
-
                 _Graphics.Clear(drawingBackgroundColour);
 
                 float scale;
@@ -1069,7 +1074,7 @@ namespace dxfTest
                     //user doesn't want to display the origin
                 }
                 DrawLaser(xOffset, yOffset, scale);
-                this.Invoke(new Action(() =>
+                this.pictureBox1.Invoke(new Action(() =>
                 {
                     this.pictureBox1.Image = image;
                     this.pictureBox1.Refresh();
@@ -1116,8 +1121,8 @@ namespace dxfTest
         }
         public void DrawLaser(float xOffset, float yOffset,float scale)
         {
-            float xPos = (SerialComs.LaserPt.X - xOffset)/100/scale + pictureBox1.Width / 2;
-            float yPos = (SerialComs.LaserPt.Y - yOffset)/100/scale + pictureBox1.Height / 2;
+            float xPos = (SerialComs.LaserPt[0] - xOffset) / 100 / scale + pictureBox1.Width / 2;
+            float yPos = (SerialComs.LaserPt[1] - yOffset) / 100 / scale + pictureBox1.Height / 2;
             _Graphics.DrawEllipse(_laserPen, new Rectangle(int.Parse(Math.Round(xPos).ToString()), int.Parse(Math.Round(yPos).ToString()), 10, 10));
         }
         #endregion
@@ -1135,38 +1140,59 @@ namespace dxfTest
 
         private void butYPlus_Click(object sender, EventArgs e)
         {
-
+            SerialComs.isMoving = true;
+            SerialComs.Move(2, true);
         }
 
         private void but0YAxis_Click(object sender, EventArgs e)
         {
-
+            SerialComs.isMoving = true;
+            SerialComs.Move(2, false);
         }
 
         private void butXMinus_Click(object sender, EventArgs e)
         {
-
+            SerialComs.isMoving = true;
+            SerialComs.Move(1, false);
         }
 
         private void butXPlus_Click(object sender, EventArgs e)
         {
-            //SerialInterface sI = new SerialComs();
-            //sI.MoveRight();
-            PointF tempPoint = new PointF(){
-                X = (float)(SerialComs.LaserPt.X + 1),
-                Y = (float)(SerialComs.LaserPt.Y + 1),
-            };
-            SerialComs.sp.WriteLine(String.Format("1 mov 1 {0}", tempPoint.X));//SerialComs.LaserPt.X
-            SerialComs.sp.WriteLine(String.Format("2 mov 1 {0}", tempPoint.Y));//SerialComs.LaserPt.X
-            SerialComs.SetLaserPointValues();
-            DrawDrawing();
+            SerialComs.isMoving = true;
+            SerialComs.Move(1,true);
         }
         #endregion
 
-        
+        void updatePosition1(int i)
+        {
+            
+            
+          labelLaserPos.Text = String.Format("pos ({0},{1})", SerialComs.LaserPt[0], SerialComs.LaserPt[1]);
+          DrawDrawing();
+           
+        }
+        public delegate void updatePositionDelegate(int randomNumber); // delegate type 
+        public updatePositionDelegate updatePosition; // delegate object
     }
+    
 
-
+    public static class ControlExtension
+    {
+        public static void ThreadSafeInvoke(this Control control, MethodInvoker method)
+        {
+            if (control != null)
+            {
+                if (control.InvokeRequired)
+                {
+                    control.Invoke(method);
+                }
+                else
+                {
+                    method.Invoke();
+                }
+            }
+        }
+    }
 
     public interface IForm1
     {
@@ -1182,4 +1208,5 @@ namespace dxfTest
             this.form = form;
         }
     }
+
 }
