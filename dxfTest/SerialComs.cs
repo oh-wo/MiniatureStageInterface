@@ -13,9 +13,34 @@ using System.Collections.ObjectModel;
 
 namespace dxfTest
 {
-    class SerialComs
+    public class SerialComs
     {
+        public event UIEventHandler specEvent;
+        public class myEventArgs : EventArgs
+        {
+            //Use this to update the ui thread - could have any data as required
+            public int Value { get; set; }
+        }
+        public delegate void UIEventHandler(SerialComs sComs, myEventArgs e);
+        public void SpecialEvent()
+        {
 
+        }
+        public void Start()
+        {
+            /*Use to update the ui thread if required */
+            
+            /*myEventArgs e = new myEventArgs();
+            
+            for (int i = 0; i < 10; i++)
+            {
+                e.Value=i;
+                Thread.Sleep(1000);
+                specEvent(this, e);
+            }
+             */
+        }
+    }
     }
 
-}
+
