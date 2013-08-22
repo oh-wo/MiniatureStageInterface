@@ -5,31 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
-
+using System.Threading;
 namespace dxfTest
 {
     public class Dxf
     {
-        // Global variables
-        string[] file;
-        public PointF Origin;
-        public const int LaserPrecision = 10;
-        public static Units units = new Units();
-        public List<Line> Lines = new List<Line>();
-        public List<Polyline> Polylines = new List<Polyline>();
-        public List<Arc> Arcs = new List<Arc>();
-        public List<Circle> Circles = new List<Circle>();
-        public float lineSpacing = 1;
-        //GLobal parameters
-        public Color drawingBackgroundColour = Color.FromArgb(34, 41, 51);
-        public Color drawingPenColour = Color.White;
-        public float lineSpacing = 1;
-        public float drawingHeight = (float)0;
-        public float drawingWidth = (float)0;
-        public Pen yaxisPen;
-        public Pen xaxisPen;
-        public Pen _laserPen;
-        public Pen stageBoundsPen;
+        string[] _file;
+        List<Line> _lines=new List<Line>();
+        List<Polyline> _polylines = new List<Polyline>();
+        List<Arc> _arcs = new List<Arc>();
+        List<Circle> _circles = new List<Circle>();
+        PointF _origin;
+        Units _units = new Units();
+        float _drawingMinX = 9999999;
+        float _drawingMaxX = 0;
+        float _drawingWidth = 0;
+        float _drawingHeight = 0;
+        float _drawingMaxY = 0;
+        float _drawingMinY = 9999999;
+
+        
         //Dxf classes
         public class Polyline
         {
@@ -60,6 +55,9 @@ namespace dxfTest
             {
                 return Math.Sqrt(Math.Pow((p2.X - p1.X), 2.0) + Math.Pow((p2.Y - p1.Y), 2.0));
             }
+            public PointF plotted1 { get; set; }
+            public PointF plotted2 { get; set; }
+            public bool Selected { get; set; }
         }
         public class Arc
         {
@@ -285,57 +283,85 @@ namespace dxfTest
             }
 
         }
-        //Main read and interpret functions
-        public static string[] ReadFile()
+        public class Data
         {
-            return System.IO.File.ReadAllLines(String.Format("{0}\\Files\\Drawing1.dxf", Application.StartupPath));
+            public List<Line> Lines { get; set; }
+            public List<Polyline> Polylines { get; set; }
+            public List<Arc> Arcs { get; set; }
+            public List<Circle> Circles { get; set; }
+            public PointF Origin { get; set; }
+            public Units Units { get; set; }
+            public float DrawingHeight { get; set; }
+            public float DrawingWidth { get; set; }
+        }
+        //Main read and interpret functions
+        public void Start(string fileDirectory)
+        {
+            _file = ReadFile(fileDirectory);
+            InterpretFile();
+            DxfEventArgs e = new DxfEventArgs();
+            e.Circles = _circles;
+            e.Arcs = _arcs;
+            e.Origin = _origin;
+            e.Polylines = _polylines;
+            e.Lines = _lines;
+            e.Units = _units;
+            e.DrawingWidth = _drawingMaxX-_drawingMinX;
+            e.DrawingHeight = _drawingMaxY - _drawingMinY;
+            dxfEvent(this, e);
+            Thread.CurrentThread.Abort();
+        }
+        //Read and interpret functions
+        public string[] ReadFile(string fileDirectory)
+        {
+            return System.IO.File.ReadAllLines(fileDirectory);
         }
         public void InterpretFile()
         {
             //clear text in output textbox
             //this.textOutput.Clear();
             //clear all polylines
-            Lines.Clear(); Polylines.Clear(); Arcs.Clear(); Circles.Clear();
+            _lines.Clear(); _polylines.Clear(); _arcs.Clear(); _circles.Clear();
             //Read in the file and get all the data out
-            for (int i = 0; i < file.Length; i++)
+            for (int i = 0; i < _file.Length; i++)
             {
-                switch (file[i])
+                switch (_file[i])
                 {
                     //Header properties
                     case "$UCSORG"://location of machining origin
-                        GetOrigin(file, i);
+                        GetOrigin(_file, i);
                         break;
                     case "$DIMAUNIT":
-                        GetAngleUnits(file, i);
+                        GetAngleUnits(_file, i);
                         break;
                     case "$INSUNITS":
-                        GetLinearUnits(file, i);
+                        GetLinearUnits(_file, i);
                         break;
                     //Entities
                     case "AcDbLine":
-                        GetLineProperties(file, i);//in future return i
+                        GetLineProperties(_file, i);//in future return i
                         break;
                     case "AcDbPolyline":
-                        GetPolylineProperties(file, i);
+                        GetPolylineProperties(_file, i);
                         break;
                     case "AcDbCircle":
-                        GetCircleProperties(file, i);
+                        GetCircleProperties(_file, i);
                         break;
                 }
             }
             //Display the results to the user
             //g.DrawLine(Pens.Black, 0, 100, 0, 100);
 
-            foreach (Line line in Lines)
+            foreach (Line line in _lines)
             {
                 //this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
             };
             //this.textOutput.Text += String.Format("\r\n");
-            foreach (Circle circle in Circles)
+            foreach (Circle circle in _circles)
             {
-                circle.laserLines = ConvertCircleToLines(circle, lineSpacing);
+                circle.laserLines = ConvertCircleToLines(circle, Form1.lineSpacing);
             }
-            foreach (Polyline pline in Polylines)
+            foreach (Polyline pline in _polylines)
             {
                 //this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed ? "closed" : "open");
                 pline.laserLines = new List<Line>();
@@ -390,14 +416,14 @@ namespace dxfTest
                             if (i != (pline.noVerticies - 1))
                             {
                                 //link to next vertex in list
-                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, lineSpacing));
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing));
                             }
                             else
                             {
                                 if (pline.closed)
                                 {
                                     //link back to the original vertex
-                                    pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, lineSpacing));
+                                    pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing));
                                 }
                             };
                         };
@@ -453,7 +479,9 @@ namespace dxfTest
                 if (line.readComplete) { break; }
                 lineNo++;   //in future can move in 2s probably
             };
-            Lines.Add(line);
+            FindDrawingDims(line.p1.X, line.p1.Y);
+            FindDrawingDims(line.p2.X, line.p2.Y);
+            _lines.Add(line);
         }
         public void GetPolylineProperties(string[] file, int startLine)
         {
@@ -493,8 +521,6 @@ namespace dxfTest
                             },
                             Bulge = file[lineNo + 4].Trim() == "42" ? (Val42) : null,
                         };
-                        //if (pt.Point.Y > drawingHeight) { drawingHeight = pt.Point.Y; };//find drawing height
-                        //if (pt.Point.Y > drawingWidth) { drawingWidth = pt.Point.X; };//find drawing width
                         pline.verticies.Add(pt);
                         break;
                     case "0"://all done now.. 
@@ -511,7 +537,7 @@ namespace dxfTest
                 pline.verticies.Remove(pline.verticies.Last());
                 pline.noVerticies--;
             }*/
-            Polylines.Add(pline);
+            _polylines.Add(pline);
         }
         /* public void GetArcProperties(string[] file, int startLine)
          {
@@ -605,7 +631,7 @@ namespace dxfTest
                 if (readComplete) { break; }
                 lineNo++;   //in future can move in 2s probably
             };
-            Circles.Add(circle);
+            _circles.Add(circle);
         }
         public void GetOrigin(string[] file, int startLine)
         {
@@ -620,14 +646,14 @@ namespace dxfTest
                 switch (file[lineNo].Trim())//assumes that line is always in the following structure.
                 {
                     case "10"://center point x value
-                        Origin = new PointF()
+                        _origin = new PointF()
                         {
                             X = float.Parse(file[lineNo + 1].Trim())
                         };
                         break;
                     case "20"://center point y value
-                        tempPoint = Origin;
-                        Origin = new PointF()
+                        tempPoint = _origin;
+                        _origin = new PointF()
                         {
                             X = tempPoint.X,
                             Y = float.Parse(file[lineNo + 1].Trim()),
@@ -656,7 +682,7 @@ namespace dxfTest
                 switch (file[lineNo].Trim())//assumes that line is always in the following structure.
                 {
                     case "70"://center point x value
-                        units.AngularUnitsCode = int.Parse(file[lineNo + 1].Trim());
+                        _units.AngularUnitsCode = int.Parse(file[lineNo + 1].Trim());
                         break;
                     case "9"://all done now.. 
                         readComplete = true;
@@ -678,7 +704,7 @@ namespace dxfTest
                 switch (file[lineNo].Trim())//assumes that line is always in the following structure.
                 {
                     case "70"://center point x value
-                        units.LinearUnitsCode = int.Parse(file[lineNo + 1].Trim());
+                        _units.LinearUnitsCode = int.Parse(file[lineNo + 1].Trim());
                         break;
                     case "9"://all done now.. 
                         readComplete = true;
@@ -688,7 +714,11 @@ namespace dxfTest
                 lineNo++;   //in future can move in 2s probably
             };
         }
-
+        public void GetDrawingUnits(string[] file, int startLine)
+        {
+            //$INSUNITS
+        }
+        //Convert for machining
         public List<Line> ConvertCircleToLines(Circle circle, float lineSpacing)
         {
             /*
@@ -846,11 +876,40 @@ namespace dxfTest
                         Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
                     },
                 };
+                FindDrawingDims(line.p1.X, line.p1.Y);
+                FindDrawingDims(line.p2.X, line.p2.Y);
                 currentTheta = nextTheta;
                 output.Add(line);
             }
 
             return output;
+        }
+        public void FindDrawingDims(float X, float Y)
+        {
+            //Drawing width
+            if (X < _drawingMinX) { _drawingMinX = X; };
+            if (X > _drawingMaxX) { _drawingMaxX = X; };
+            //Drawing height
+            if (Y < _drawingMinY) { _drawingMinY = Y; };
+            if (Y > _drawingMaxY) { _drawingMaxY = Y; };
+        }
+        public event DxfEventHandler dxfEvent;
+        public class DxfEventArgs : EventArgs
+        {
+            //Use this to update the ui thread - could have any data as required
+            public List<Polyline> Polylines { get; set; }
+            public List<Line> Lines { get; set; }
+            public List<Arc> Arcs { get; set; }
+            public List<Circle> Circles { get; set; }
+            public PointF Origin { get; set; }
+            public float DrawingHeight { get; set; }
+            public float DrawingWidth { get; set; }
+            public Units Units { get; set; }
+        }
+        public delegate void DxfEventHandler(Dxf dxf, DxfEventArgs e);
+        public void DxfEventMethod()
+        {
+
         }
     }
 }

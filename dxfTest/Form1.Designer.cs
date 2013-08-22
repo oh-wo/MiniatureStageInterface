@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.tabFsOnChip = new MetroFramework.Controls.MetroTabPage();
             this.tabDielectricMach = new MetroFramework.Controls.MetroTabPage();
+            this.labelCurrentFile = new System.Windows.Forms.Label();
+            this.buttonChangeFile = new MetroFramework.Controls.MetroButton();
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.labelDrawingScale = new System.Windows.Forms.Label();
             this.checkStageBounds = new System.Windows.Forms.CheckBox();
             this.checkDisplayOrigin = new System.Windows.Forms.CheckBox();
@@ -46,8 +48,7 @@
             this.comboSerialPorts = new System.Windows.Forms.ComboBox();
             this.toggleSerialConnect = new MetroFramework.Controls.MetroToggle();
             this.tabErrythang = new MetroFramework.Controls.MetroTabControl();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.tabDielectricMach.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabSerialConnect.SuspendLayout();
@@ -63,7 +64,7 @@
             this.tabFsOnChip.HorizontalScrollbarSize = 10;
             this.tabFsOnChip.Location = new System.Drawing.Point(4, 35);
             this.tabFsOnChip.Name = "tabFsOnChip";
-            this.tabFsOnChip.Size = new System.Drawing.Size(828, 611);
+            this.tabFsOnChip.Size = new System.Drawing.Size(997, 611);
             this.tabFsOnChip.Style = MetroFramework.MetroColorStyle.Blue;
             this.tabFsOnChip.StyleManager = null;
             this.tabFsOnChip.TabIndex = 2;
@@ -76,6 +77,8 @@
             // 
             // tabDielectricMach
             // 
+            this.tabDielectricMach.Controls.Add(this.labelCurrentFile);
+            this.tabDielectricMach.Controls.Add(this.buttonChangeFile);
             this.tabDielectricMach.Controls.Add(this.textBox1);
             this.tabDielectricMach.Controls.Add(this.labelDrawingScale);
             this.tabDielectricMach.Controls.Add(this.checkStageBounds);
@@ -107,10 +110,41 @@
             this.tabDielectricMach.VerticalScrollbarHighlightOnWheel = false;
             this.tabDielectricMach.VerticalScrollbarSize = 10;
             // 
+            // labelCurrentFile
+            // 
+            this.labelCurrentFile.AutoEllipsis = true;
+            this.labelCurrentFile.AutoSize = true;
+            this.labelCurrentFile.Location = new System.Drawing.Point(11, 16);
+            this.labelCurrentFile.Name = "labelCurrentFile";
+            this.labelCurrentFile.Size = new System.Drawing.Size(73, 13);
+            this.labelCurrentFile.TabIndex = 12;
+            this.labelCurrentFile.Text = "no file chosen";
+            // 
+            // buttonChangeFile
+            // 
+            this.buttonChangeFile.Highlight = false;
+            this.buttonChangeFile.Location = new System.Drawing.Point(103, 10);
+            this.buttonChangeFile.Name = "buttonChangeFile";
+            this.buttonChangeFile.Size = new System.Drawing.Size(75, 23);
+            this.buttonChangeFile.Style = MetroFramework.MetroColorStyle.Blue;
+            this.buttonChangeFile.StyleManager = null;
+            this.buttonChangeFile.TabIndex = 11;
+            this.buttonChangeFile.Text = "Change File";
+            this.buttonChangeFile.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.buttonChangeFile.Click += new System.EventHandler(this.buttChangeFile_Click);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(746, 44);
+            this.textBox1.Multiline = true;
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(210, 538);
+            this.textBox1.TabIndex = 10;
+            // 
             // labelDrawingScale
             // 
             this.labelDrawingScale.AutoSize = true;
-            this.labelDrawingScale.Location = new System.Drawing.Point(379, 17);
+            this.labelDrawingScale.Location = new System.Drawing.Point(256, 16);
             this.labelDrawingScale.Name = "labelDrawingScale";
             this.labelDrawingScale.Size = new System.Drawing.Size(72, 13);
             this.labelDrawingScale.TabIndex = 5;
@@ -147,11 +181,12 @@
             this.pictureBox1.Size = new System.Drawing.Size(705, 520);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // labelUnits
             // 
             this.labelUnits.AutoSize = true;
-            this.labelUnits.Location = new System.Drawing.Point(643, 17);
+            this.labelUnits.Location = new System.Drawing.Point(520, 16);
             this.labelUnits.Name = "labelUnits";
             this.labelUnits.Size = new System.Drawing.Size(74, 13);
             this.labelUnits.TabIndex = 8;
@@ -159,15 +194,16 @@
             // 
             // textScale
             // 
-            this.textScale.Location = new System.Drawing.Point(457, 14);
+            this.textScale.Location = new System.Drawing.Point(334, 13);
             this.textScale.Name = "textScale";
             this.textScale.Size = new System.Drawing.Size(44, 20);
             this.textScale.TabIndex = 2;
-            this.textScale.Text = "1";
+            this.textScale.Text = "0.1";
+            this.textScale.LostFocus += new System.EventHandler(this.textScale_LostFocus);
             // 
             // textLineSpacing
             // 
-            this.textLineSpacing.Location = new System.Drawing.Point(576, 14);
+            this.textLineSpacing.Location = new System.Drawing.Point(453, 13);
             this.textLineSpacing.Name = "textLineSpacing";
             this.textLineSpacing.Size = new System.Drawing.Size(61, 20);
             this.textLineSpacing.TabIndex = 7;
@@ -183,7 +219,7 @@
             // labelLineSpacing
             // 
             this.labelLineSpacing.AutoSize = true;
-            this.labelLineSpacing.Location = new System.Drawing.Point(507, 17);
+            this.labelLineSpacing.Location = new System.Drawing.Point(384, 16);
             this.labelLineSpacing.Name = "labelLineSpacing";
             this.labelLineSpacing.Size = new System.Drawing.Size(63, 13);
             this.labelLineSpacing.TabIndex = 6;
@@ -210,7 +246,7 @@
             this.tabSerialConnect.Location = new System.Drawing.Point(4, 35);
             this.tabSerialConnect.Name = "tabSerialConnect";
             this.tabSerialConnect.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSerialConnect.Size = new System.Drawing.Size(828, 611);
+            this.tabSerialConnect.Size = new System.Drawing.Size(997, 611);
             this.tabSerialConnect.Style = MetroFramework.MetroColorStyle.Blue;
             this.tabSerialConnect.StyleManager = null;
             this.tabSerialConnect.TabIndex = 0;
@@ -274,18 +310,10 @@
             this.tabErrythang.Theme = MetroFramework.MetroThemeStyle.Light;
             this.tabErrythang.UseStyleColors = false;
             // 
-            // textBox1
+            // openFileDialog1
             // 
-            this.textBox1.Location = new System.Drawing.Point(746, 44);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(210, 538);
-            this.textBox1.TabIndex = 10;
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+            this.openFileDialog1.FileName = "openFileDialog1";
+            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
             // 
             // Form1
             // 
@@ -326,7 +354,9 @@
         private MetroFramework.Controls.MetroToggle toggleSerialConnect;
         private MetroFramework.Controls.MetroTabControl tabErrythang;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private MetroFramework.Controls.MetroButton buttonChangeFile;
+        private System.Windows.Forms.Label labelCurrentFile;
 
 
     }
