@@ -23,7 +23,7 @@ namespace dxfTest
         float _drawingHeight = 0;
         float _drawingMaxY = 0;
         float _drawingMinY = 9999999;
-
+        float _lineSpacing;
         
         //Dxf classes
         public class Polyline
@@ -50,14 +50,14 @@ namespace dxfTest
             public PointF p2 { get; set; }
             //disregard z
             public bool readComplete { get; set; }
-            public double GetLength { get { return length(p1, p2); } }
-            private static double length(PointF p1, PointF p2)
+            public float GetLength { get { return length(p1, p2); } }
+            private static float length(PointF p1, PointF p2)
             {
-                return Math.Sqrt(Math.Pow((p2.X - p1.X), 2.0) + Math.Pow((p2.Y - p1.Y), 2.0));
+                return (float)Math.Sqrt(Math.Pow((p2.X - p1.X), 2.0) + Math.Pow((p2.Y - p1.Y), 2.0));
             }
             public PointF plotted1 { get; set; }
             public PointF plotted2 { get; set; }
-            public bool Selected { get; set; }
+            public int laserSpacing { get; set; }
         }
         public class Arc
         {
@@ -295,9 +295,10 @@ namespace dxfTest
             public float DrawingWidth { get; set; }
         }
         //Main read and interpret functions
-        public void Start(string fileDirectory)
+        public void Start(string fileDirectory, float lineSpacing)
         {
             _file = ReadFile(fileDirectory);
+            _lineSpacing = lineSpacing;
             InterpretFile();
             DxfEventArgs e = new DxfEventArgs();
             e.Circles = _circles;
@@ -351,11 +352,13 @@ namespace dxfTest
             }
             //Display the results to the user
             //g.DrawLine(Pens.Black, 0, 100, 0, 100);
-
+            List<Line> laserLines = new List<Line>();
             foreach (Line line in _lines)
             {
                 //this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
+                laserLines.AddRange(ConvertLineToLaserLines(line, _lineSpacing));
             };
+            _lines = laserLines;
             //this.textOutput.Text += String.Format("\r\n");
             foreach (Circle circle in _circles)
             {
@@ -883,6 +886,35 @@ namespace dxfTest
             }
 
             return output;
+        }
+        public List<Line> ConvertLineToLaserLines(Line line, float lineSpacing)
+        {
+            List<Line> lines = new List<Line>();
+            int n = (int)Math.Floor(line.GetLength/_lineSpacing);
+            float dx = (line.p2.X-line.p1.X) / (float)n;
+            float dy = (line.p2.Y - line.p1.Y) / (float)n;
+            float x = line.p1.X;
+            float y = line.p1.Y;
+            for (int i = 0; i < n; i++)
+            {
+                Line li = new Line()
+                {
+                    p1 = new PointF()
+                    {
+                        X=x,
+                        Y=y,
+                    },
+                    p2 = new PointF()
+                    {
+                        X=x+dx,
+                        Y=y+dy,
+                    },
+                };
+                lines.Add(li);
+                x += dx;
+                y += dy;
+            }
+            return lines;
         }
         public void FindDrawingDims(float X, float Y)
         {

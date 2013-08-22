@@ -45,7 +45,7 @@ namespace dxfTest
         public float drawingWidth = (float)0;
         public string fileDirectory = String.Format("{0}\\Files\\", Application.StartupPath);
         public string fullFile = String.Format("{0}\\Files\\Drawing1.dxf", Application.StartupPath);
-        public Dxf.Line selectedLine;
+        public int? selectedLineIndex = null;
 
         public Form1()
         {
@@ -68,7 +68,7 @@ namespace dxfTest
             /*Dxf stuff - to be shifted later to 'open file' etc */
             Dxf dxf = new Dxf();
             this.SubscribeDxf(dxf);
-            Thread dxfThread = new Thread(() => dxf.Start(fullFile));
+            Thread dxfThread = new Thread(() => dxf.Start(fullFile,lineSpacing));
             dxfThread.Name = "Dxf thread";
             dxfThread.Start();
             /*Serial Communication begins */
@@ -121,9 +121,11 @@ namespace dxfTest
             {
                 this.comboSerialPorts.Items.Add(comPort);
             }
-            this.comboSerialPorts.SelectedIndex = 1;
+            if (this.comboSerialPorts.Items.Count > 0)
+            {
+                this.comboSerialPorts.SelectedIndex = 1;
+            }
         }
-
         public void GetDxfData(List<Dxf.Polyline> polylines)
         {
             if (InvokeRequired)
@@ -210,7 +212,14 @@ namespace dxfTest
             float y1 = fromAutoCad ? pictureBox1.Height -((Y1) * scale * units.LinearConversionFactor + yOffset) : Y1 * scale + yOffset;
             float x2 = fromAutoCad ? X2 * scale * units.LinearConversionFactor + xOffset : X2 * scale + xOffset;
             float y2 = fromAutoCad ? pictureBox1.Height -((Y2) * scale * units.LinearConversionFactor + yOffset) : Y2 * scale + yOffset;
-            _Graphics.DrawLine(line.Selected?selectedPen:pen, x1, y1, x2, y2);
+            if (selectedLineIndex != null)
+            {
+                _Graphics.DrawLine(Lines[selectedLineIndex ?? 0] == line ? selectedPen : pen, x1, y1, x2, y2);
+            }
+            else
+            {
+                _Graphics.DrawLine(pen, x1, y1, x2, y2);
+            }
             line.plotted1 = new PointF()
             {
                 X = fromAutoCad ? X1 * scale * units.LinearConversionFactor + xOffset : X1 * scale + xOffset,
@@ -255,22 +264,6 @@ namespace dxfTest
         }
 
         //UI Event stuff
-        public void textScale_LostFocus(object sender, EventArgs e)
-        {
-            DrawDrawing();
-        }
-        public void DisplayUnits()
-        {
-            if(InvokeRequired){
-                Invoke(new MethodInvoker(() => { DisplayUnits(); }));
-            }else{
-            this.labelUnits.Text = String.Format("units detected: {0}{1}{2}", units.LinearUnitsString, (units.LinearUnitsString != null && units.AngularUnitsString != null) ? ", " : "", units.AngularUnitsString);
-                }
-        }
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
         private void buttChangeFile_Click(object sender, EventArgs e)
         {
             this.openFileDialog1.InitialDirectory = String.Format("{0}\\Files\\", Application.StartupPath);
@@ -279,53 +272,74 @@ namespace dxfTest
                 fullFile = this.openFileDialog1.FileName;
                 Dxf dxf = new Dxf();
                 this.SubscribeDxf(dxf);
-                Thread dxfThread = new Thread(() => dxf.Start(fullFile));
+                Thread dxfThread = new Thread(() => dxf.Start(fullFile,lineSpacing));
                 dxfThread.Name = "Dxf";
                 dxfThread.Start();
                 this.labelCurrentFile.Text = System.IO.Path.GetFileName(fullFile);
             }
         }
-
         private void pictureBox1_MouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
         {
+            bool thereIsALineSelected = false;
             Point mouseDownLocation = new Point(e.X, e.Y);
             for (int j = 0; j < Lines.Count; j++)
             {
-                /*if ((Lines[j].plotted1.X <= (float)(e.X * 1.1) && (float)(e.X * 0.9) <= Lines[j].plotted2.X 
-                    || Lines[j].plotted2.X <= (float)(e.X * 1.1) && (float)(e.X * 0.9) <= Lines[j].plotted1.X)
-                    && Lines[j].plotted1.Y <= (float)(e.Y*1.1) && (float)(e.Y*0.9) <= Lines[j].plotted2.Y
-                    || Lines[j].plotted2.Y <= (float)(e.Y * 1.1) && (float)(e.Y * 0.9) <= Lines[j].plotted1.Y)
-                {
-                    Lines[j].Selected = true;
-                    DrawDrawing();
-                    break;
-                }*/
                 if (FindDistanceToSegment(new PointF(){X=e.X,Y=e.Y},Lines[j].plotted1, Lines[j].plotted2)<10)
                 {
-                    selectedLine = Lines[j];
+                    selectedLineIndex = j;
                     DrawDrawing();
+                    ShowSelectedLine();
+                    thereIsALineSelected = true;
                     break;
                 }
                 else
                 {
                 }
             }
-        }
-
-        private bool IsOnLine(PointF p1, PointF p2, System.Windows.Forms.MouseEventArgs e)
-        {
-            float t = (e.X - p1.X) * (p2.X - p1.X) + (e.Y - p1.Y) * (p2.Y - p1.Y) / ((p2.X - p1.X) * (p2.X - p1.X) + (p2.Y - p1.Y) * (p2.Y - p1.Y));
-            bool _IsOnLine = false;
-            
-            if (0 <= t && t <= 1)
+            if (!thereIsALineSelected)
             {
-                double d = Math.Sqrt(Math.Pow(e.X - p1.X - t * (p2.X - p1.X), 2) + Math.Pow(e.Y - p1.Y - t * (p2.Y - p1.Y), 2));
-                _IsOnLine = d < 1000;
-            }
-            
-           return _IsOnLine;
-        }
+                ClearSelectedLine();
+                DrawDrawing();
 
+            }
+        }
+        private void checkStageBounds_CheckStateChanged(object sender, EventArgs e)
+        {
+            DrawDrawing();
+        }
+        private void checkDisplayOrigin_CheckStateChanged(object sender, EventArgs e)
+        {
+            DrawDrawing();
+        }
+        public void textScale_LostFocus(object sender, EventArgs e)
+        {
+            DrawDrawing();
+        }
+        //UI Methods
+        private void ShowSelectedLine()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(() => { ShowSelectedLine(); }));
+            }
+            if (selectedLineIndex != null)
+            {
+                Dxf.Line _selectedLine = Lines[selectedLineIndex ?? 0];//will always be defined so can do this (set index to 0), though bad practice...
+                this.labelSegmentName.Text = String.Format("({0},{1}) -> ({2},{3})", _selectedLine.p1.X, _selectedLine.p1.Y, _selectedLine.p2.X, _selectedLine.p2.Y);
+                this.textSegmentLaserSpacing.Text = _selectedLine.laserSpacing.ToString();
+            }
+        }
+        public void DisplayUnits()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(() => { DisplayUnits(); }));
+            }
+            else
+            {
+                this.labelUnits.Text = String.Format("units detected: {0}{1}{2}", units.LinearUnitsString, (units.LinearUnitsString != null && units.AngularUnitsString != null) ? ", " : "", units.AngularUnitsString);
+            }
+        }
         private double FindDistanceToSegment(PointF pt, PointF p1, PointF p2)
         {
             PointF closest;
@@ -366,6 +380,12 @@ namespace dxfTest
             }
             dist = Math.Sqrt(dx * dx + dy * dy);
             return dist;
+        }
+        public void ClearSelectedLine()
+        {
+            selectedLineIndex = null;
+            this.labelSegmentName.Text = "";
+            this.textSegmentLaserSpacing.Text = "";
         }
     }
 }

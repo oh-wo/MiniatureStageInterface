@@ -30,9 +30,10 @@
         {
             this.tabFsOnChip = new MetroFramework.Controls.MetroTabPage();
             this.tabDielectricMach = new MetroFramework.Controls.MetroTabPage();
+            this.textSegmentLaserSpacing = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
             this.labelCurrentFile = new System.Windows.Forms.Label();
             this.buttonChangeFile = new MetroFramework.Controls.MetroButton();
-            this.textBox1 = new System.Windows.Forms.TextBox();
             this.labelDrawingScale = new System.Windows.Forms.Label();
             this.checkStageBounds = new System.Windows.Forms.CheckBox();
             this.checkDisplayOrigin = new System.Windows.Forms.CheckBox();
@@ -49,6 +50,7 @@
             this.toggleSerialConnect = new MetroFramework.Controls.MetroToggle();
             this.tabErrythang = new MetroFramework.Controls.MetroTabControl();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.labelSegmentName = new System.Windows.Forms.Label();
             this.tabDielectricMach.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabSerialConnect.SuspendLayout();
@@ -77,9 +79,11 @@
             // 
             // tabDielectricMach
             // 
+            this.tabDielectricMach.Controls.Add(this.labelSegmentName);
+            this.tabDielectricMach.Controls.Add(this.textSegmentLaserSpacing);
+            this.tabDielectricMach.Controls.Add(this.label2);
             this.tabDielectricMach.Controls.Add(this.labelCurrentFile);
             this.tabDielectricMach.Controls.Add(this.buttonChangeFile);
-            this.tabDielectricMach.Controls.Add(this.textBox1);
             this.tabDielectricMach.Controls.Add(this.labelDrawingScale);
             this.tabDielectricMach.Controls.Add(this.checkStageBounds);
             this.tabDielectricMach.Controls.Add(this.checkDisplayOrigin);
@@ -110,6 +114,22 @@
             this.tabDielectricMach.VerticalScrollbarHighlightOnWheel = false;
             this.tabDielectricMach.VerticalScrollbarSize = 10;
             // 
+            // textSegmentLaserSpacing
+            // 
+            this.textSegmentLaserSpacing.Location = new System.Drawing.Point(758, 94);
+            this.textSegmentLaserSpacing.Name = "textSegmentLaserSpacing";
+            this.textSegmentLaserSpacing.Size = new System.Drawing.Size(98, 20);
+            this.textSegmentLaserSpacing.TabIndex = 14;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(755, 78);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "Laser Spacing";
+            // 
             // labelCurrentFile
             // 
             this.labelCurrentFile.AutoEllipsis = true;
@@ -133,14 +153,6 @@
             this.buttonChangeFile.Theme = MetroFramework.MetroThemeStyle.Light;
             this.buttonChangeFile.Click += new System.EventHandler(this.buttChangeFile_Click);
             // 
-            // textBox1
-            // 
-            this.textBox1.Location = new System.Drawing.Point(746, 44);
-            this.textBox1.Multiline = true;
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(210, 538);
-            this.textBox1.TabIndex = 10;
-            // 
             // labelDrawingScale
             // 
             this.labelDrawingScale.AutoSize = true;
@@ -161,6 +173,7 @@
             this.checkStageBounds.TabIndex = 9;
             this.checkStageBounds.Text = "stage bounds";
             this.checkStageBounds.UseVisualStyleBackColor = true;
+            this.checkStageBounds.CheckStateChanged += new System.EventHandler(checkStageBounds_CheckStateChanged);
             // 
             // checkDisplayOrigin
             // 
@@ -173,6 +186,7 @@
             this.checkDisplayOrigin.TabIndex = 9;
             this.checkDisplayOrigin.Text = "origin";
             this.checkDisplayOrigin.UseVisualStyleBackColor = true;
+            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(checkDisplayOrigin_CheckStateChanged);
             // 
             // pictureBox1
             // 
@@ -313,7 +327,15 @@
             // openFileDialog1
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
-            this.openFileDialog1.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialog1_FileOk);
+            // 
+            // labelSegmentName
+            // 
+            this.labelSegmentName.AutoSize = true;
+            this.labelSegmentName.Location = new System.Drawing.Point(755, 50);
+            this.labelSegmentName.Name = "labelSegmentName";
+            this.labelSegmentName.Size = new System.Drawing.Size(52, 13);
+            this.labelSegmentName.TabIndex = 15;
+            this.labelSegmentName.Text = "Segment:";
             // 
             // Form1
             // 
@@ -353,10 +375,12 @@
         private System.Windows.Forms.ComboBox comboSerialPorts;
         private MetroFramework.Controls.MetroToggle toggleSerialConnect;
         private MetroFramework.Controls.MetroTabControl tabErrythang;
-        private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private MetroFramework.Controls.MetroButton buttonChangeFile;
         private System.Windows.Forms.Label labelCurrentFile;
+        private System.Windows.Forms.TextBox textSegmentLaserSpacing;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label labelSegmentName;
 
 
     }
