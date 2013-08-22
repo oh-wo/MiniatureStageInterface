@@ -28,8 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.tabManualControl = new MetroFramework.Controls.MetroTabPage();
-            this.tabImportDxf = new MetroFramework.Controls.MetroTabPage();
+            this.tabFsOnChip = new MetroFramework.Controls.MetroTabPage();
+            this.tabDielectricMach = new MetroFramework.Controls.MetroTabPage();
+            this.textSegmentLaserSpacing = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.labelCurrentFile = new System.Windows.Forms.Label();
+            this.buttonChangeFile = new MetroFramework.Controls.MetroButton();
             this.labelDrawingScale = new System.Windows.Forms.Label();
             this.checkStageBounds = new System.Windows.Forms.CheckBox();
             this.checkDisplayOrigin = new System.Windows.Forms.CheckBox();
@@ -45,68 +49,114 @@
             this.comboSerialPorts = new System.Windows.Forms.ComboBox();
             this.toggleSerialConnect = new MetroFramework.Controls.MetroToggle();
             this.tabErrythang = new MetroFramework.Controls.MetroTabControl();
-            this.tabImportDxf.SuspendLayout();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.labelSegmentName = new System.Windows.Forms.Label();
+            this.tabDielectricMach.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabSerialConnect.SuspendLayout();
             this.tabErrythang.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabManualControl
+            // tabFsOnChip
             // 
-            this.tabManualControl.CustomBackground = false;
-            this.tabManualControl.HorizontalScrollbar = false;
-            this.tabManualControl.HorizontalScrollbarBarColor = true;
-            this.tabManualControl.HorizontalScrollbarHighlightOnWheel = false;
-            this.tabManualControl.HorizontalScrollbarSize = 10;
-            this.tabManualControl.Location = new System.Drawing.Point(4, 35);
-            this.tabManualControl.Name = "tabManualControl";
-            this.tabManualControl.Size = new System.Drawing.Size(838, 615);
-            this.tabManualControl.Style = MetroFramework.MetroColorStyle.Blue;
-            this.tabManualControl.StyleManager = null;
-            this.tabManualControl.TabIndex = 2;
-            this.tabManualControl.Text = "Manual Control";
-            this.tabManualControl.Theme = MetroFramework.MetroThemeStyle.Light;
-            this.tabManualControl.VerticalScrollbar = false;
-            this.tabManualControl.VerticalScrollbarBarColor = true;
-            this.tabManualControl.VerticalScrollbarHighlightOnWheel = false;
-            this.tabManualControl.VerticalScrollbarSize = 10;
+            this.tabFsOnChip.CustomBackground = false;
+            this.tabFsOnChip.HorizontalScrollbar = false;
+            this.tabFsOnChip.HorizontalScrollbarBarColor = true;
+            this.tabFsOnChip.HorizontalScrollbarHighlightOnWheel = false;
+            this.tabFsOnChip.HorizontalScrollbarSize = 10;
+            this.tabFsOnChip.Location = new System.Drawing.Point(4, 35);
+            this.tabFsOnChip.Name = "tabFsOnChip";
+            this.tabFsOnChip.Size = new System.Drawing.Size(997, 611);
+            this.tabFsOnChip.Style = MetroFramework.MetroColorStyle.Blue;
+            this.tabFsOnChip.StyleManager = null;
+            this.tabFsOnChip.TabIndex = 2;
+            this.tabFsOnChip.Text = "Fs On Chip";
+            this.tabFsOnChip.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.tabFsOnChip.VerticalScrollbar = false;
+            this.tabFsOnChip.VerticalScrollbarBarColor = true;
+            this.tabFsOnChip.VerticalScrollbarHighlightOnWheel = false;
+            this.tabFsOnChip.VerticalScrollbarSize = 10;
             // 
-            // tabImportDxf
+            // tabDielectricMach
             // 
-            this.tabImportDxf.Controls.Add(this.labelDrawingScale);
-            this.tabImportDxf.Controls.Add(this.checkStageBounds);
-            this.tabImportDxf.Controls.Add(this.checkDisplayOrigin);
-            this.tabImportDxf.Controls.Add(this.pictureBox1);
-            this.tabImportDxf.Controls.Add(this.labelUnits);
-            this.tabImportDxf.Controls.Add(this.textScale);
-            this.tabImportDxf.Controls.Add(this.textLineSpacing);
-            this.tabImportDxf.Controls.Add(this.vScrollBar1);
-            this.tabImportDxf.Controls.Add(this.labelLineSpacing);
-            this.tabImportDxf.Controls.Add(this.hScrollBar1);
-            this.tabImportDxf.CustomBackground = false;
-            this.tabImportDxf.HorizontalScrollbar = false;
-            this.tabImportDxf.HorizontalScrollbarBarColor = true;
-            this.tabImportDxf.HorizontalScrollbarHighlightOnWheel = false;
-            this.tabImportDxf.HorizontalScrollbarSize = 10;
-            this.tabImportDxf.Location = new System.Drawing.Point(4, 35);
-            this.tabImportDxf.Name = "tabImportDxf";
-            this.tabImportDxf.Padding = new System.Windows.Forms.Padding(3);
-            this.tabImportDxf.Size = new System.Drawing.Size(838, 615);
-            this.tabImportDxf.Style = MetroFramework.MetroColorStyle.Blue;
-            this.tabImportDxf.StyleManager = null;
-            this.tabImportDxf.TabIndex = 1;
-            this.tabImportDxf.Text = "Import Dxf";
-            this.tabImportDxf.Theme = MetroFramework.MetroThemeStyle.Light;
-            this.tabImportDxf.UseVisualStyleBackColor = true;
-            this.tabImportDxf.VerticalScrollbar = false;
-            this.tabImportDxf.VerticalScrollbarBarColor = true;
-            this.tabImportDxf.VerticalScrollbarHighlightOnWheel = false;
-            this.tabImportDxf.VerticalScrollbarSize = 10;
+            this.tabDielectricMach.Controls.Add(this.labelSegmentName);
+            this.tabDielectricMach.Controls.Add(this.textSegmentLaserSpacing);
+            this.tabDielectricMach.Controls.Add(this.label2);
+            this.tabDielectricMach.Controls.Add(this.labelCurrentFile);
+            this.tabDielectricMach.Controls.Add(this.buttonChangeFile);
+            this.tabDielectricMach.Controls.Add(this.labelDrawingScale);
+            this.tabDielectricMach.Controls.Add(this.checkStageBounds);
+            this.tabDielectricMach.Controls.Add(this.checkDisplayOrigin);
+            this.tabDielectricMach.Controls.Add(this.pictureBox1);
+            this.tabDielectricMach.Controls.Add(this.labelUnits);
+            this.tabDielectricMach.Controls.Add(this.textScale);
+            this.tabDielectricMach.Controls.Add(this.textLineSpacing);
+            this.tabDielectricMach.Controls.Add(this.vScrollBar1);
+            this.tabDielectricMach.Controls.Add(this.labelLineSpacing);
+            this.tabDielectricMach.Controls.Add(this.hScrollBar1);
+            this.tabDielectricMach.CustomBackground = false;
+            this.tabDielectricMach.HorizontalScrollbar = false;
+            this.tabDielectricMach.HorizontalScrollbarBarColor = true;
+            this.tabDielectricMach.HorizontalScrollbarHighlightOnWheel = false;
+            this.tabDielectricMach.HorizontalScrollbarSize = 10;
+            this.tabDielectricMach.Location = new System.Drawing.Point(4, 35);
+            this.tabDielectricMach.Name = "tabDielectricMach";
+            this.tabDielectricMach.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDielectricMach.Size = new System.Drawing.Size(997, 611);
+            this.tabDielectricMach.Style = MetroFramework.MetroColorStyle.Blue;
+            this.tabDielectricMach.StyleManager = null;
+            this.tabDielectricMach.TabIndex = 1;
+            this.tabDielectricMach.Text = "Dielectric Machining";
+            this.tabDielectricMach.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.tabDielectricMach.UseVisualStyleBackColor = true;
+            this.tabDielectricMach.VerticalScrollbar = false;
+            this.tabDielectricMach.VerticalScrollbarBarColor = true;
+            this.tabDielectricMach.VerticalScrollbarHighlightOnWheel = false;
+            this.tabDielectricMach.VerticalScrollbarSize = 10;
+            // 
+            // textSegmentLaserSpacing
+            // 
+            this.textSegmentLaserSpacing.Location = new System.Drawing.Point(758, 94);
+            this.textSegmentLaserSpacing.Name = "textSegmentLaserSpacing";
+            this.textSegmentLaserSpacing.Size = new System.Drawing.Size(98, 20);
+            this.textSegmentLaserSpacing.TabIndex = 14;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(755, 78);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(75, 13);
+            this.label2.TabIndex = 13;
+            this.label2.Text = "Laser Spacing";
+            // 
+            // labelCurrentFile
+            // 
+            this.labelCurrentFile.AutoEllipsis = true;
+            this.labelCurrentFile.AutoSize = true;
+            this.labelCurrentFile.Location = new System.Drawing.Point(11, 16);
+            this.labelCurrentFile.Name = "labelCurrentFile";
+            this.labelCurrentFile.Size = new System.Drawing.Size(73, 13);
+            this.labelCurrentFile.TabIndex = 12;
+            this.labelCurrentFile.Text = "no file chosen";
+            // 
+            // buttonChangeFile
+            // 
+            this.buttonChangeFile.Highlight = false;
+            this.buttonChangeFile.Location = new System.Drawing.Point(103, 10);
+            this.buttonChangeFile.Name = "buttonChangeFile";
+            this.buttonChangeFile.Size = new System.Drawing.Size(75, 23);
+            this.buttonChangeFile.Style = MetroFramework.MetroColorStyle.Blue;
+            this.buttonChangeFile.StyleManager = null;
+            this.buttonChangeFile.TabIndex = 11;
+            this.buttonChangeFile.Text = "Change File";
+            this.buttonChangeFile.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.buttonChangeFile.Click += new System.EventHandler(this.buttChangeFile_Click);
             // 
             // labelDrawingScale
             // 
             this.labelDrawingScale.AutoSize = true;
-            this.labelDrawingScale.Location = new System.Drawing.Point(379, 17);
+            this.labelDrawingScale.Location = new System.Drawing.Point(256, 16);
             this.labelDrawingScale.Name = "labelDrawingScale";
             this.labelDrawingScale.Size = new System.Drawing.Size(72, 13);
             this.labelDrawingScale.TabIndex = 5;
@@ -123,6 +173,7 @@
             this.checkStageBounds.TabIndex = 9;
             this.checkStageBounds.Text = "stage bounds";
             this.checkStageBounds.UseVisualStyleBackColor = true;
+            this.checkStageBounds.CheckStateChanged += new System.EventHandler(checkStageBounds_CheckStateChanged);
             // 
             // checkDisplayOrigin
             // 
@@ -135,6 +186,7 @@
             this.checkDisplayOrigin.TabIndex = 9;
             this.checkDisplayOrigin.Text = "origin";
             this.checkDisplayOrigin.UseVisualStyleBackColor = true;
+            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(checkDisplayOrigin_CheckStateChanged);
             // 
             // pictureBox1
             // 
@@ -143,11 +195,12 @@
             this.pictureBox1.Size = new System.Drawing.Size(705, 520);
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
             // 
             // labelUnits
             // 
             this.labelUnits.AutoSize = true;
-            this.labelUnits.Location = new System.Drawing.Point(643, 17);
+            this.labelUnits.Location = new System.Drawing.Point(520, 16);
             this.labelUnits.Name = "labelUnits";
             this.labelUnits.Size = new System.Drawing.Size(74, 13);
             this.labelUnits.TabIndex = 8;
@@ -155,15 +208,16 @@
             // 
             // textScale
             // 
-            this.textScale.Location = new System.Drawing.Point(457, 14);
+            this.textScale.Location = new System.Drawing.Point(334, 13);
             this.textScale.Name = "textScale";
             this.textScale.Size = new System.Drawing.Size(44, 20);
             this.textScale.TabIndex = 2;
-            this.textScale.Text = "0.188075436651707";
+            this.textScale.Text = "0.1";
+            this.textScale.LostFocus += new System.EventHandler(this.textScale_LostFocus);
             // 
             // textLineSpacing
             // 
-            this.textLineSpacing.Location = new System.Drawing.Point(576, 14);
+            this.textLineSpacing.Location = new System.Drawing.Point(453, 13);
             this.textLineSpacing.Name = "textLineSpacing";
             this.textLineSpacing.Size = new System.Drawing.Size(61, 20);
             this.textLineSpacing.TabIndex = 7;
@@ -179,7 +233,7 @@
             // labelLineSpacing
             // 
             this.labelLineSpacing.AutoSize = true;
-            this.labelLineSpacing.Location = new System.Drawing.Point(507, 17);
+            this.labelLineSpacing.Location = new System.Drawing.Point(384, 16);
             this.labelLineSpacing.Name = "labelLineSpacing";
             this.labelLineSpacing.Size = new System.Drawing.Size(63, 13);
             this.labelLineSpacing.TabIndex = 6;
@@ -206,7 +260,7 @@
             this.tabSerialConnect.Location = new System.Drawing.Point(4, 35);
             this.tabSerialConnect.Name = "tabSerialConnect";
             this.tabSerialConnect.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSerialConnect.Size = new System.Drawing.Size(838, 561);
+            this.tabSerialConnect.Size = new System.Drawing.Size(997, 611);
             this.tabSerialConnect.Style = MetroFramework.MetroColorStyle.Blue;
             this.tabSerialConnect.StyleManager = null;
             this.tabSerialConnect.TabIndex = 0;
@@ -254,21 +308,34 @@
             // tabErrythang
             // 
             this.tabErrythang.Controls.Add(this.tabSerialConnect);
-            this.tabErrythang.Controls.Add(this.tabImportDxf);
-            this.tabErrythang.Controls.Add(this.tabManualControl);
+            this.tabErrythang.Controls.Add(this.tabDielectricMach);
+            this.tabErrythang.Controls.Add(this.tabFsOnChip);
             this.tabErrythang.CustomBackground = false;
             this.tabErrythang.FontSize = MetroFramework.MetroTabControlSize.Medium;
             this.tabErrythang.FontWeight = MetroFramework.MetroTabControlWeight.Light;
             this.tabErrythang.Location = new System.Drawing.Point(9, 63);
             this.tabErrythang.Name = "tabErrythang";
-            this.tabErrythang.SelectedIndex = 0;
-            this.tabErrythang.Size = new System.Drawing.Size(846, 600);
+            this.tabErrythang.SelectedIndex = 1;
+            this.tabErrythang.Size = new System.Drawing.Size(1005, 650);
             this.tabErrythang.Style = MetroFramework.MetroColorStyle.Blue;
             this.tabErrythang.StyleManager = null;
             this.tabErrythang.TabIndex = 10;
             this.tabErrythang.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.tabErrythang.Theme = MetroFramework.MetroThemeStyle.Light;
             this.tabErrythang.UseStyleColors = false;
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // labelSegmentName
+            // 
+            this.labelSegmentName.AutoSize = true;
+            this.labelSegmentName.Location = new System.Drawing.Point(755, 50);
+            this.labelSegmentName.Name = "labelSegmentName";
+            this.labelSegmentName.Size = new System.Drawing.Size(52, 13);
+            this.labelSegmentName.TabIndex = 15;
+            this.labelSegmentName.Text = "Segment:";
             // 
             // Form1
             // 
@@ -279,8 +346,8 @@
             this.Location = new System.Drawing.Point(0, 0);
             this.Name = "Form1";
             this.Text = "Laser Micromachining Control";
-            this.tabImportDxf.ResumeLayout(false);
-            this.tabImportDxf.PerformLayout();
+            this.tabDielectricMach.ResumeLayout(false);
+            this.tabDielectricMach.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabSerialConnect.ResumeLayout(false);
             this.tabSerialConnect.PerformLayout();
@@ -291,8 +358,8 @@
         
         #endregion
 
-        private MetroFramework.Controls.MetroTabPage tabManualControl;
-        private MetroFramework.Controls.MetroTabPage tabImportDxf;
+        private MetroFramework.Controls.MetroTabPage tabFsOnChip;
+        private MetroFramework.Controls.MetroTabPage tabDielectricMach;
         private System.Windows.Forms.Label labelDrawingScale;
         private System.Windows.Forms.CheckBox checkStageBounds;
         private System.Windows.Forms.CheckBox checkDisplayOrigin;
@@ -308,6 +375,12 @@
         private System.Windows.Forms.ComboBox comboSerialPorts;
         private MetroFramework.Controls.MetroToggle toggleSerialConnect;
         private MetroFramework.Controls.MetroTabControl tabErrythang;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private MetroFramework.Controls.MetroButton buttonChangeFile;
+        private System.Windows.Forms.Label labelCurrentFile;
+        private System.Windows.Forms.TextBox textSegmentLaserSpacing;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label labelSegmentName;
 
 
     }
