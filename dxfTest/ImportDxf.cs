@@ -58,6 +58,7 @@ namespace dxfTest
             public PointF plotted1 { get; set; }
             public PointF plotted2 { get; set; }
             public int laserSpacing { get; set; }
+            public int parentIndex { get; set; }
         }
         public class Arc
         {
@@ -353,10 +354,12 @@ namespace dxfTest
             //Display the results to the user
             //g.DrawLine(Pens.Black, 0, 100, 0, 100);
             List<Line> laserLines = new List<Line>();
-            foreach (Line line in _lines)
+            for (int j = 0; j < _lines.Count; j++)
             {
+                Line line = _lines[j];
                 //this.textOutput.Text += String.Format("Line: ({0}, {1}),({2}, {3}), length: {4} \r\n", line.p1.X, line.p1.Y, line.p2.X, line.p2.Y, line.GetLength);
-                laserLines.AddRange(ConvertLineToLaserLines(line, _lineSpacing));
+                List<Dxf.Line> _laserLines = ConvertLineToLaserLines(line, _lineSpacing,j);
+                laserLines.AddRange(_laserLines);
             };
             _lines = laserLines;
             //this.textOutput.Text += String.Format("\r\n");
@@ -878,6 +881,7 @@ namespace dxfTest
                         X = (float)(radius * Math.Cos(nextTheta) + center.X),
                         Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
                     },
+                    parentIndex = i,
                 };
                 FindDrawingDims(line.p1.X, line.p1.Y);
                 FindDrawingDims(line.p2.X, line.p2.Y);
@@ -887,7 +891,7 @@ namespace dxfTest
 
             return output;
         }
-        public List<Line> ConvertLineToLaserLines(Line line, float lineSpacing)
+        public List<Line> ConvertLineToLaserLines(Line line, float lineSpacing, int parentLineIndex)
         {
             List<Line> lines = new List<Line>();
             int n = (int)Math.Floor(line.GetLength/_lineSpacing);
@@ -910,6 +914,7 @@ namespace dxfTest
                         Y=y+dy,
                     },
                 };
+                li.parentIndex = parentLineIndex;
                 lines.Add(li);
                 x += dx;
                 y += dy;

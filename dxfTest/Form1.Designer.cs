@@ -221,6 +221,7 @@
             this.textLineSpacing.Name = "textLineSpacing";
             this.textLineSpacing.Size = new System.Drawing.Size(61, 20);
             this.textLineSpacing.TabIndex = 7;
+            this.textLineSpacing.LostFocus += new System.EventHandler(textLineSpacing_LostFocus);
             // 
             // vScrollBar1
             // 

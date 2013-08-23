@@ -28,7 +28,7 @@ namespace dxfTest
         public List<Dxf.Polyline> Polylines = new List<Dxf.Polyline>();
         public List<Dxf.Arc> Arcs = new List<Dxf.Arc>();
         public List<Dxf.Circle> Circles = new List<Dxf.Circle>();
-        public static float lineSpacing = 1;
+        public static float lineSpacing = 20;
         //Global parameters
         SerialPort sPort;
         private Graphics _Graphics;
@@ -44,8 +44,9 @@ namespace dxfTest
         public float drawingHeight = (float)0;
         public float drawingWidth = (float)0;
         public string fileDirectory = String.Format("{0}\\Files\\", Application.StartupPath);
-        public string fullFile = String.Format("{0}\\Files\\Drawing1.dxf", Application.StartupPath);
-        public int? selectedLineIndex = null;
+        public string fullFile = String.Format("{0}\\Files\\Drawing1_1.dxf", Application.StartupPath);
+        public int? selectedLineParentIndex = null;
+        public string selectedType;
 
         public Form1()
         {
@@ -61,7 +62,9 @@ namespace dxfTest
                 Y = new float[2] { -bound, bound },
             };
             pen = new Pen(drawingPenColour, 1);
+            pen.EndCap = System.Drawing.Drawing2D.LineCap.DiamondAnchor;
             selectedPen = new Pen(System.Drawing.Color.Orange, 1);
+            selectedPen.EndCap = System.Drawing.Drawing2D.LineCap.DiamondAnchor;
             xaxisPen = new Pen(System.Drawing.Color.Red, 1);
             yaxisPen = new Pen(System.Drawing.Color.Green, 1);
             stageBoundsPen = new Pen(System.Drawing.Color.Green, 1);
@@ -167,18 +170,18 @@ namespace dxfTest
                 {
                     for (int i = 0; i < Polylines[j].laserLines.Count; i++)
                     {
-                        Polylines[j].laserLines[i]=DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true);
+                        Polylines[j].laserLines[i] = DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true, pen, Polylines[j].laserLines[i],true);
                     }
                 }
                 for (int j = 0; j < Lines.Count; j++)
                 {
-                    Lines[j] = DrawLine(Lines[j].p1.X, Lines[j].p1.Y, Lines[j].p2.X, Lines[j].p2.Y, xOffset, yOffset, scale, true,pen,Lines[j]);
+                    Lines[j] = DrawLine(Lines[j].p1.X, Lines[j].p1.Y, Lines[j].p2.X, Lines[j].p2.Y, xOffset, yOffset, scale, true,pen,Lines[j],true);
                 }
                 foreach (Dxf.Circle circle in Circles)
                 {
                     for (int i = 0; i < circle.laserLines.Count; i++)
                     {
-                        DrawLine(circle.laserLines[i].p1.X, circle.laserLines[i].p1.Y, circle.laserLines[i].p2.X, circle.laserLines[i].p2.Y, xOffset, yOffset, scale, true);
+                        circle.laserLines[i]=DrawLine(circle.laserLines[i].p1.X, circle.laserLines[i].p1.Y, circle.laserLines[i].p2.X, circle.laserLines[i].p2.Y, xOffset, yOffset, scale, true, pen, circle.laserLines[i], true);
                     }
                 }
                 if (this.checkDisplayOrigin.Checked)
@@ -205,16 +208,16 @@ namespace dxfTest
                 }));
             }
         }
-        public Dxf.Line DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, Pen pen, Dxf.Line line)
+        public Dxf.Line DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, Pen pen, Dxf.Line line,bool Clickable)
         {
             //if from autocad then have to flip the y-axis
             float x1 = fromAutoCad? X1 * scale * units.LinearConversionFactor + xOffset : X1 * scale + xOffset;
             float y1 = fromAutoCad ? pictureBox1.Height -((Y1) * scale * units.LinearConversionFactor + yOffset) : Y1 * scale + yOffset;
             float x2 = fromAutoCad ? X2 * scale * units.LinearConversionFactor + xOffset : X2 * scale + xOffset;
             float y2 = fromAutoCad ? pictureBox1.Height -((Y2) * scale * units.LinearConversionFactor + yOffset) : Y2 * scale + yOffset;
-            if (selectedLineIndex != null)
+            if (selectedLineParentIndex != null && Clickable)
             {
-                _Graphics.DrawLine(Lines[selectedLineIndex ?? 0] == line ? selectedPen : pen, x1, y1, x2, y2);
+                _Graphics.DrawLine((selectedLineParentIndex ?? 0)==line.parentIndex ? selectedPen : pen, x1, y1, x2, y2);
             }
             else
             {
@@ -235,7 +238,7 @@ namespace dxfTest
         public Dxf.Line DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad)
         {
             Dxf.Line line = new Dxf.Line();
-            line = DrawLine(X1, Y1, X2, Y2, xOffset, yOffset, scale, fromAutoCad, pen,line);
+            line = DrawLine(X1, Y1, X2, Y2, xOffset, yOffset, scale, fromAutoCad, pen,line,false);
             return line;
         }
         public void DrawOrigin(float xOffset, float yOffset, float scale)
@@ -246,9 +249,9 @@ namespace dxfTest
                 float xWidth = (stageBounds.X[1] - stageBounds.X[0]) / 4;
                 float yWidth = (stageBounds.Y[1] - stageBounds.Y[0]) / 4;
                 //x-axis
-                DrawLine(Origin.X - xWidth, Origin.Y, Origin.X + xWidth, Origin.Y, xOffset, yOffset, scale, false, xaxisPen,line);
+                DrawLine(Origin.X - xWidth, Origin.Y, Origin.X + xWidth, Origin.Y, xOffset, yOffset, scale, false, xaxisPen,line,false);
                 //y-axis
-                DrawLine(Origin.X, Origin.Y - yWidth, Origin.X, Origin.Y + yWidth, xOffset, yOffset, scale, false, yaxisPen, line);
+                DrawLine(Origin.X, Origin.Y - yWidth, Origin.X, Origin.Y + yWidth, xOffset, yOffset, scale, false, yaxisPen, line, false);
             }
         }
         public void DrawStageBounds(float xOffset, float yOffset, float scale)
@@ -256,10 +259,10 @@ namespace dxfTest
             Dxf.Line line = new Dxf.Line();
             if (stageBounds != null)
             {
-                DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[0], xOffset, yOffset, scale, false, stageBoundsPen,line);//bottom
-                DrawLine(stageBounds.X[0], stageBounds.Y[1], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line);//top
-                DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[0], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line);//left
-                DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line);//right
+                DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[0], xOffset, yOffset, scale, false, stageBoundsPen, line, false);//bottom
+                DrawLine(stageBounds.X[0], stageBounds.Y[1], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line, false);//top
+                DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[0], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line, false);//left
+                DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsPen, line, false);//right
             }
         }
 
@@ -286,14 +289,33 @@ namespace dxfTest
             {
                 if (FindDistanceToSegment(new PointF(){X=e.X,Y=e.Y},Lines[j].plotted1, Lines[j].plotted2)<10)
                 {
-                    selectedLineIndex = j;
+                    selectedLineParentIndex = Lines[j].parentIndex;
                     DrawDrawing();
                     ShowSelectedLine();
                     thereIsALineSelected = true;
+                    selectedType = "line";
                     break;
                 }
                 else
                 {
+                }
+            }
+            for (int i = 0; i < Polylines.Count; i++)
+            {
+                for (int j = 0; j < Polylines[i].laserLines.Count; j++)
+                {
+                    if (FindDistanceToSegment(new PointF() { X = e.X, Y = e.Y }, Lines[j].plotted1, Lines[j].plotted2) < 10)
+                    {
+                        selectedLineParentIndex = Polylines[i].laserLines[i].parentIndex;
+                        DrawDrawing();
+                        ShowSelectedLine();
+                        thereIsALineSelected = true;
+                        selectedType = "polyline";
+                        break;
+                    }
+                    else
+                    {
+                    }
                 }
             }
             if (!thereIsALineSelected)
@@ -315,6 +337,16 @@ namespace dxfTest
         {
             DrawDrawing();
         }
+        private void textLineSpacing_LostFocus(object sender, EventArgs e)
+        {
+            int userInput = int.Parse(this.textLineSpacing.Text);
+            lineSpacing = userInput <= 0 ? 1 : userInput;
+            Dxf dxf = new Dxf();
+            this.SubscribeDxf(dxf);
+            Thread dxfThread = new Thread(() => dxf.Start(fullFile, lineSpacing));
+            dxfThread.Name = "Dxf";
+            dxfThread.Start();
+        }
         //UI Methods
         private void ShowSelectedLine()
         {
@@ -322,9 +354,9 @@ namespace dxfTest
             {
                 Invoke(new MethodInvoker(() => { ShowSelectedLine(); }));
             }
-            if (selectedLineIndex != null)
+            if (selectedLineParentIndex != null)
             {
-                Dxf.Line _selectedLine = Lines[selectedLineIndex ?? 0];//will always be defined so can do this (set index to 0), though bad practice...
+                Dxf.Line _selectedLine = Lines[selectedLineParentIndex ?? 0];//will always be defined so can do this (set index to 0), though bad practice...
                 this.labelSegmentName.Text = String.Format("({0},{1}) -> ({2},{3})", _selectedLine.p1.X, _selectedLine.p1.Y, _selectedLine.p2.X, _selectedLine.p2.Y);
                 this.textSegmentLaserSpacing.Text = _selectedLine.laserSpacing.ToString();
             }
@@ -383,7 +415,7 @@ namespace dxfTest
         }
         public void ClearSelectedLine()
         {
-            selectedLineIndex = null;
+            selectedLineParentIndex = null;
             this.labelSegmentName.Text = "";
             this.textSegmentLaserSpacing.Text = "";
         }
