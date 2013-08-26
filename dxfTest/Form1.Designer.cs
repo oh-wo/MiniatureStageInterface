@@ -30,6 +30,8 @@
         {
             this.tabFsOnChip = new MetroFramework.Controls.MetroTabPage();
             this.tabDielectricMach = new MetroFramework.Controls.MetroTabPage();
+            this.buttonCenterPicturebox1 = new MetroFramework.Controls.MetroButton();
+            this.labelSegmentName = new System.Windows.Forms.Label();
             this.textSegmentLaserSpacing = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.labelCurrentFile = new System.Windows.Forms.Label();
@@ -37,21 +39,23 @@
             this.labelDrawingScale = new System.Windows.Forms.Label();
             this.checkStageBounds = new System.Windows.Forms.CheckBox();
             this.checkDisplayOrigin = new System.Windows.Forms.CheckBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.labelUnits = new System.Windows.Forms.Label();
             this.textScale = new System.Windows.Forms.TextBox();
             this.textLineSpacing = new System.Windows.Forms.TextBox();
             this.vScrollBar1 = new System.Windows.Forms.VScrollBar();
             this.labelLineSpacing = new System.Windows.Forms.Label();
             this.hScrollBar1 = new System.Windows.Forms.HScrollBar();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabSerialConnect = new MetroFramework.Controls.MetroTabPage();
+            this.buttonRefreshSerial = new MetroFramework.Controls.MetroButton();
             this.label1 = new System.Windows.Forms.Label();
             this.comboSerialPorts = new System.Windows.Forms.ComboBox();
             this.toggleSerialConnect = new MetroFramework.Controls.MetroToggle();
             this.tabErrythang = new MetroFramework.Controls.MetroTabControl();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.labelSegmentName = new System.Windows.Forms.Label();
             this.tabDielectricMach.SuspendLayout();
+            this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabSerialConnect.SuspendLayout();
             this.tabErrythang.SuspendLayout();
@@ -79,6 +83,7 @@
             // 
             // tabDielectricMach
             // 
+            this.tabDielectricMach.Controls.Add(this.buttonCenterPicturebox1);
             this.tabDielectricMach.Controls.Add(this.labelSegmentName);
             this.tabDielectricMach.Controls.Add(this.textSegmentLaserSpacing);
             this.tabDielectricMach.Controls.Add(this.label2);
@@ -87,13 +92,13 @@
             this.tabDielectricMach.Controls.Add(this.labelDrawingScale);
             this.tabDielectricMach.Controls.Add(this.checkStageBounds);
             this.tabDielectricMach.Controls.Add(this.checkDisplayOrigin);
-            this.tabDielectricMach.Controls.Add(this.pictureBox1);
             this.tabDielectricMach.Controls.Add(this.labelUnits);
             this.tabDielectricMach.Controls.Add(this.textScale);
             this.tabDielectricMach.Controls.Add(this.textLineSpacing);
             this.tabDielectricMach.Controls.Add(this.vScrollBar1);
             this.tabDielectricMach.Controls.Add(this.labelLineSpacing);
             this.tabDielectricMach.Controls.Add(this.hScrollBar1);
+            this.tabDielectricMach.Controls.Add(this.panel1);
             this.tabDielectricMach.CustomBackground = false;
             this.tabDielectricMach.HorizontalScrollbar = false;
             this.tabDielectricMach.HorizontalScrollbarBarColor = true;
@@ -114,12 +119,35 @@
             this.tabDielectricMach.VerticalScrollbarHighlightOnWheel = false;
             this.tabDielectricMach.VerticalScrollbarSize = 10;
             // 
+            // buttonCenterPicturebox1
+            // 
+            this.buttonCenterPicturebox1.Highlight = false;
+            this.buttonCenterPicturebox1.Location = new System.Drawing.Point(184, 10);
+            this.buttonCenterPicturebox1.Name = "buttonCenterPicturebox1";
+            this.buttonCenterPicturebox1.Size = new System.Drawing.Size(75, 23);
+            this.buttonCenterPicturebox1.Style = MetroFramework.MetroColorStyle.Blue;
+            this.buttonCenterPicturebox1.StyleManager = null;
+            this.buttonCenterPicturebox1.TabIndex = 16;
+            this.buttonCenterPicturebox1.Text = "center";
+            this.buttonCenterPicturebox1.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.buttonCenterPicturebox1.Click += new System.EventHandler(this.buttonCenterPicturebox1_Click);
+            // 
+            // labelSegmentName
+            // 
+            this.labelSegmentName.AutoSize = true;
+            this.labelSegmentName.Location = new System.Drawing.Point(755, 50);
+            this.labelSegmentName.Name = "labelSegmentName";
+            this.labelSegmentName.Size = new System.Drawing.Size(52, 13);
+            this.labelSegmentName.TabIndex = 15;
+            this.labelSegmentName.Text = "Segment:";
+            // 
             // textSegmentLaserSpacing
             // 
             this.textSegmentLaserSpacing.Location = new System.Drawing.Point(758, 94);
             this.textSegmentLaserSpacing.Name = "textSegmentLaserSpacing";
             this.textSegmentLaserSpacing.Size = new System.Drawing.Size(98, 20);
             this.textSegmentLaserSpacing.TabIndex = 14;
+            this.textSegmentLaserSpacing.LostFocus += new System.EventHandler(this.textSegmentLaserSpacing_LostFocus);
             // 
             // label2
             // 
@@ -156,7 +184,7 @@
             // labelDrawingScale
             // 
             this.labelDrawingScale.AutoSize = true;
-            this.labelDrawingScale.Location = new System.Drawing.Point(256, 16);
+            this.labelDrawingScale.Location = new System.Drawing.Point(275, 16);
             this.labelDrawingScale.Name = "labelDrawingScale";
             this.labelDrawingScale.Size = new System.Drawing.Size(72, 13);
             this.labelDrawingScale.TabIndex = 5;
@@ -173,7 +201,7 @@
             this.checkStageBounds.TabIndex = 9;
             this.checkStageBounds.Text = "stage bounds";
             this.checkStageBounds.UseVisualStyleBackColor = true;
-            this.checkStageBounds.CheckStateChanged += new System.EventHandler(checkStageBounds_CheckStateChanged);
+            this.checkStageBounds.CheckStateChanged += new System.EventHandler(this.checkStageBounds_CheckStateChanged);
             // 
             // checkDisplayOrigin
             // 
@@ -186,21 +214,12 @@
             this.checkDisplayOrigin.TabIndex = 9;
             this.checkDisplayOrigin.Text = "origin";
             this.checkDisplayOrigin.UseVisualStyleBackColor = true;
-            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(checkDisplayOrigin_CheckStateChanged);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(11, 44);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(705, 520);
-            this.pictureBox1.TabIndex = 1;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.checkDisplayOrigin.CheckedChanged += new System.EventHandler(this.checkDisplayOrigin_CheckStateChanged);
             // 
             // labelUnits
             // 
             this.labelUnits.AutoSize = true;
-            this.labelUnits.Location = new System.Drawing.Point(520, 16);
+            this.labelUnits.Location = new System.Drawing.Point(539, 16);
             this.labelUnits.Name = "labelUnits";
             this.labelUnits.Size = new System.Drawing.Size(74, 13);
             this.labelUnits.TabIndex = 8;
@@ -208,20 +227,20 @@
             // 
             // textScale
             // 
-            this.textScale.Location = new System.Drawing.Point(334, 13);
+            this.textScale.Location = new System.Drawing.Point(353, 13);
             this.textScale.Name = "textScale";
             this.textScale.Size = new System.Drawing.Size(44, 20);
             this.textScale.TabIndex = 2;
-            this.textScale.Text = "0.1";
+            this.textScale.Text = "0.2";
             this.textScale.LostFocus += new System.EventHandler(this.textScale_LostFocus);
             // 
             // textLineSpacing
             // 
-            this.textLineSpacing.Location = new System.Drawing.Point(453, 13);
+            this.textLineSpacing.Location = new System.Drawing.Point(472, 13);
             this.textLineSpacing.Name = "textLineSpacing";
             this.textLineSpacing.Size = new System.Drawing.Size(61, 20);
             this.textLineSpacing.TabIndex = 7;
-            this.textLineSpacing.LostFocus += new System.EventHandler(textLineSpacing_LostFocus);
+            this.textLineSpacing.LostFocus += new System.EventHandler(this.textLineSpacing_LostFocus);
             // 
             // vScrollBar1
             // 
@@ -230,11 +249,12 @@
             this.vScrollBar1.Size = new System.Drawing.Size(15, 520);
             this.vScrollBar1.TabIndex = 3;
             this.vScrollBar1.Value = 50;
+            this.vScrollBar1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScrollBar1_Scroll);
             // 
             // labelLineSpacing
             // 
             this.labelLineSpacing.AutoSize = true;
-            this.labelLineSpacing.Location = new System.Drawing.Point(384, 16);
+            this.labelLineSpacing.Location = new System.Drawing.Point(403, 16);
             this.labelLineSpacing.Name = "labelLineSpacing";
             this.labelLineSpacing.Size = new System.Drawing.Size(63, 13);
             this.labelLineSpacing.TabIndex = 6;
@@ -244,12 +264,34 @@
             // 
             this.hScrollBar1.Location = new System.Drawing.Point(11, 567);
             this.hScrollBar1.Name = "hScrollBar1";
-            this.hScrollBar1.Size = new System.Drawing.Size(707, 15);
+            this.hScrollBar1.Size = new System.Drawing.Size(705, 18);
             this.hScrollBar1.TabIndex = 4;
             this.hScrollBar1.Value = 50;
+            this.hScrollBar1.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScrollBar1_Scroll);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.pictureBox1);
+            this.panel1.Location = new System.Drawing.Point(11, 44);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(705, 520);
+            this.panel1.TabIndex = 17;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Location = new System.Drawing.Point(60, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(705, 520);
+            this.pictureBox1.TabIndex = 1;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseDown);
+            this.pictureBox1.MouseEnter += new System.EventHandler(this.pictureBox1_MouseEnter);
+            this.pictureBox1.MouseLeave += new System.EventHandler(this.pictureBox1_MouseLeave);
+            this.pictureBox1.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.pictureBox1_MouseWheel);
             // 
             // tabSerialConnect
             // 
+            this.tabSerialConnect.Controls.Add(this.buttonRefreshSerial);
             this.tabSerialConnect.Controls.Add(this.label1);
             this.tabSerialConnect.Controls.Add(this.comboSerialPorts);
             this.tabSerialConnect.Controls.Add(this.toggleSerialConnect);
@@ -272,6 +314,19 @@
             this.tabSerialConnect.VerticalScrollbarBarColor = true;
             this.tabSerialConnect.VerticalScrollbarHighlightOnWheel = false;
             this.tabSerialConnect.VerticalScrollbarSize = 10;
+            // 
+            // buttonRefreshSerial
+            // 
+            this.buttonRefreshSerial.Highlight = false;
+            this.buttonRefreshSerial.Location = new System.Drawing.Point(370, 42);
+            this.buttonRefreshSerial.Name = "buttonRefreshSerial";
+            this.buttonRefreshSerial.Size = new System.Drawing.Size(75, 23);
+            this.buttonRefreshSerial.Style = MetroFramework.MetroColorStyle.Blue;
+            this.buttonRefreshSerial.StyleManager = null;
+            this.buttonRefreshSerial.TabIndex = 9;
+            this.buttonRefreshSerial.Text = "refresh";
+            this.buttonRefreshSerial.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.buttonRefreshSerial.Click += new System.EventHandler(this.buttonRefreshSerial_Click);
             // 
             // label1
             // 
@@ -329,15 +384,6 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // labelSegmentName
-            // 
-            this.labelSegmentName.AutoSize = true;
-            this.labelSegmentName.Location = new System.Drawing.Point(755, 50);
-            this.labelSegmentName.Name = "labelSegmentName";
-            this.labelSegmentName.Size = new System.Drawing.Size(52, 13);
-            this.labelSegmentName.TabIndex = 15;
-            this.labelSegmentName.Text = "Segment:";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -349,6 +395,7 @@
             this.Text = "Laser Micromachining Control";
             this.tabDielectricMach.ResumeLayout(false);
             this.tabDielectricMach.PerformLayout();
+            this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabSerialConnect.ResumeLayout(false);
             this.tabSerialConnect.PerformLayout();
@@ -382,6 +429,9 @@
         private System.Windows.Forms.TextBox textSegmentLaserSpacing;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label labelSegmentName;
+        private MetroFramework.Controls.MetroButton buttonCenterPicturebox1;
+        private MetroFramework.Controls.MetroButton buttonRefreshSerial;
+        private System.Windows.Forms.Panel panel1;
 
 
     }

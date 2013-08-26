@@ -27,3 +27,11 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfT
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.csproj.GenerateResource.Cache
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.exe
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\obj\Debug\dxfTest.pdb
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Api2.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Types.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Utilities.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Api2.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Types.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\dxfTest\bin\Debug\Microsoft.Expression.Encoder.Utilities.xml

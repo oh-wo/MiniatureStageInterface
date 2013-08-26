@@ -15,6 +15,8 @@ namespace dxfTest
 {
     public class SerialComs
     {
+        SerialPort _sPort;
+
         public event UIEventHandler specEvent;
         public class myEventArgs : EventArgs
         {
@@ -26,10 +28,11 @@ namespace dxfTest
         {
 
         }
-        public void Start()
+        public void Start(SerialPort sPort)
         {
+            _sPort = sPort;
             /*Use to update the ui thread if required */
-            
+
             /*myEventArgs e = new myEventArgs();
             
             for (int i = 0; i < 10; i++)
@@ -40,7 +43,14 @@ namespace dxfTest
             }
              */
         }
+
+
+        public void Move(float X, float Y, bool LaserOn, float TimeDelay){
+            //Structure: [move xPos, yPos, laser on?, time delay, waitForPositionBeforeNextCommand?]
+            _sPort.Write("[move 0 0 1 0.5 1]");
+        }
+
     }
-    }
+}
 
 

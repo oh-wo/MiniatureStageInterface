@@ -33,6 +33,7 @@ namespace dxfTest
             public List<polyPoint> verticies { get; set; }//all the verticies 
             public List<Line> laserLines { get; set; }//list of lines used to describe the arc
             public bool readComplete { get; set; }//all data has been read in ok
+            public float laserSpacing { get; set; }
         }
         public class polyPoint
         {
@@ -57,7 +58,7 @@ namespace dxfTest
             }
             public PointF plotted1 { get; set; }
             public PointF plotted2 { get; set; }
-            public int laserSpacing { get; set; }
+            public float laserSpacing { get; set; }
             public int parentIndex { get; set; }
         }
         public class Arc
@@ -367,9 +368,10 @@ namespace dxfTest
             {
                 circle.laserLines = ConvertCircleToLines(circle, Form1.lineSpacing);
             }
-            foreach (Polyline pline in _polylines)
+            for(int z=0; z<_polylines.Count; z++)
             {
                 //this.textOutput.Text += String.Format("Polyline: {0} vertices, {1} \r\n", pline.noVerticies, pline.closed ? "closed" : "open");
+                Polyline pline = _polylines[z];
                 pline.laserLines = new List<Line>();
                 if (pline.noVerticies > 0)
                 {
@@ -422,14 +424,14 @@ namespace dxfTest
                             if (i != (pline.noVerticies - 1))
                             {
                                 //link to next vertex in list
-                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing));
+                                pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing, z));
                             }
                             else
                             {
                                 if (pline.closed)
                                 {
                                     //link back to the original vertex
-                                    pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing));
+                                    pline.laserLines.AddRange(ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, Form1.lineSpacing, z));
                                 }
                             };
                         };
@@ -487,6 +489,7 @@ namespace dxfTest
             };
             FindDrawingDims(line.p1.X, line.p1.Y);
             FindDrawingDims(line.p2.X, line.p2.Y);
+            line.laserSpacing = _lineSpacing;
             _lines.Add(line);
         }
         public void GetPolylineProperties(string[] file, int startLine)
@@ -543,6 +546,7 @@ namespace dxfTest
                 pline.verticies.Remove(pline.verticies.Last());
                 pline.noVerticies--;
             }*/
+            pline.laserSpacing = _lineSpacing;
             _polylines.Add(pline);
         }
         /* public void GetArcProperties(string[] file, int startLine)
@@ -767,7 +771,7 @@ namespace dxfTest
             }
             return output;
         }
-        public List<Line> ConvertBulgeToLines(PointF start, PointF end, float bulge, float lineSpacing)
+        public List<Line> ConvertBulgeToLines(PointF start, PointF end, float bulge, float lineSpacing, int parentShapeIndex)
         {
             /*
              * Function to convert a dxf bulge arc to a series of lines which approximate the arc. 
@@ -881,7 +885,7 @@ namespace dxfTest
                         X = (float)(radius * Math.Cos(nextTheta) + center.X),
                         Y = (float)(radius * Math.Sin(nextTheta) + center.Y),
                     },
-                    parentIndex = i,
+                    parentIndex = parentShapeIndex,
                 };
                 FindDrawingDims(line.p1.X, line.p1.Y);
                 FindDrawingDims(line.p2.X, line.p2.Y);
@@ -894,7 +898,7 @@ namespace dxfTest
         public List<Line> ConvertLineToLaserLines(Line line, float lineSpacing, int parentLineIndex)
         {
             List<Line> lines = new List<Line>();
-            int n = (int)Math.Floor(line.GetLength/_lineSpacing);
+            int n = (int)Math.Floor(line.GetLength / lineSpacing);
             float dx = (line.p2.X-line.p1.X) / (float)n;
             float dy = (line.p2.Y - line.p1.Y) / (float)n;
             float x = line.p1.X;
@@ -915,6 +919,7 @@ namespace dxfTest
                     },
                 };
                 li.parentIndex = parentLineIndex;
+                li.laserSpacing = line.laserSpacing;
                 lines.Add(li);
                 x += dx;
                 y += dy;
