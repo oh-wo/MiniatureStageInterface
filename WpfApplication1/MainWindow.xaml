@@ -1,0 +1,73 @@
+﻿<Window x:Class="WpfApplication1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cam="clr-namespace:WebcamControl;assembly=WebcamControl"   
+        xmlns:WPFMediaKit="clr-namespace:WPFMediaKit.DirectShow.Controls;assembly=WPFMediaKit"
+        Title="MainWindow" Height="774.062" Width="1197.526">
+    <Grid Margin="0,0,2,-1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="481*"/>
+            <ColumnDefinition Width="50*"/>
+        </Grid.ColumnDefinitions>
+        
+        <TabControl HorizontalAlignment="Left" Height="671" Margin="28,39,0,0" VerticalAlignment="Top" Width="1120" Grid.ColumnSpan="2">
+            <TabItem Header="Config">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="109*"/>
+                        <ColumnDefinition Width="34*"/>
+                        <ColumnDefinition Width="967*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Content="Connect" HorizontalAlignment="Left" Margin="217,83,0,0" VerticalAlignment="Top" Width="74" Grid.Column="2"/>
+                    <ComboBox x:Name="comboSerial" HorizontalAlignment="Left" Margin="40,83,0,0" VerticalAlignment="Top" Width="314" Grid.ColumnSpan="3"/>
+                    <Label Content="Please select a serial port from the list below and connect" HorizontalAlignment="Left" Margin="40,52,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Grid.ColumnSpan="3"/>
+                    <ComboBox x:Name="comboVideo" HorizontalAlignment="Left" Margin="40,141,0,0" VerticalAlignment="Top" Width="314" Grid.ColumnSpan="3"/>
+                    <Button x:Name="buttonCameraStart" Content="start camera" HorizontalAlignment="Left" Margin="217,141,0,0" VerticalAlignment="Top" Width="74" RenderTransformOrigin="-0.959,-2.273" Click="buttonCameraStart_Click" Grid.Column="2"/>
+                    <Label Content="Please select a camera / video source from the list below" HorizontalAlignment="Left" Margin="40,110,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Grid.ColumnSpan="3"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Dielectric Machining">
+                <Grid Background="#FFE5E5E5">
+
+                    <Button x:Name="buttonChangeFile" Content="Change File" HorizontalAlignment="Left" Margin="112,18,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.032,-0.474" Click="buttonChangeFile_Clicked"/>
+                    <Button x:Name="buttonCenterCanvas" Content="center" HorizontalAlignment="Left" Margin="192,18,0,0" VerticalAlignment="Top" Width="75" Click="buttonCenterCanvas_Click"/>
+                    <Label Content="drawing scale" HorizontalAlignment="Left" Margin="285,14,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textScale" HorizontalAlignment="Left" Height="23" Margin="387,18,0,0" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Top" Width="120" LostFocus="textScale_LostFocus"/>
+                    <Label Content="line spacing" HorizontalAlignment="Left" Margin="512,18,0,0" VerticalAlignment="Top" LostFocus="textLineSpacing_LostFocus"/>
+                    <TextBox x:Name="textLineSpacing" HorizontalAlignment="Left" Height="23" Margin="603,17,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                    <Label x:Name="labelUnits" Content="units detected" HorizontalAlignment="Left" Margin="740,16,0,0" VerticalAlignment="Top"/>
+                    <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement"
+                                 
+                                 DesiredPixelWidth="320"
+                                 DesiredPixelHeight="240"
+                                 Stretch="Fill"
+                                 VideoCaptureSource="{Binding Path=CaptureDeviceName}"
+                                 FPS="30" />
+                    <Canvas ClipToBounds="True" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="543" Margin="10,49,0,0" VerticalAlignment="Top" Width="848" Cursor="Arrow" x:Name="canvasDielectric" >
+
+                        
+
+                    </Canvas>
+                    
+                    <Label x:Name="labelCurrentFile" Content="no file chosen" HorizontalAlignment="Left" Margin="23,18,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.095,-0.567"/>
+                    <CheckBox x:Name="checkDisplayOrigin" Content="origin" HorizontalAlignment="Left" Margin="10,623,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
+                    <CheckBox x:Name="checkStageBounds" Content="stage bounds" HorizontalAlignment="Left" Margin="63,623,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
+                    <CheckBox x:Name="checkCamera" Content="display video feed" HorizontalAlignment="Left" Margin="156,623,0,0" VerticalAlignment="Top" Checked="checkCamera_Checked" Unchecked="checkCamera_Unchecked"/>
+                    <Label x:Name="labelSegmentName" Content="Segment" HorizontalAlignment="Left" Margin="918,60,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="Laser_spacing_" Content="Laser spacing" HorizontalAlignment="Left" Margin="918,91,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textSegmentLaserSpacing" LostFocus="textSegmentLaserSpacing_LostFocus" HorizontalAlignment="Left" Height="23" Margin="918,122,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
+                    <ScrollBar x:Name="vScrollBar1" HorizontalAlignment="Left" Height="543" Margin="858,49,0,0" VerticalAlignment="Top" Width="0" Scroll="vScrollBar1_Scroll"/>
+                    <ScrollBar x:Name="hScrollBar1" HorizontalAlignment="Left" Height="21" Margin="10,597,0,0" VerticalAlignment="Top" Width="848" Orientation="Horizontal" Scroll="hScrollBar1_Scroll"/>
+
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Femtosecond ">
+                <Grid Background="#FFE5E5E5">
+
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
