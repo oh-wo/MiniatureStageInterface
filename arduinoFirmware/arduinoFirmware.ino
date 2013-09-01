@@ -14,7 +14,7 @@ void setup()
   Serial.println("serial started");
   // set the data rate for the SoftwareSerial port
   mySerial.begin(9600);
-  ConfigureOpenLoopMode();
+  //ConfigureOpenLoopMode();
 }
 
 
@@ -22,7 +22,6 @@ void setup()
 
 void loop() // run over and over
 {
-
   ReadMessagesFromPc();
   SendMessagesFromControllerToPc();
 }
@@ -109,40 +108,61 @@ void ConfigureOpenLoopMode(){
 
 void ExecuteInputCommands(){
   double x;
+  double y;
+  int yIndex;
+  int spaceCount=0;
+
   for(int i=0; i<20; i++){
     delay(50);
     if(inputCommands[i]!=""){
       switch(inputCommands[i][1]){
       case '1':
-        //move x
-        x=parseDouble(inputCommands[i],3);
-        Serial.print("1 mov 1 ");
-        Serial.print(x,5);
-        Serial.print("\n");
+        //move command
+        // [commandType  shootLaser  xPos  yPos]
+
+
+        //find index of y coordinate
+
+          for(int z=0; z<inputCommands[i].length(); z++){
+          //loop through and find location of 3rd space character
+          if(inputCommands[i][z]==' '){
+            spaceCount++; 
+          }
+          if(spaceCount==3){
+            yIndex=z+1;
+            spaceCount=0;
+            break; 
+          }
+        }
+        Serial.print("Yindex: ");
+            Serial.println(yIndex);
+        x=parseDouble(inputCommands[i],5);
+        y=parseDouble(inputCommands[i],yIndex);
         mySerial.print("1 mov 1 ");
         mySerial.print(x,5);
         mySerial.print("\n");
-        while(hasntMovedToPos(1,x,0.1)){
-         delay(100); 
-        }
-        break;
-      case '2':
-        //move y
-        x=parseDouble(inputCommands[i],3);
         mySerial.print("2 mov 1 ");
-        mySerial.print(x,5);
+        mySerial.print(y,5);
         mySerial.print("\n");
-        while(hasntMovedToPos(2,x,0.1)){
-         delay(100); 
+        Serial.print("1 mov 1 ");
+        Serial.print(x,5);
+        Serial.print("\n");
+        Serial.print("2 mov 1 ");
+        Serial.print(y,5);
+        Serial.print("\n");
+        while(hasntMovedToPos(x,y,0.001)){
+          delay(100); 
         }
         break;
-      case '3':
+
+      case '2':
         //pos
         mySerial.print("1 pos? \n");
         delay(50);
         mySerial.print("2 pos? \n");
         break;
-      case '4':
+
+      case '3':
         //clear inputCommands
         for(int i=0; i<20; i++){
           inputCommands[i]=""; 
@@ -152,24 +172,28 @@ void ExecuteInputCommands(){
         break;
       }
     }
+
   }
 
 }
-
-boolean hasntMovedToPos(int axis, double pos,double tolerance){
+boolean hasntMovedToPos(double xPos,double yPos, double tol){//target x pos, target y pos, required tolerance
   String readString="";
-  double currentPos;
-  boolean success = false;
+  double curXPos;
+  double curYPos;
+  boolean notInPos = false;
   boolean talkMS=0;
-  
-  //Ask controller for the axis position
-  mySerial.print(axis);
-  mySerial.print(" pos?\n");
-  Serial.print(axis);
-  Serial.print(" pos?\n");
+  int xIndex;
+  int yIndex;
+  int equalsCount=0;
+
+  //Ask controller for the axes position
+  mySerial.print("1 pos?\n");
+  delay(500);
+  mySerial.print("2 pos?\n");
   //Wait for a reply
-  
-  while(readString==""){
+
+  //delay(1000);
+  while(readString.length()<18){//needs to get two lines worth of: "0 1 1=0.00000" and "0 2 1=0.00000"-----------can use the number of equals signs received
     while (mySerial.available()) {
       delay(50);  //delay to allow buffer to fill 
       if (mySerial.available() >0) {
@@ -181,42 +205,52 @@ boolean hasntMovedToPos(int axis, double pos,double tolerance){
     if(talkMS){
       for(int i=0; i<readString.length(); i++){
         if(readString[i]=='='){
-          currentPos=parseDouble(readString,i+1);
-          break;
+          if(equalsCount==1){
+            yIndex=i+1;
+            break;
+          }
+          if(equalsCount==0){
+            xIndex=i+1;
+            equalsCount++;
+          }
+          
         }
         talkMS=0;
       }
+      curXPos=parseDouble(readString,xIndex);
+      curYPos=parseDouble(readString,yIndex);
+      Serial.println("\n-----current positions----");
+      Serial.print("*    xPos: ");
+      Serial.print(curXPos,5);
+      Serial.print("    yPos: ");
+       Serial.println(curYPos,5);
+       Serial.println("\n");
     }
   }
-  if(abs(pos-currentPos)>tolerance){
-      success=true;
+  if(abs(xPos-curXPos)>tol && abs(yPos-curYPos)>tol){
+    notInPos=true;
   }
-  return success;
+  return notInPos;
 }
 
 
 double parseDouble(String str,int startIndex){
   int j=0;
   char outputString[20];
-  for(int i=startIndex; i<(str.length()-(startIndex-1)); i++){
-    if(str[i]!=' ' && str[i]!=']'){
+  for(int i=startIndex; i<str.length(); i++){
+    if(str[i]!=' '&& str[i]!=']'){
       outputString[j]=str[i];
       j++;
-      // Serial.print(str[i]);
     }
     else{
       break; 
     }
   }
-  Serial.print("output string=");
-  Serial.println(outputString);
-  // Serial.print("output string= ");
-  //Serial.print(atof(outputString),10);
-
-  //Serial.print("\n");
-  Serial.println(outputString);
   return atof(outputString);
 }
+
+
+
 
 
 
