@@ -74,7 +74,7 @@ namespace WpfApplication1
             public PointF plotted1 { get; set; }
             public PointF plotted2 { get; set; }
             public float laserSpacing { get; set; }
-            public int parentIndex { get; set; }
+            public int? parentIndex { get; set; }
         }
         public class Arc
         {
