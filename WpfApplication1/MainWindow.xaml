@@ -61,6 +61,10 @@
                     <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="272" Margin="642,320,0,0" VerticalAlignment="Top" Width="375" Cursor="Arrow" x:Name="canvasCamera" Background="Transparent" >
 
                     </Canvas>
+                    <TextBox Name="outputCommands" HorizontalAlignment="Left" Height="67" Margin="642,49,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240"/>
+                    <Button Content="Generate Commands" Click="ConvertLineListToOutputCommands" HorizontalAlignment="Left" Margin="921,49,0,0" VerticalAlignment="Top" Width="75"/>
+                    <Button Content="Pew pew" Click="pewpew" HorizontalAlignment="Left" Margin="921,76,0,0" VerticalAlignment="Top" Width="75"/>
+                    <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="642,121,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
 
                 </Grid>
             </TabItem>

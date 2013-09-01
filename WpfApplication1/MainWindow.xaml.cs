@@ -40,7 +40,7 @@ namespace WpfApplication1
         public List<Dxf.Polyline> Polylines = new List<Dxf.Polyline>();
         public List<Dxf.Arc> Arcs = new List<Dxf.Arc>();
         public List<Dxf.Circle> Circles = new List<Dxf.Circle>();
-        public static float lineSpacing = 20;
+        public static float lineSpacing = 50;
         //Global parameters
         SerialPort sPort;
         public SolidColorBrush brush = new SolidColorBrush(Colors.White);
@@ -66,6 +66,7 @@ namespace WpfApplication1
         public MainWindow()
         {
             InitializeComponent();
+            
             /*General initializing */
             // canvasDielectric.Children.Add(new Line() { X1 = 5, X2 = 100, Y1 = 5, Y2 = 100, StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Orange });
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
@@ -106,7 +107,6 @@ namespace WpfApplication1
             /*General UI setup */
             this.labelCurrentFile.Content = System.IO.Path.GetFileName(fullFile);
             this.textLineSpacing.Text = lineSpacing.ToString();
-
 
 
         }
@@ -940,8 +940,47 @@ namespace WpfApplication1
             l3.X1 = e.GetPosition(canvasCamera).X;
             l3.X2 = canvasCamera.Width - e.GetPosition(canvasCamera).X;
         }
-        
 
+        private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
+        {
+            foreach(Dxf.Line line in Lines){
+                outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(line.p1.X / 10,5), (float)Math.Round(line.p1.Y / 10,5));
+            }
+            foreach (Dxf.Polyline pLine in Polylines)
+            {
+                foreach (Dxf.Line laserLine in pLine.laserLines)
+                {
+                    outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(laserLine.p1.X / 10,5), (float)Math.Round(laserLine.p1.Y / 10,5));
+                }
+            
+            }
+        }SerialPort sp;
+        private void pewpew(object sender, RoutedEventArgs e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(delegate
+           {
+               string commands = String.Format("{0}*", outputCommands.Text);
+               sp = new SerialPort("COM9");
+               sp.Close();
+               if (!sp.IsOpen)
+                   sp.Open();
+               sp.Write(commands);
+               sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+               //sp.Close();
+           }));
+        }
+        private void dataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+           // incomingData.Text += e;
+            this.Dispatcher.BeginInvoke(new Action(delegate
+            {
+                if (sp.BytesToRead > 10) { 
+                char[] buffer = new char[100];
+
+                incomingData.Text += sp.ReadLine();
+                };
+            }));
+        }
     }
     public class MyLine : Shape
     {
