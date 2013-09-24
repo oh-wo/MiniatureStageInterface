@@ -1,0 +1,94 @@
+Conditions which give 70mm = 1350 open loop (ie 1 osm 1 1350 will move the stage from negative limit to the postitive)
+
+>>1 hpa?
+<<0 1 The following parameters are valid: 
+<<0x1 P term 
+<<0x2 I term 
+<<0x3 D term 
+<<0x4 I limit 
+<<0x8 following error 
+<<0xA closed loop velocity 
+<<0xB closed loop acceleration 
+<<0xC closed loop deceleration 
+<<0xE numerator 
+<<0xF denominator 
+<<0x14 has reference 
+<<0x15 travel range maximum 
+<<0x16 reference position 
+<<0x17 distance between reference and negative limit 
+<<0x18 limit mode 
+<<0x2F distance between reference and positive limit 
+<<0x30 travel range minimum 
+<<0x31 invert reference 
+<<0x32 has limit (0=limitswitchs 1=no limitswitchs) 
+<<0x36 Settlewindow 
+<<0x3C Stagename 
+<<0x3F Settletime 
+<<0x47 reference travel direction 
+<<0x7000002 slewrate (ms) 
+<<0x7000003 bending voltage 
+<<0x7000201 open loop velocity 
+<<0x7000202 open loop acceleration 
+<<0x7000203 open loop deceleration 
+<<0x7000010 GEMAC parameter 0 
+<<0x7000011 GEMAC parameter 1 
+<<0x7000012 GEMAC parameter 2 
+<<0x7000013 GEMAC parameter 3 
+<<0x7000014 GEMAC parameter 4 
+<<0x7000015 GEMAC parameter 5 
+<<0x7000016 GEMAC parameter 6 
+<<0x7000017 GEMAC parameter 7 
+<<0x7000018 GEMAC parameter 8 
+<<0x7000019 GEMAC parameter 9 
+<<0x700001A GEMAC parameter 10 
+<<0x700001B GEMAC parameter 11 
+<<0x700001C GEMAC parameter 12 
+<<0x700001D GEMAC parameter 13 
+<<0x700001E GEMAC parameter 14 
+<<0x700001F GEMAC parameter 15 
+<<end of help
+>>1 spa?
+<<0 1 1 0x1=100 
+<<1 0x2=200 
+<<1 0x3=32 
+<<1 0x4=200 
+<<1 0x8=100.00000 
+<<1 0xA=8.00000 
+<<1 0xB=16.00000 
+<<1 0xC=16.00000 
+<<1 0xE=50000 
+<<1 0xF=1 
+<<1 0x14=1 
+<<1 0x15=7.20000 
+<<1 0x16=-4.56000 
+<<1 0x17=4.00000 
+<<1 0x18=0 
+<<1 0x2F=-0.00002 
+<<1 0x30=-8.00000 
+<<1 0x31=0 
+<<1 0x32=1 
+<<1 0x36=1 
+<<1 0x3C=N-661.21A 
+<<1 0x3F=0.000000 
+<<1 0x47=0 
+<<1 0x7000002=100 
+<<1 0x7000003=55.0000 
+<<1 0x7000201=1600.0000 
+<<1 0x7000202=1000.0000 
+<<1 0x7000203=1000.0000 
+<<1 0x7000010=252 
+<<1 0x7000011=10 
+<<1 0x7000012=60 
+<<1 0x7000013=223 
+<<1 0x7000014=15 
+<<1 0x7000015=0 
+<<1 0x7000016=0 
+<<1 0x7000017=128 
+<<1 0x7000018=0 
+<<1 0x7000019=128 
+<<1 0x700001A=0 
+<<1 0x700001B=0 
+<<1 0x700001C=0 
+<<1 0x700001D=0 
+<<1 0x700001E=0 
+<<1 0x700001F=70

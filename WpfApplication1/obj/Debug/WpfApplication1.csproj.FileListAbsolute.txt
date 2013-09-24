@@ -32,9 +32,7 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Types.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Utilities.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\ShaderEffectLibrary.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\System.Windows.Interactivity.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\WPFMediaKit.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Api2.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Types.xml
@@ -47,3 +45,7 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.g.resources
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.Properties.Resources.resources
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.csproj.GenerateResource.Cache
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\FirstFloor.ModernUI.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\FirstFloor.ModernUI.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\App.baml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\MahApps.Metro.dll

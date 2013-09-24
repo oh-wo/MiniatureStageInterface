@@ -20,6 +20,8 @@ using System.IO.Ports;
 using System.Runtime.InteropServices;
 using WebcamControl;
 using Microsoft.Expression.Encoder.Devices;
+using MahApps.Metro;
+using MahApps;
 
 
 namespace WpfApplication1
@@ -27,7 +29,7 @@ namespace WpfApplication1
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
         // Global variables
         string[] file;
@@ -66,15 +68,17 @@ namespace WpfApplication1
         public MainWindow()
         {
             InitializeComponent();
-            
+
             /*General initializing */
             // canvasDielectric.Children.Add(new Line() { X1 = 5, X2 = 100, Y1 = 5, Y2 = 100, StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Orange });
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
             FindDevices();
             DisplayAvailableSerialPorts();
             SetupCameraCanvas();
+            PopulateChipCanvas();
             //Canvas background colour opaque by default
             canvasDielectric.Background = new SolidColorBrush(Color.FromRgb(34, 41, 51));
+            chipCanvas.Background = new SolidColorBrush(Color.FromRgb(34, 41, 51));
             vScrollBar1.Value = 0.5;
             hScrollBar1.Value = 0.5;
 
@@ -192,11 +196,13 @@ namespace WpfApplication1
                 Uid = "MyLine",
             };
             li.Stroke = b;
-            
+
             li.MouseDown += new MouseButtonEventHandler(line_MouseDown);
             canvasDielectric.Children.Add(li);
-            if (fromAutoCad){
-                MyEllipse ellipse = new MyEllipse() {
+            if (fromAutoCad)
+            {
+                MyEllipse ellipse = new MyEllipse()
+                {
                     Clickable = true,
                     Uid = "MyEllipse",
                     ParentIndex = line.parentIndex,
@@ -204,10 +210,11 @@ namespace WpfApplication1
                     Radius = 2,
                     Stroke = b,
                     StrokeThickness = 5,
-                    
+
                 };
-                ellipse.MouseDown+= new MouseButtonEventHandler(ellipse_MouseDown);
-                canvasDielectric.Children.Add(ellipse);}
+                ellipse.MouseDown += new MouseButtonEventHandler(ellipse_MouseDown);
+                canvasDielectric.Children.Add(ellipse);
+            }
 
             line.plotted1 = new PointF()
             {
@@ -379,6 +386,7 @@ namespace WpfApplication1
         }
         public void DrawDrawing()
         {
+
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
                 canvasDielectric.Children.Clear();
@@ -548,6 +556,11 @@ namespace WpfApplication1
 
             }
         }
+        void canvasDielectric_MouseLeave(object sender, MouseEventArgs e)
+        {
+            canvasCamera.MouseMove -= canvasCameraMouseMoveY;
+            canvasCamera.MouseMove -= canvasCameraMouseMoveX;
+        }
         void checkStageBounds_Checked(object sender, EventArgs e)
         {
             DrawDrawing();
@@ -682,7 +695,7 @@ namespace WpfApplication1
                         break;
 
                 }
-                
+
                 this.textSegmentLaserSpacing.Text = _laserSpacing.ToString();
             }
         }
@@ -760,37 +773,14 @@ namespace WpfApplication1
                 }
             }
         }
-
-        #endregion
-
-        private void buttonCameraStart_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                Binding bndg_1 = new Binding("SelectedValue");
-                bndg_1.Source = comboVideo;
-
-                videoCapElement.SetBinding(WPFMediaKit.DirectShow.Controls.VideoCaptureElement.VideoCaptureSourceProperty, bndg_1);
-                //WebCamCtrl.VidFormat = VideoFormat.mp4;
-                videoCapElement.FPS = 500;
-                videoCapElement.Height = 500;
-                videoCapElement.Width = 500;
-                // Display webcam video on control.
-                videoCapElement.Play();
-            }
-            catch (Microsoft.Expression.Encoder.SystemErrorException ex)
-            {
-                MessageBox.Show("Device is in use by another application");
-            }
-        }
-
         private void SetupCameraCanvas()
         {
-            PointF center = new PointF(){
-                X=(float)canvasCamera.Width/2,
-                Y=(float)canvasCamera.Height/2,
+            PointF center = new PointF()
+            {
+                X = (float)canvasCamera.Width / 2,
+                Y = (float)canvasCamera.Height / 2,
             };
-            float crossHairHalfLength=(float)(canvasCamera.Height*0.2);
+            float crossHairHalfLength = (float)(canvasCamera.Height * 0.2);
             float boxWidth = crossHairHalfLength / 2;
             float boxHeight = boxWidth;
             //Setup orgin crosshair
@@ -807,8 +797,8 @@ namespace WpfApplication1
             {
                 X1 = center.X,
                 X2 = center.X,
-                Y1=center.Y-crossHairHalfLength,
-                Y2=center.Y+crossHairHalfLength,
+                Y1 = center.Y - crossHairHalfLength,
+                Y2 = center.Y + crossHairHalfLength,
                 StrokeThickness = 1,
                 Stroke = System.Windows.Media.Brushes.Green,
             };
@@ -840,34 +830,34 @@ namespace WpfApplication1
             box2.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
             box2.MouseDown += new MouseButtonEventHandler(userClickDownBox);
             box2.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-        Line box3 = new Line()
-        {
-            X1 = center.X + boxWidth / 2,
-            X2 = center.X + boxWidth / 2,
-            Y1 = center.Y - boxHeight / 2,
-            Y2 = center.Y + boxHeight / 2,
-            StrokeThickness = 1,
-            Stroke = System.Windows.Media.Brushes.Blue,
-        };
-        box3.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-        box3.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-        box3.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-        Line box4 = new Line()
-        {
-            X1 = center.X - boxWidth / 2,
-            X2 = center.X - boxWidth / 2,
-            Y1 = center.Y - boxHeight / 2,
-            Y2 = center.Y + boxHeight / 2,
-            StrokeThickness = 1,
-            Stroke = System.Windows.Media.Brushes.Blue,
-        };
-        box4.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-        box4.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-        box4.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-        canvasCamera.Children.Add(box1);
-        canvasCamera.Children.Add(box2);
-        canvasCamera.Children.Add(box3);
-        canvasCamera.Children.Add(box4);
+            Line box3 = new Line()
+            {
+                X1 = center.X + boxWidth / 2,
+                X2 = center.X + boxWidth / 2,
+                Y1 = center.Y - boxHeight / 2,
+                Y2 = center.Y + boxHeight / 2,
+                StrokeThickness = 1,
+                Stroke = System.Windows.Media.Brushes.Blue,
+            };
+            box3.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
+            box3.MouseDown += new MouseButtonEventHandler(userClickDownBox);
+            box3.MouseUp += new MouseButtonEventHandler(userClickUpBox);
+            Line box4 = new Line()
+            {
+                X1 = center.X - boxWidth / 2,
+                X2 = center.X - boxWidth / 2,
+                Y1 = center.Y - boxHeight / 2,
+                Y2 = center.Y + boxHeight / 2,
+                StrokeThickness = 1,
+                Stroke = System.Windows.Media.Brushes.Blue,
+            };
+            box4.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
+            box4.MouseDown += new MouseButtonEventHandler(userClickDownBox);
+            box4.MouseUp += new MouseButtonEventHandler(userClickUpBox);
+            canvasCamera.Children.Add(box1);
+            canvasCamera.Children.Add(box2);
+            canvasCamera.Children.Add(box3);
+            canvasCamera.Children.Add(box4);
 
         }
 
@@ -884,10 +874,11 @@ namespace WpfApplication1
         private void userClickDownBox(object sender, MouseEventArgs e)
         {
             Line li = sender as Line;
-            for (int i = 0; i < canvasCamera.Children.Count; i++) {
+            for (int i = 0; i < canvasCamera.Children.Count; i++)
+            {
                 if (li == canvasCamera.Children[i] as Line)
                 {
-                    if(i==2 || i==3)
+                    if (i == 2 || i == 3)
                         canvasCamera.MouseMove += new MouseEventHandler(canvasCameraMouseMoveY);
                     if (i == 4 || i == 5)
                         canvasCamera.MouseMove += new MouseEventHandler(canvasCameraMouseMoveX);
@@ -907,7 +898,7 @@ namespace WpfApplication1
                         canvasCamera.MouseMove -= canvasCameraMouseMoveX;
                 }
             }
-            
+
         }
 
         private void canvasCameraMouseMoveY(object sender, MouseEventArgs e)
@@ -916,7 +907,7 @@ namespace WpfApplication1
             l0.Y1 = e.GetPosition(canvasCamera).Y;
             l0.Y2 = e.GetPosition(canvasCamera).Y;
             Line l1 = canvasCamera.Children[3] as Line;
-            l1.Y1 = canvasCamera.Height-e.GetPosition(canvasCamera).Y;
+            l1.Y1 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
             l1.Y2 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
             Line l2 = canvasCamera.Children[4] as Line;
             l2.Y1 = e.GetPosition(canvasCamera).Y;
@@ -943,44 +934,246 @@ namespace WpfApplication1
 
         private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
         {
-            foreach(Dxf.Line line in Lines){
-                outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(line.p1.X / 10,5), (float)Math.Round(line.p1.Y / 10,5));
+            foreach (Dxf.Line line in Lines)
+            {
+                outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(line.p1.X / 10, 5), (float)Math.Round(line.p1.Y / 10, 5));
             }
             foreach (Dxf.Polyline pLine in Polylines)
             {
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
-                    outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(laserLine.p1.X / 10,5), (float)Math.Round(laserLine.p1.Y / 10,5));
+                    outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(laserLine.p1.X / 10, 5), (float)Math.Round(laserLine.p1.Y / 10, 5));
                 }
-            
+
             }
         }SerialPort sp;
         private void pewpew(object sender, RoutedEventArgs e)
         {
             this.Dispatcher.BeginInvoke(new Action(delegate
-           {
-               string commands = String.Format("{0}*", outputCommands.Text);
-               sp = new SerialPort("COM9");
-               sp.Close();
-               if (!sp.IsOpen)
-                   sp.Open();
-               sp.Write(commands);
-               sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
-               //sp.Close();
-           }));
+            {
+                string commands = String.Format("{0}*", outputCommands.Text);
+                sp = new SerialPort("COM9");
+                sp.Close();
+                if (!sp.IsOpen)
+                    sp.Open();
+                sp.Write(commands);
+                sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+                //sp.Close();
+            }));
         }
         private void dataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-           // incomingData.Text += e;
+            // incomingData.Text += e;
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
-                if (sp.BytesToRead > 10) { 
-                char[] buffer = new char[100];
+                if (sp.BytesToRead > 10)
+                {
+                    char[] buffer = new char[100];
 
-                incomingData.Text += sp.ReadLine();
+                    incomingData.Text += sp.ReadLine();
                 };
             }));
         }
+        #endregion
+   
+        #region FS On a chip
+        public void PopulateChipCanvas(){
+            chipCanvas.Children.Clear();
+            TextBox currentTextBox = new TextBox();
+            try
+            {
+                
+                float height = (float)chipCanvas.Height / 2;
+                currentTextBox = textLength;
+                float d2 = float.Parse(textLength.Text);
+                currentTextBox = textVelocity;
+                double velocity = double.Parse(textVelocity.Text);
+                currentTextBox = textAcceleration;
+                double acceleration = double.Parse(textAcceleration.Text);
+                float d1 = (float)(Math.Pow(velocity, 2) / (2 * acceleration));
+                currentTextBox = textShotSpacing;
+                float shotSpacing = float.Parse(textShotSpacing.Text);
+                currentTextBox = textLength;
+                float length = float.Parse(textLength.Text);
+                PointF[] points = new PointF[3+int.Parse(Math.Round(length/shotSpacing).ToString())];
+            float actualShotSpacing = length/(points.Length-3);
+            points[0] = new PointF()
+            {
+                X = 50,
+                Y = height,
+            };
+            points[1] = new PointF()
+            {
+                X = points[0].X + d1,
+                Y = height,
+            };
+            for (int i = 2; i < points.Length - 1; i++)
+            {
+                points[i] = new PointF()
+                {
+                    X = points[i - 1].X + actualShotSpacing,
+                    Y = height,
+                };
+            }
+            points[points.Length-1] = new PointF()
+            {
+                X = points[points.Length - 2].X + d1,
+                Y = height,
+            };
+            for (int i = 0; i < (points.Length-1); i++) {
+                DoubleCollection x = new DoubleCollection();
+                x.Add(2); x.Add(2);
+                MyLine line = new MyLine()
+                {
+                    StrokeThickness = 2,
+                    Stroke = (1<=i&&i<points.Length-2)?System.Windows.Media.Brushes.Green:System.Windows.Media.Brushes.White,
+                    StrokeEndLineCap = (1<=i&&i<points.Length-1)?PenLineCap.Triangle:PenLineCap.Flat,
+                    X1=points[i].X,
+                    X2=points[i+1].X,
+                    Y1=points[i].Y,
+                    Y2=points[i+1].Y
+                };
+                if (!(1 <= i && i < points.Length - 2)) { 
+                    line.StrokeDashArray = x;
+                }else{
+                MyEllipse ellipse = new MyEllipse()
+                {
+                    Clickable = true,
+                    Uid = "MyEllipse",
+                    Center = new Point() { X = (double)points[i + 1].X, Y = (double)points[i + 1].Y },
+                    Radius = 2,
+                    Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
+                    StrokeThickness = 5,
+
+                };
+                chipCanvas.Children.Add(ellipse);
+                };
+
+                chipCanvas.Children.Add(line);
+            }
+            }
+            catch (Exception ex)
+            {
+                if (ex.GetType().Name == "FormatException")
+                {
+                    //they probably entered the wrong kind of value into the text box such that it couldn't be parsed. 
+                    Thread x = new Thread(() => ShowValidationError(currentTextBox));
+                    x.Name = "Validation error";
+                    x.Start();
+                }
+            }
+            
+                
+         
+        }
+
+        private void ShowValidationError(TextBox currentTextbox)
+        {
+            Brush originalBrush = Brushes.Red;
+            this.Dispatcher.BeginInvoke(new Action(delegate
+            {
+                labelValidation.Opacity = 1; 
+                originalBrush = currentTextbox.BorderBrush;
+                currentTextbox.BorderBrush = Brushes.Red;
+                
+            }));
+                Thread.Sleep(1000);
+                for (int i = 100; i >= 0; i=i-10)
+                {
+                    this.Dispatcher.BeginInvoke(new Action(delegate
+            {
+                labelValidation.Opacity = ((double)i) / 100;
+            }));
+                    Thread.Sleep(100);
+                };
+                this.Dispatcher.BeginInvoke(new Action(delegate {
+                    currentTextbox.BorderBrush = Brushes.LightGray;
+                }));
+            
+            
+        }
+
+        private void fsChipDim_LostFocus(object sender, EventArgs e)
+        {
+            PopulateChipCanvas();
+        }
+
+        private void textVelocity_LostFocus(object sender, EventArgs e)
+        {
+            fsChipDim_LostFocus(sender, e);
+        }
+        #endregion
+
+        private void buttonCameraStart_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                Binding bndg_1 = new Binding("SelectedValue");
+                bndg_1.Source = comboVideo;
+
+                videoCapElement.SetBinding(WPFMediaKit.DirectShow.Controls.VideoCaptureElement.VideoCaptureSourceProperty, bndg_1);
+                //WebCamCtrl.VidFormat = VideoFormat.mp4;
+                videoCapElement.FPS = 500;
+                videoCapElement.Height = 500;
+                videoCapElement.Width = 500;
+                // Display webcam video on control.
+                videoCapElement.Play();
+            }
+            catch (Microsoft.Expression.Encoder.SystemErrorException ex)
+            {
+                MessageBox.Show("Device is in use by another application");
+            }
+        }
+
+        private void NavigationTabs_SelectionChanged(object sender, EventArgs e)
+        {
+            switch (NavigationTabs.SelectedIndex)
+            {
+                case 0 ://Settings
+                    break;
+                case 1 ://Dielectric Machining
+                    break;
+                case 2: //FS Chip
+                    ConfigureOpenLoop col = new ConfigureOpenLoop();
+                    SubscribeOpenLoop(col);
+                    Thread configure = new Thread(() => col.Configure(sp));
+                    configure.Name = "Configure Open Loop";
+                    configure.Start();
+                    
+                    break;
+            }
+        }
+
+        private void SetOpenLoopVelocity(object sender, ConfigureOpenLoop.OpenLoopArgs e)
+        {
+            this.Dispatcher.BeginInvoke(new Action(delegate
+            {
+                textVelocity.Text = e.Value.ToString();
+            }));
+        }
+
+        public void SubscribeOpenLoop(ConfigureOpenLoop ol)
+        {
+            ol.olEvent += new ConfigureOpenLoop.OpenLoopHandler(olChanged);
+        }
+
+        public void olChanged(ConfigureOpenLoop ol, ConfigureOpenLoop.OpenLoopArgs e)
+        {
+            
+            this.Dispatcher.BeginInvoke(new Action(delegate
+               {
+                   Dictionary<String, Control> collection = new Dictionary<String, Control>();
+                   foreach (Control ctrl in FsChipGrid.Children.OfType<TextBox>())
+                   {
+                       collection.Add(ctrl.Name,ctrl);
+                   }
+                   ((TextBox)collection[e.Control]).Text = (e.Value * 70 / 1350).ToString();
+                   ((TextBox)collection[e.Control]).IsEnabled = true;
+                   ((TextBox)collection[e.Control]).Focus();
+                   NavigationTabs.Focus();
+               }));
+        }
+
     }
     public class MyLine : Shape
     {
@@ -1021,8 +1214,8 @@ namespace WpfApplication1
                     Center = Center,
                     RadiusX = Radius,
                     RadiusY = Radius,
-                    
-                    
+
+
                 };
                 return ellipse;
             }
