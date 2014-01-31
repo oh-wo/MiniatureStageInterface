@@ -1,0 +1,6 @@
+*wires need to be crossed over
+*papilio 0 -> TX serial adapter
+ papilio 1 -> RX serial adapter
+*use bitfile here: C:\Users\obod001\Desktop\hdl\ZPUino-HDL-Source-V1.0\Papilio\papilio_pro_lx9_vanilla_ise\papilio_pro_top.bit
+ which has the 2uart setup working
+ (saved to my main desktop uni computer)

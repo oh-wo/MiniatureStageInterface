@@ -1136,9 +1136,9 @@ namespace WpfApplication1
                 case 2: //FS Chip
                     ConfigureOpenLoop col = new ConfigureOpenLoop();
                     SubscribeOpenLoop(col);
-                    Thread configure = new Thread(() => col.Configure(sp));
-                    configure.Name = "Configure Open Loop";
-                    configure.Start();
+                 //   Thread configure = new Thread(() => col.Configure(sp));
+                  //  configure.Name = "Configure Open Loop";
+                   // configure.Start();
                     
                     break;
             }
