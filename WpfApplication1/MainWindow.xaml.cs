@@ -952,7 +952,7 @@ namespace WpfApplication1
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
                 string commands = String.Format("{0}*", outputCommands.Text);
-                sp = new SerialPort("COM9");
+                sp = sPort;
                 sp.Close();
                 if (!sp.IsOpen)
                     sp.Open();

@@ -28,10 +28,6 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.pdb
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\WpfApplication1.exe
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\WpfApplication1.pdb
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Api2.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Types.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Utilities.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\System.Windows.Interactivity.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Api2.xml

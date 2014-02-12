@@ -28,48 +28,42 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <TabControl x:Name="NavigationTabs" HorizontalAlignment="Left" Height="671" Margin="52,39,-59,0" VerticalAlignment="Top" Width="699" Grid.ColumnSpan="2" SelectionChanged="NavigationTabs_SelectionChanged">
+        <TabControl x:Name="NavigationTabs" HorizontalAlignment="Left" Height="687" Margin="10,0,-572,-84" VerticalAlignment="Top" Width="1401" SelectionChanged="NavigationTabs_SelectionChanged" Grid.ColumnSpan="2">
             <TabItem Header="Config">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="#FFE5E5E5" Margin="0,17,0,-17" HorizontalAlignment="Left" Width="1180" RenderTransformOrigin="0.659,0.331">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="109*"/>
-                        <ColumnDefinition Width="34*"/>
-                        <ColumnDefinition Width="967*"/>
+                        <ColumnDefinition Width="143*"/>
+                        <ColumnDefinition Width="931*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Content="Connect" HorizontalAlignment="Left" Margin="287,83,0,0" VerticalAlignment="Top" Width="110" Grid.Column="2"/>
-                    <ComboBox x:Name="comboSerial" HorizontalAlignment="Left" Margin="40,83,0,0" VerticalAlignment="Top" Width="314" Grid.ColumnSpan="3"/>
-                    <Label Content="Please select a serial port from the list below and connect" HorizontalAlignment="Left" Margin="40,52,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Grid.ColumnSpan="3"/>
-                    <ComboBox x:Name="comboVideo" HorizontalAlignment="Left" Margin="40,141,0,0" VerticalAlignment="Top" Width="314" Grid.ColumnSpan="3"/>
-                    <Button x:Name="buttonCameraStart" Content="start camera" HorizontalAlignment="Left" Margin="287,141,0,0" VerticalAlignment="Top" Width="110" RenderTransformOrigin="-0.959,-2.273" Click="buttonCameraStart_Click" Grid.Column="2"/>
-                    <Label Content="Please select a camera / video source from the list below" HorizontalAlignment="Left" Margin="40,110,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Grid.ColumnSpan="3"/>
+                    <Button Content="Connect" HorizontalAlignment="Left" Margin="220,84,0,0" VerticalAlignment="Top" Width="110" Height="25" Grid.Column="1"/>
+                    <ComboBox x:Name="comboSerial" HorizontalAlignment="Left" Margin="40,83,0,0" VerticalAlignment="Top" Width="314" Height="26" Grid.ColumnSpan="2"/>
+                    <Label Content="Please select a serial port from the list below and connect" HorizontalAlignment="Left" Margin="40,52,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Height="26" Width="314" Grid.ColumnSpan="2"/>
+                    <ComboBox x:Name="comboVideo" HorizontalAlignment="Left" Margin="40,141,0,0" VerticalAlignment="Top" Width="314" Height="26" Grid.ColumnSpan="2"/>
+                    <Button x:Name="buttonCameraStart" Content="start camera" HorizontalAlignment="Left" Margin="232,141,0,0" VerticalAlignment="Top" Width="110" RenderTransformOrigin="-0.959,-2.273" Click="buttonCameraStart_Click" Height="25" Grid.Column="1"/>
+                    <Label Content="Please select a camera / video source from the list below" HorizontalAlignment="Left" Margin="40,110,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.484,-0.457" Height="26" Width="309" Grid.ColumnSpan="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Dielectric Machining">
-                <Grid Background="#FFE5E5E5" Margin="0,0,-201,103">
+                <Grid Background="#FFE5E5E5" Margin="0,-1,-201,104" HorizontalAlignment="Left" Width="1592">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="400*"/>
-                        <ColumnDefinition Width="491*"/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
 
-                    <Button x:Name="buttonChangeFile" Content="Change File" HorizontalAlignment="Left" Margin="30,467,0,0" VerticalAlignment="Top" Width="74" RenderTransformOrigin="-0.032,-0.474" Click="buttonChangeFile_Clicked" Grid.Column="1"/>
-                    <Button x:Name="buttonCenterCanvas" Content="center" HorizontalAlignment="Left" Margin="110,467,0,0" VerticalAlignment="Top" Width="74" Click="buttonCenterCanvas_Click" Grid.Column="1" RenderTransformOrigin="-0.267,-4.36"/>
+                    <Button x:Name="buttonChangeFile" Content="Change File" HorizontalAlignment="Left" Margin="597,467,0,0" VerticalAlignment="Top" Width="74" RenderTransformOrigin="-0.032,-0.474" Click="buttonChangeFile_Clicked"/>
+                    <Button x:Name="buttonCenterCanvas" Content="center" HorizontalAlignment="Left" Margin="677,467,0,0" VerticalAlignment="Top" Width="74" Click="buttonCenterCanvas_Click" RenderTransformOrigin="-0.267,-4.36"/>
                     <Label Content="drawing scale" HorizontalAlignment="Left" Margin="7,-2,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="textScale" HorizontalAlignment="Left" Height="23" Margin="12,24,0,0" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Top" Width="120" LostFocus="textScale_LostFocus"/>
                     <Label Content="global spacing" HorizontalAlignment="Left" Margin="137,0,0,0" VerticalAlignment="Top" LostFocus="textLineSpacing_LostFocus"/>
                     <TextBox x:Name="textLineSpacing" HorizontalAlignment="Left" Height="23" Margin="141,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                    <Label x:Name="labelUnits" Content="units detected" HorizontalAlignment="Left" Margin="242,10,0,0" VerticalAlignment="Top" Grid.Column="1"/>
-                    <Canvas ClipToBounds="True" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="Arrow" x:Name="canvasDielectric" Background="Aqua" Grid.ColumnSpan="2" >
+                    <Label x:Name="labelUnits" Content="units detected" HorizontalAlignment="Left" Margin="517,10,0,0" VerticalAlignment="Top"/>
+                    <Canvas ClipToBounds="True" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="Arrow" x:Name="canvasDielectric" Background="Aqua" />
 
-
-
-                    </Canvas>
-
-                    <Label x:Name="labelCurrentFile" Content="no file chosen" HorizontalAlignment="Left" Margin="340,467,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.095,-0.567" Grid.ColumnSpan="2"/>
+                    <Label x:Name="labelCurrentFile" Content="no file chosen" HorizontalAlignment="Left" Margin="340,467,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.095,-0.567"/>
                     <CheckBox x:Name="checkDisplayOrigin" Content="origin" HorizontalAlignment="Left" Margin="-4,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
                     <CheckBox x:Name="checkStageBounds" Content="stage bounds" HorizontalAlignment="Left" Margin="82,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
                     <Label x:Name="Laser_spacing_" Content="local spacing" HorizontalAlignment="Left" Margin="268,-2,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="textSegmentLaserSpacing" Controls:TextboxHelper.ClearTextButton="True" LostFocus="textSegmentLaserSpacing_LostFocus" HorizontalAlignment="Left" Height="23" Margin="271,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120"/>
-                    <ScrollBar x:Name="vScrollBar1" HorizontalAlignment="Left" Height="374" Margin="168,60,0,0" VerticalAlignment="Top" Width="18" Scroll="vScrollBar1_Scroll" RenderTransformOrigin="0.5,0.5" Grid.Column="1">
+                    <ScrollBar x:Name="vScrollBar1" HorizontalAlignment="Left" Height="374" Margin="568,57,0,0" VerticalAlignment="Top" Width="18" Scroll="vScrollBar1_Scroll" RenderTransformOrigin="0.5,0.5">
                         <ScrollBar.RenderTransform>
                             <TransformGroup>
                                 <ScaleTransform ScaleX="-1"/>
@@ -79,13 +73,13 @@
                             </TransformGroup>
                         </ScrollBar.RenderTransform>
                     </ScrollBar>
-                    <ScrollBar x:Name="hScrollBar1" HorizontalAlignment="Left" Height="21" Margin="12,441,0,0" VerticalAlignment="Top" Width="558" Orientation="Horizontal" Scroll="hScrollBar1_Scroll" Grid.ColumnSpan="2" RenderTransformOrigin="0.502,-9.857"/>
-                    <TextBox Name="outputCommands" HorizontalAlignment="Left" Height="67" Margin="242.5,49,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240" Grid.Column="1"/>
-                    <Button Content="Generate Commands" Click="ConvertLineListToOutputCommands" HorizontalAlignment="Left" Margin="242.5,121,0,0" VerticalAlignment="Top" Width="159" Grid.Column="1"/>
-                    <Button Content="Pew pew" Click="pewpew" HorizontalAlignment="Left" Margin="242.5,151,0,0" VerticalAlignment="Top" Width="159" Grid.Column="1"/>
-                    <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="242.5,181,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240" Grid.Column="1"/>
-                    <TextBox x:Name="textClosedLoopVelocity" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="10,24,0,0" TextWrapping="Wrap" Text="4.00000" VerticalAlignment="Top" Width="120" ToolTip="closed loop velocity"/>
-                    <Label x:Name="Laser_spacing__Copy" Content="velocity" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Grid.Column="1"/>
+                    <ScrollBar x:Name="hScrollBar1" HorizontalAlignment="Left" Height="21" Margin="12,441,0,0" VerticalAlignment="Top" Width="558" Orientation="Horizontal" Scroll="hScrollBar1_Scroll" RenderTransformOrigin="0.502,-9.857"/>
+                    <TextBox Name="outputCommands" HorizontalAlignment="Left" Height="67" Margin="958,49,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240"/>
+                    <Button Content="Generate Commands" Click="ConvertLineListToOutputCommands" HorizontalAlignment="Left" Margin="606,55,0,0" VerticalAlignment="Top" Width="158"/>
+                    <Button Content="Pew pew" Click="pewpew" HorizontalAlignment="Left" Margin="606,91,0,0" VerticalAlignment="Top" Width="158"/>
+                    <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="606,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
+                    <TextBox x:Name="textClosedLoopVelocity" HorizontalAlignment="Left" Height="23" Margin="422,24,0,0" TextWrapping="Wrap" Text="4.00000" VerticalAlignment="Top" Width="120" ToolTip="closed loop velocity"/>
+                    <Label x:Name="Laser_spacing__Copy" Content="velocity" HorizontalAlignment="Left" Margin="422,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.701,0.921"/>
 
                 </Grid>
             </TabItem>
@@ -117,7 +111,7 @@
         	DesiredPixelHeight="240"
         	Stretch="Fill"
         	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="125,100,-479,239" Grid.Column="1"/>
-        <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseLeave="canvasDielectric_MouseLeave" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="264" Margin="125,100,-479,0" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera" Background="Transparent" Grid.Column="1" RenderTransformOrigin="0.339,0.455" />
+        	FPS="30" Margin="273,101,-627,238" Grid.Column="1"/>
+        <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseLeave="canvasDielectric_MouseLeave" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="264" Margin="323,161,-687,0" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera" Background="Transparent" Grid.Column="1" RenderTransformOrigin="0.339,0.455" />
     </Grid>
 </Controls:MetroWindow>
