@@ -28,7 +28,7 @@
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
-        <TabControl x:Name="NavigationTabs" HorizontalAlignment="Left" Height="687" Margin="10,0,-572,-84" VerticalAlignment="Top" Width="1401" SelectionChanged="NavigationTabs_SelectionChanged" Grid.ColumnSpan="2">
+        <TabControl x:Name="NavigationTabs" HorizontalAlignment="Left" Height="687" Margin="10,0,-180,-84" VerticalAlignment="Top" Width="1009" SelectionChanged="NavigationTabs_SelectionChanged" Grid.ColumnSpan="2">
             <TabItem Header="Config">
                 <Grid Background="#FFE5E5E5" Margin="0,17,0,-17" HorizontalAlignment="Left" Width="1180" RenderTransformOrigin="0.659,0.331">
                     <Grid.ColumnDefinitions>
@@ -44,7 +44,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Dielectric Machining">
-                <Grid Background="#FFE5E5E5" Margin="0,-1,-201,104" HorizontalAlignment="Left" Width="1592">
+                <Grid Background="#FFE5E5E5" Margin="0,-1,0,122" HorizontalAlignment="Left" Width="952">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
@@ -74,10 +74,10 @@
                         </ScrollBar.RenderTransform>
                     </ScrollBar>
                     <ScrollBar x:Name="hScrollBar1" HorizontalAlignment="Left" Height="21" Margin="12,441,0,0" VerticalAlignment="Top" Width="558" Orientation="Horizontal" Scroll="hScrollBar1_Scroll" RenderTransformOrigin="0.502,-9.857"/>
-                    <TextBox Name="outputCommands" HorizontalAlignment="Left" Height="67" Margin="958,49,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240"/>
+                    <TextBox Name="outputCommands" HorizontalAlignment="Left" Height="67" Margin="597,209,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240"/>
                     <Button Content="Generate Commands" Click="ConvertLineListToOutputCommands" HorizontalAlignment="Left" Margin="606,55,0,0" VerticalAlignment="Top" Width="158"/>
                     <Button Content="Pew pew" Click="pewpew" HorizontalAlignment="Left" Margin="606,91,0,0" VerticalAlignment="Top" Width="158"/>
-                    <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="606,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
+                    <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="597,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
                     <TextBox x:Name="textClosedLoopVelocity" HorizontalAlignment="Left" Height="23" Margin="422,24,0,0" TextWrapping="Wrap" Text="4.00000" VerticalAlignment="Top" Width="120" ToolTip="closed loop velocity"/>
                     <Label x:Name="Laser_spacing__Copy" Content="velocity" HorizontalAlignment="Left" Margin="422,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.701,0.921"/>
 

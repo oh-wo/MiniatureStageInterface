@@ -45,3 +45,7 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\FirstFloor.ModernUI.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\App.baml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\MahApps.Metro.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Api2.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Types.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Utilities.dll
