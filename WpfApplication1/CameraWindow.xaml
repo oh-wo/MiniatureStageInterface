@@ -1,0 +1,38 @@
+﻿<Controls:MetroWindow  x:Class="WpfApplication1.CameraWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:cam="clr-namespace:WebcamControl;assembly=WebcamControl"   
+                       xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:Behaviours="clr-namespace:MahApps.Metro.Behaviours;assembly=MahApps.Metro"
+        xmlns:WPFMediaKit="clr-namespace:WPFMediaKit.DirectShow.Controls;assembly=WPFMediaKit"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        
+        Title="Amazing awesome unbelievable laser machining software (AAULMS)" Height="1000" Width="2235.3" SaveWindowPosition="true" WindowState="Maximized">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colours.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Blue.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseLight.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <i:Interaction.Behaviors>
+        <Behaviours:BorderlessWindowBehavior ResizeWithGrip="True" />
+    </i:Interaction.Behaviors>
+    <Grid>
+
+        <Canvas ClipToBounds="True" HorizontalAlignment="Left"  Height="264" Margin="1634,442,-1768,-436" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera_Copy2" Background="Transparent" RenderTransformOrigin="0.352,0.235" />
+
+        <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement"
+                                 
+        	DesiredPixelWidth="320"
+        	DesiredPixelHeight="240"
+        	Stretch="Fill"
+        	VideoCaptureSource="{Binding CaptureDeviceName}"
+        	FPS="30" Margin="296,318,-915,-196" Grid.Column="2"/>
+
+    </Grid>
+</Controls:MetroWindow>

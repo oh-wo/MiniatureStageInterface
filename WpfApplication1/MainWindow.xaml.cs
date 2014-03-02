@@ -23,7 +23,6 @@ using Microsoft.Expression.Encoder.Devices;
 using MahApps.Metro;
 using MahApps;
 
-
 namespace WpfApplication1
 {
     /// <summary>
@@ -59,7 +58,7 @@ namespace WpfApplication1
         public string selectedType;
         public float scrollOffsetX = 0;
         public float scrollOffsetY = 0;
-        public Image image;
+        public System.Windows.Controls.Image image;
         private DrawingContext _Context;
 
 
@@ -77,8 +76,8 @@ namespace WpfApplication1
             SetupCameraCanvas();
             PopulateChipCanvas();
             //Canvas background colour opaque by default
-            canvasDielectric.Background = new SolidColorBrush(Color.FromRgb(34, 41, 51));
-            chipCanvas.Background = new SolidColorBrush(Color.FromRgb(34, 41, 51));
+            canvasDielectric.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
+            chipCanvas.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
             vScrollBar1.Value = 0.5;
             hScrollBar1.Value = 0.5;
 
@@ -112,7 +111,8 @@ namespace WpfApplication1
             this.labelCurrentFile.Content = System.IO.Path.GetFileName(fullFile);
             this.textLineSpacing.Text = lineSpacing.ToString();
 
-
+            CameraWindow cWindow = new CameraWindow();
+            cWindow.Show();
         }
 
         #region Camera
@@ -129,9 +129,6 @@ namespace WpfApplication1
             if (comboVideo.Items.Count > 0)
             {
                 comboVideo.SelectedIndex = 0;
-                RoutedEventArgs e = new RoutedEventArgs();
-                object sender = new object();
-                buttonCameraStart_Click(sender, e);
             };
 
         }
@@ -206,7 +203,7 @@ namespace WpfApplication1
                     Clickable = true,
                     Uid = "MyEllipse",
                     ParentIndex = line.parentIndex,
-                    Center = new Point() { X = (double)x2, Y = (double)y2 },
+                    Center = new System.Windows.Point() { X = (double)x2, Y = (double)y2 },
                     Radius = 2,
                     Stroke = b,
                     StrokeThickness = 5,
@@ -321,7 +318,7 @@ namespace WpfApplication1
                 for (int i = 0; i < pline.noVerticies; i++)
                 {
                     //display verticies to the user
-                    //this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].Point.X, pline.verticies[i].Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
+                    //this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].System.Windows.Point.X, pline.verticies[i].System.Windows.Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
 
 
                     //convert vertex to laser line and convert bulges to lines if necessary. 
@@ -715,7 +712,7 @@ namespace WpfApplication1
             float dy = p2.Y - p1.Y;
             if ((dx == 0) && (dy == 0))
             {
-                // It's a point not a line segment.
+                // It's a System.Windows.Point not a line segment.
                 closest = p1;
                 dx = pt.X - p1.X;
                 dy = pt.Y - p1.Y;
@@ -726,7 +723,7 @@ namespace WpfApplication1
             float t = ((pt.X - p1.X) * dx + (pt.Y - p1.Y) * dy) / (dx * dx + dy * dy);
 
             // See if this represents one of the segment's
-            // end points or a point in the middle.
+            // end points or a System.Windows.Point in the middle.
             if (t < 0)
             {
                 closest = new PointF(p1.X, p1.Y);
@@ -936,13 +933,13 @@ namespace WpfApplication1
         {
             foreach (Dxf.Line line in Lines)
             {
-                outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(line.p1.X / 10, 5), (float)Math.Round(line.p1.Y / 10, 5));
+                outputCommands.Text += String.Format("[v {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
             }
             foreach (Dxf.Polyline pLine in Polylines)
             {
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
-                    outputCommands.Text += String.Format("[1 1 {0} {1}]", (float)Math.Round(laserLine.p1.X / 10, 5), (float)Math.Round(laserLine.p1.Y / 10, 5));
+                    outputCommands.Text += String.Format("[v {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
                 }
 
             }
@@ -951,13 +948,11 @@ namespace WpfApplication1
         {
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
-                string commands = String.Format("{0}*", outputCommands.Text);
-                sp = sPort;
-                sp.Close();
+                string commands = String.Format("{0}*\"", outputCommands.Text);
                 if (!sp.IsOpen)
                     sp.Open();
                 sp.Write(commands);
-                sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+
                 //sp.Close();
             }));
         }
@@ -966,23 +961,19 @@ namespace WpfApplication1
             // incomingData.Text += e;
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
-                if (sp.BytesToRead > 10)
-                {
-                    char[] buffer = new char[100];
-
-                    incomingData.Text += sp.ReadLine();
-                };
+                incomingData.Text += sp.ReadExisting();
             }));
         }
         #endregion
-   
+
         #region FS On a chip
-        public void PopulateChipCanvas(){
+        public void PopulateChipCanvas()
+        {
             chipCanvas.Children.Clear();
             TextBox currentTextBox = new TextBox();
             try
             {
-                
+
                 float height = (float)chipCanvas.Height / 2;
                 currentTextBox = textLength;
                 float d2 = float.Parse(textLength.Text);
@@ -995,62 +986,66 @@ namespace WpfApplication1
                 float shotSpacing = float.Parse(textShotSpacing.Text);
                 currentTextBox = textLength;
                 float length = float.Parse(textLength.Text);
-                PointF[] points = new PointF[3+int.Parse(Math.Round(length/shotSpacing).ToString())];
-            float actualShotSpacing = length/(points.Length-3);
-            points[0] = new PointF()
-            {
-                X = 50,
-                Y = height,
-            };
-            points[1] = new PointF()
-            {
-                X = points[0].X + d1,
-                Y = height,
-            };
-            for (int i = 2; i < points.Length - 1; i++)
-            {
-                points[i] = new PointF()
+                PointF[] points = new PointF[3 + int.Parse(Math.Round(length / shotSpacing).ToString())];
+                float actualShotSpacing = length / (points.Length - 3);
+                points[0] = new PointF()
                 {
-                    X = points[i - 1].X + actualShotSpacing,
+                    X = 50,
                     Y = height,
                 };
-            }
-            points[points.Length-1] = new PointF()
-            {
-                X = points[points.Length - 2].X + d1,
-                Y = height,
-            };
-            for (int i = 0; i < (points.Length-1); i++) {
-                DoubleCollection x = new DoubleCollection();
-                x.Add(2); x.Add(2);
-                MyLine line = new MyLine()
+                points[1] = new PointF()
                 {
-                    StrokeThickness = 2,
-                    Stroke = (1<=i&&i<points.Length-2)?System.Windows.Media.Brushes.Green:System.Windows.Media.Brushes.White,
-                    StrokeEndLineCap = (1<=i&&i<points.Length-1)?PenLineCap.Triangle:PenLineCap.Flat,
-                    X1=points[i].X,
-                    X2=points[i+1].X,
-                    Y1=points[i].Y,
-                    Y2=points[i+1].Y
+                    X = points[0].X + d1,
+                    Y = height,
                 };
-                if (!(1 <= i && i < points.Length - 2)) { 
-                    line.StrokeDashArray = x;
-                }else{
-                MyEllipse ellipse = new MyEllipse()
+                for (int i = 2; i < points.Length - 1; i++)
                 {
-                    Clickable = true,
-                    Uid = "MyEllipse",
-                    Center = new Point() { X = (double)points[i + 1].X, Y = (double)points[i + 1].Y },
-                    Radius = 2,
-                    Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
-                    StrokeThickness = 5,
-
+                    points[i] = new PointF()
+                    {
+                        X = points[i - 1].X + actualShotSpacing,
+                        Y = height,
+                    };
+                }
+                points[points.Length - 1] = new PointF()
+                {
+                    X = points[points.Length - 2].X + d1,
+                    Y = height,
                 };
-                chipCanvas.Children.Add(ellipse);
-                };
+                for (int i = 0; i < (points.Length - 1); i++)
+                {
+                    DoubleCollection x = new DoubleCollection();
+                    x.Add(2); x.Add(2);
+                    MyLine line = new MyLine()
+                    {
+                        StrokeThickness = 2,
+                        Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
+                        StrokeEndLineCap = (1 <= i && i < points.Length - 1) ? PenLineCap.Triangle : PenLineCap.Flat,
+                        X1 = points[i].X,
+                        X2 = points[i + 1].X,
+                        Y1 = points[i].Y,
+                        Y2 = points[i + 1].Y
+                    };
+                    if (!(1 <= i && i < points.Length - 2))
+                    {
+                        line.StrokeDashArray = x;
+                    }
+                    else
+                    {
+                        MyEllipse ellipse = new MyEllipse()
+                        {
+                            Clickable = true,
+                            Uid = "MyEllipse",
+                            Center = new System.Windows.Point() { X = (double)points[i + 1].X, Y = (double)points[i + 1].Y },
+                            Radius = 2,
+                            Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
+                            StrokeThickness = 5,
 
-                chipCanvas.Children.Add(line);
-            }
+                        };
+                        chipCanvas.Children.Add(ellipse);
+                    };
+
+                    chipCanvas.Children.Add(line);
+                }
             }
             catch (Exception ex)
             {
@@ -1062,35 +1057,36 @@ namespace WpfApplication1
                     x.Start();
                 }
             }
-            
-                
-         
+
+
+
         }
 
         private void ShowValidationError(TextBox currentTextbox)
         {
-            Brush originalBrush = Brushes.Red;
+            System.Windows.Media.Brush originalBrush = System.Windows.Media.Brushes.Red;
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
-                labelValidation.Opacity = 1; 
+                labelValidation.Opacity = 1;
                 originalBrush = currentTextbox.BorderBrush;
-                currentTextbox.BorderBrush = Brushes.Red;
-                
+                currentTextbox.BorderBrush = System.Windows.Media.Brushes.Red;
+
             }));
-                Thread.Sleep(1000);
-                for (int i = 100; i >= 0; i=i-10)
-                {
-                    this.Dispatcher.BeginInvoke(new Action(delegate
+            Thread.Sleep(1000);
+            for (int i = 100; i >= 0; i = i - 10)
             {
-                labelValidation.Opacity = ((double)i) / 100;
+                this.Dispatcher.BeginInvoke(new Action(delegate
+        {
+            labelValidation.Opacity = ((double)i) / 100;
+        }));
+                Thread.Sleep(100);
+            };
+            this.Dispatcher.BeginInvoke(new Action(delegate
+            {
+                currentTextbox.BorderBrush = System.Windows.Media.Brushes.LightGray;
             }));
-                    Thread.Sleep(100);
-                };
-                this.Dispatcher.BeginInvoke(new Action(delegate {
-                    currentTextbox.BorderBrush = Brushes.LightGray;
-                }));
-            
-            
+
+
         }
 
         private void fsChipDim_LostFocus(object sender, EventArgs e)
@@ -1106,40 +1102,24 @@ namespace WpfApplication1
 
         private void buttonCameraStart_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                Binding bndg_1 = new Binding("SelectedValue");
-                bndg_1.Source = comboVideo;
 
-                videoCapElement.SetBinding(WPFMediaKit.DirectShow.Controls.VideoCaptureElement.VideoCaptureSourceProperty, bndg_1);
-                //WebCamCtrl.VidFormat = VideoFormat.mp4;
-                videoCapElement.FPS = 500;
-                videoCapElement.Height = 500;
-                videoCapElement.Width = 500;
-                // Display webcam video on control.
-                videoCapElement.Play();
-            }
-            catch (Microsoft.Expression.Encoder.SystemErrorException ex)
-            {
-                MessageBox.Show("Device is in use by another application");
-            }
         }
 
         private void NavigationTabs_SelectionChanged(object sender, EventArgs e)
         {
             switch (NavigationTabs.SelectedIndex)
             {
-                case 0 ://Settings
+                case 0://Settings
                     break;
-                case 1 ://Dielectric Machining
+                case 1://Dielectric Machining
                     break;
                 case 2: //FS Chip
                     ConfigureOpenLoop col = new ConfigureOpenLoop();
                     SubscribeOpenLoop(col);
-                 //   Thread configure = new Thread(() => col.Configure(sp));
-                  //  configure.Name = "Configure Open Loop";
-                   // configure.Start();
-                    
+                    //   Thread configure = new Thread(() => col.Configure(sp));
+                    //  configure.Name = "Configure Open Loop";
+                    // configure.Start();
+
                     break;
             }
         }
@@ -1159,19 +1139,34 @@ namespace WpfApplication1
 
         public void olChanged(ConfigureOpenLoop ol, ConfigureOpenLoop.OpenLoopArgs e)
         {
-            
+
             this.Dispatcher.BeginInvoke(new Action(delegate
                {
                    Dictionary<String, Control> collection = new Dictionary<String, Control>();
                    foreach (Control ctrl in FsChipGrid.Children.OfType<TextBox>())
                    {
-                       collection.Add(ctrl.Name,ctrl);
+                       collection.Add(ctrl.Name, ctrl);
                    }
                    ((TextBox)collection[e.Control]).Text = (e.Value * 70 / 1350).ToString();
                    ((TextBox)collection[e.Control]).IsEnabled = true;
                    ((TextBox)collection[e.Control]).Focus();
                    NavigationTabs.Focus();
                }));
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            if (sp == null)
+            {
+                sp = new SerialPort();
+            }
+            if (sp.IsOpen)
+                sp.Close();
+            sp.BaudRate = 9600;
+            sp.PortName = comboSerial.SelectedValue.ToString();
+            sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+            sp.Open();
+
         }
 
     }
@@ -1190,8 +1185,8 @@ namespace WpfApplication1
             get
             {
                 LineGeometry line = new LineGeometry(
-                   new Point(X1, Y1),
-                      new Point(X2, Y2));
+                   new System.Windows.Point(X1, Y1),
+                      new System.Windows.Point(X2, Y2));
                 return line;
             }
         }
@@ -1199,7 +1194,7 @@ namespace WpfApplication1
     public class MyEllipse : Shape
     {
 
-        public Point Center { get; set; }
+        public System.Windows.Point Center { get; set; }
         public bool Clickable { get; set; }
         public double Radius { get; set; }
         public int? ParentIndex { get; set; }
