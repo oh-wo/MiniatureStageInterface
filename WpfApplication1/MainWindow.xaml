@@ -23,22 +23,14 @@
         <Behaviours:BorderlessWindowBehavior ResizeWithGrip="True" />
     </i:Interaction.Behaviors>
 
-    <Grid Margin="0,10,964,357" x:Name="MainGrid">
+    <Grid Margin="0,10,2,6" x:Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="777*"/>
             <ColumnDefinition Width="37*"/>
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
 
-        <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement_Copy2"
-                                 
-        	DesiredPixelWidth="320"
-        	DesiredPixelHeight="240"
-        	Stretch="Fill"
-        	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="296,318,-915,-196" Grid.Column="2"/>
-
-        <TabControl x:Name="NavigationTabs" Height="687" Margin="10,-3,-427,-81" VerticalAlignment="Top" SelectionChanged="NavigationTabs_SelectionChanged" Grid.ColumnSpan="3" RenderTransformOrigin="0.5,0.5">
+        <TabControl x:Name="NavigationTabs" Height="972" Margin="10,-6,-931,-363" VerticalAlignment="Top" SelectionChanged="NavigationTabs_SelectionChanged" Grid.ColumnSpan="3" RenderTransformOrigin="0.5,0.5">
             <TabControl.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -48,7 +40,7 @@
                 </TransformGroup>
             </TabControl.RenderTransform>
             <TabItem Header="Config">
-                <Grid Background="#FFE5E5E5" Margin="0,17,0,-17" HorizontalAlignment="Left" Width="1180" RenderTransformOrigin="0.659,0.331">
+                <Grid Background="#FFE5E5E5" Margin="0,17,0,556" HorizontalAlignment="Left" Width="1180" RenderTransformOrigin="0.659,0.331">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="143*"/>
                         <ColumnDefinition Width="931*"/>
@@ -62,7 +54,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Dielectric Machining">
-                <Grid Background="#FFE5E5E5" Margin="0,-1,0,47" HorizontalAlignment="Left" Width="1053">
+                <Grid Background="#FFE5E5E5" Margin="0,-1,0,47" HorizontalAlignment="Left" Width="2190">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="25*"/>
                         <ColumnDefinition Width="29*"/>
@@ -73,16 +65,16 @@
                     <Button x:Name="buttonCenterCanvas" Content="center" HorizontalAlignment="Left" Margin="623,467,0,0" VerticalAlignment="Top" Width="74" Click="buttonCenterCanvas_Click" RenderTransformOrigin="-0.267,-4.36" Grid.Column="2"/>
                     <Label Content="drawing scale" HorizontalAlignment="Left" Margin="7,-2,0,0" VerticalAlignment="Top" Grid.ColumnSpan="3"/>
                     <TextBox x:Name="textScale" HorizontalAlignment="Left" Height="23" Margin="12,24,0,0" TextWrapping="Wrap" Text="0.2" VerticalAlignment="Top" Width="120" LostFocus="textScale_LostFocus" Grid.ColumnSpan="3"/>
-                    <Label Content="global spacing" HorizontalAlignment="Left" Margin="83,0,0,0" VerticalAlignment="Top" LostFocus="textLineSpacing_LostFocus" Grid.Column="2"/>
-                    <TextBox x:Name="textLineSpacing" HorizontalAlignment="Left" Height="23" Margin="87,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="2"/>
+                    <Label Content="global spacing" HorizontalAlignment="Left" Margin="83,0,0,0" VerticalAlignment="Top" Grid.Column="2"/>
+                    <TextBox x:Name="textLineSpacing" HorizontalAlignment="Left" Height="23" Margin="87,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="2" KeyUp="textLineSpacing_KeyUp" />
                     <Label x:Name="labelUnits" Content="units detected" HorizontalAlignment="Left" Margin="463,10,0,0" VerticalAlignment="Top" Grid.Column="2"/>
-                    <Canvas ClipToBounds="True" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="Arrow" x:Name="canvasDielectric" Background="Aqua" Grid.ColumnSpan="3" />
+                    <Canvas ClipToBounds="True" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="Arrow" x:Name="canvasDielectric" Background="Aqua" Grid.ColumnSpan="3" />
 
                     <Label x:Name="labelCurrentFile" Content="no file chosen" HorizontalAlignment="Left" Margin="286,467,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.095,-0.567" Grid.Column="2"/>
                     <CheckBox x:Name="checkDisplayOrigin" Content="origin" HorizontalAlignment="Left" Margin="-4,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked" Grid.ColumnSpan="3"/>
                     <CheckBox x:Name="checkStageBounds" Content="stage bounds" HorizontalAlignment="Left" Margin="28,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked" Grid.Column="2"/>
                     <Label x:Name="Laser_spacing_" Content="local spacing" HorizontalAlignment="Left" Margin="214,-2,0,0" VerticalAlignment="Top" Grid.Column="2"/>
-                    <TextBox x:Name="textSegmentLaserSpacing" Controls:TextboxHelper.ClearTextButton="True" LostFocus="textSegmentLaserSpacing_LostFocus" HorizontalAlignment="Left" Height="23" Margin="217,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="2"/>
+                    <TextBox x:Name="textSegmentLaserSpacing" Controls:TextboxHelper.ClearTextButton="True" KeyUp="textSegmentLaserSpacing_KeyUp" HorizontalAlignment="Left" Height="23" Margin="217,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Grid.Column="2"/>
                     <ScrollBar x:Name="vScrollBar1" HorizontalAlignment="Left" Height="374" Margin="514,57,0,0" VerticalAlignment="Top" Width="18" Scroll="vScrollBar1_Scroll" RenderTransformOrigin="0.5,0.5" Grid.Column="2">
                         <ScrollBar.RenderTransform>
                             <TransformGroup>
@@ -125,22 +117,5 @@
                 </Grid>
             </TabItem>
         </TabControl>
-        <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseLeave="canvasDielectric_MouseLeave" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="264" Margin="245,250,-633,0" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera" Background="Transparent" Grid.Column="2" RenderTransformOrigin="0.352,0.235" />
-        <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement_Copy"
-                                 
-        	DesiredPixelWidth="320"
-        	DesiredPixelHeight="240"
-        	Stretch="Fill"
-        	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="394,24,-1013,98" Grid.Column="2"/>
-        <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseLeave="canvasDielectric_MouseLeave" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="264" Margin="507,148,-895,0" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera_Copy" Background="Transparent" Grid.Column="2" RenderTransformOrigin="0.352,0.235" />
-        <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement_Copy1"
-                                 
-        	DesiredPixelWidth="320"
-        	DesiredPixelHeight="240"
-        	Stretch="Fill"
-        	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="321,536,191,-414"/>
-        <Canvas ClipToBounds="True" IsMouseDirectlyOverChanged="y" MouseLeave="canvasDielectric_MouseLeave" MouseDown="canvasDielectric_MouseDown" HorizontalAlignment="Left"  Height="264" Margin="434,628,0,-289" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera_Copy1" Background="Transparent" RenderTransformOrigin="0.352,0.235" />
     </Grid>
 </Controls:MetroWindow>

@@ -7,7 +7,7 @@
         xmlns:WPFMediaKit="clr-namespace:WPFMediaKit.DirectShow.Controls;assembly=WPFMediaKit"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         
-        Title="Amazing awesome unbelievable laser machining software (AAULMS)" Height="1000" Width="2235.3" SaveWindowPosition="true" WindowState="Maximized">
+        Title="Amazing awesome unbelievable laser machining software (AAULMS)" Height="1000" Width="2235.3" SaveWindowPosition="true">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -32,7 +32,7 @@
         	DesiredPixelHeight="240"
         	Stretch="Fill"
         	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="296,318,-915,-196" Grid.Column="2"/>
+        	FPS="30" Margin="0,0,0,0"/>
 
     </Grid>
 </Controls:MetroWindow>

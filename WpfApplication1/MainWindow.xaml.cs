@@ -30,6 +30,12 @@ namespace WpfApplication1
     /// </summary>
     public partial class MainWindow : MahApps.Metro.Controls.MetroWindow
     {
+        //Form form2 = new WindowsFormsApplication1.Form2();
+
+        const short SWP_NOMOVE = 0X2;
+        const short SWP_NOSIZE = 1;
+        const short SWP_NOZORDER = 0X4;
+        const int SWP_SHOWWINDOW = 0x0040;
         // Global variables
         string[] file;
         public PointF Origin = new PointF() { X = 0, Y = 0 };
@@ -52,7 +58,7 @@ namespace WpfApplication1
         public float drawingHeight = (float)0;
         public float drawingWidth = (float)0;
         public string fileDirectory = String.Format("{0}\\Files\\", System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
-        public string fullFile = String.Format("{0}\\Files\\Drawing1.dxf", System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
+        public string fullFile = String.Format("{0}\\Files\\Drawing1_2.dxf", System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
         public int? selectedLineParentIndex = null;
         public int? selectedLaserLineIndex = null;
         public string selectedType;
@@ -71,9 +77,8 @@ namespace WpfApplication1
             /*General initializing */
             // canvasDielectric.Children.Add(new Line() { X1 = 5, X2 = 100, Y1 = 5, Y2 = 100, StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Orange });
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
-            FindDevices();
             DisplayAvailableSerialPorts();
-            SetupCameraCanvas();
+            
             PopulateChipCanvas();
             //Canvas background colour opaque by default
             canvasDielectric.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
@@ -117,21 +122,7 @@ namespace WpfApplication1
 
         #region Camera
 
-        private void FindDevices()
-        {
-            var vidDevices = EncoderDevices.FindDevices(EncoderDeviceType.Video);
-            var audDevices = EncoderDevices.FindDevices(EncoderDeviceType.Audio);
-
-            foreach (EncoderDevice dvc in vidDevices)
-            {
-                comboVideo.Items.Add(dvc.Name);
-            }
-            if (comboVideo.Items.Count > 0)
-            {
-                comboVideo.SelectedIndex = 0;
-            };
-
-        }
+        
 
 
         #endregion
@@ -496,7 +487,7 @@ namespace WpfApplication1
                         }
                     }
                 }
-
+               
             }
             ShowSelectedLine();
         }
@@ -545,19 +536,6 @@ namespace WpfApplication1
             }
             ShowSelectedLine();
         }
-        void canvasDielectric_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.OriginalSource.GetType().Name == "Canvas")
-            {
-                ClearSelectedLine();
-
-            }
-        }
-        void canvasDielectric_MouseLeave(object sender, MouseEventArgs e)
-        {
-            canvasCamera.MouseMove -= canvasCameraMouseMoveY;
-            canvasCamera.MouseMove -= canvasCameraMouseMoveX;
-        }
         void checkStageBounds_Checked(object sender, EventArgs e)
         {
             DrawDrawing();
@@ -578,42 +556,49 @@ namespace WpfApplication1
         {
             DrawDrawing();
         }
-        void textLineSpacing_LostFocus(object sender, EventArgs e)
+        void textLineSpacing_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            ClearSelectedLine();
-            int userInput = int.Parse(this.textLineSpacing.Text);
-            lineSpacing = userInput <= 0 ? 1 : userInput;
-            Dxf dxf = new Dxf();
-            this.SubscribeDxf(dxf);
-            Thread dxfThread = new Thread(() => dxf.Start(fullFile, lineSpacing));
-            dxfThread.Name = "Dxf";
-            dxfThread.Start();
-        }
-        void textSegmentLaserSpacing_LostFocus(object sender, EventArgs e)
-        {
-            float laserSpacing = 0;
-            float.TryParse(this.textSegmentLaserSpacing.Text, out laserSpacing);
-            if (laserSpacing != 0 && selectedLineParentIndex != null)
+            if (e.Key == System.Windows.Input.Key.Enter)
             {
-                switch (selectedType)
-                {
-                    case "line":
-                        Lines = ChangeLaserLineSpacing(Lines, laserSpacing);
-                        DrawDrawing();
-                        break;
-                    case "polyline":
-                        Polylines[selectedLineParentIndex ?? 0] = ChangePolylineSpacing(Polylines[selectedLineParentIndex ?? 0], selectedLineParentIndex ?? 0, laserSpacing);
-                        DrawDrawing();
-                        break;
-                    case "circle":
-                        break;
-                    case "arc":
-                        break;
-                }
+                ClearSelectedLine();
+                int userInput = int.Parse(this.textLineSpacing.Text);
+                lineSpacing = userInput <= 0 ? 1 : userInput;
+                Dxf dxf = new Dxf();
+                this.SubscribeDxf(dxf);
+                Thread dxfThread = new Thread(() => dxf.Start(fullFile, lineSpacing));
+                dxfThread.Name = "Dxf";
+                dxfThread.Start();
             }
-            else
+        }
+        void textSegmentLaserSpacing_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            
+            if (e.Key == System.Windows.Input.Key.Enter)
             {
+                float laserSpacing = 0;
+                float.TryParse(this.textSegmentLaserSpacing.Text, out laserSpacing);
+                if (laserSpacing != 0)//&& selectedLineParentIndex != null
+                {
+                    switch (selectedType)
+                    {
+                        case "line":
+                            Lines = ChangeLaserLineSpacing(Lines, laserSpacing);
+                            DrawDrawing();
+                            break;
+                        case "polyline":
+                            Polylines[selectedLineParentIndex ?? 0] = ChangePolylineSpacing(Polylines[selectedLineParentIndex ?? 0], selectedLineParentIndex ?? 0, laserSpacing);
+                            DrawDrawing();
+                            break;
+                        case "circle":
+                            break;
+                        case "arc":
+                            break;
+                    }
+                }
+                else
+                {
 
+                }
             }
         }
         void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
@@ -770,93 +755,7 @@ namespace WpfApplication1
                 }
             }
         }
-        private void SetupCameraCanvas()
-        {
-            PointF center = new PointF()
-            {
-                X = (float)canvasCamera.Width / 2,
-                Y = (float)canvasCamera.Height / 2,
-            };
-            float crossHairHalfLength = (float)(canvasCamera.Height * 0.2);
-            float boxWidth = crossHairHalfLength / 2;
-            float boxHeight = boxWidth;
-            //Setup orgin crosshair
-            Line horizLine = new Line()
-            {
-                X1 = center.X - crossHairHalfLength,
-                X2 = center.X + crossHairHalfLength,
-                Y1 = center.Y,
-                Y2 = center.Y,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Red,
-            };
-            Line vertLine = new Line()
-            {
-                X1 = center.X,
-                X2 = center.X,
-                Y1 = center.Y - crossHairHalfLength,
-                Y2 = center.Y + crossHairHalfLength,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Green,
-            };
-            canvasCamera.Children.Add(horizLine);
-            canvasCamera.Children.Add(vertLine);
-
-            //Setup origin box
-            Line box1 = new Line()
-            {
-                X1 = center.X - boxWidth / 2,
-                X2 = center.X + boxWidth / 2,
-                Y1 = center.Y - boxHeight / 2,
-                Y2 = center.Y - boxHeight / 2,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Blue,
-            };
-            box1.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-            box1.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-            box1.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-            Line box2 = new Line()
-            {
-                X1 = center.X - boxWidth / 2,
-                X2 = center.X + boxWidth / 2,
-                Y1 = center.Y + boxHeight / 2,
-                Y2 = center.Y + boxHeight / 2,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Blue,
-            };
-            box2.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-            box2.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-            box2.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-            Line box3 = new Line()
-            {
-                X1 = center.X + boxWidth / 2,
-                X2 = center.X + boxWidth / 2,
-                Y1 = center.Y - boxHeight / 2,
-                Y2 = center.Y + boxHeight / 2,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Blue,
-            };
-            box3.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-            box3.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-            box3.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-            Line box4 = new Line()
-            {
-                X1 = center.X - boxWidth / 2,
-                X2 = center.X - boxWidth / 2,
-                Y1 = center.Y - boxHeight / 2,
-                Y2 = center.Y + boxHeight / 2,
-                StrokeThickness = 1,
-                Stroke = System.Windows.Media.Brushes.Blue,
-            };
-            box4.IsMouseDirectlyOverChanged += new DependencyPropertyChangedEventHandler(x);
-            box4.MouseDown += new MouseButtonEventHandler(userClickDownBox);
-            box4.MouseUp += new MouseButtonEventHandler(userClickUpBox);
-            canvasCamera.Children.Add(box1);
-            canvasCamera.Children.Add(box2);
-            canvasCamera.Children.Add(box3);
-            canvasCamera.Children.Add(box4);
-
-        }
+       
 
         private void x(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -868,78 +767,19 @@ namespace WpfApplication1
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
-        private void userClickDownBox(object sender, MouseEventArgs e)
-        {
-            Line li = sender as Line;
-            for (int i = 0; i < canvasCamera.Children.Count; i++)
-            {
-                if (li == canvasCamera.Children[i] as Line)
-                {
-                    if (i == 2 || i == 3)
-                        canvasCamera.MouseMove += new MouseEventHandler(canvasCameraMouseMoveY);
-                    if (i == 4 || i == 5)
-                        canvasCamera.MouseMove += new MouseEventHandler(canvasCameraMouseMoveX);
-                }
-            }
-        }
-        private void userClickUpBox(object sender, MouseEventArgs e)
-        {
-            Line li = sender as Line;
-            for (int i = 0; i < canvasCamera.Children.Count; i++)
-            {
-                if (li == canvasCamera.Children[i] as Line)
-                {
-                    if (i == 2 || i == 3)
-                        canvasCamera.MouseMove -= canvasCameraMouseMoveY;
-                    if (i == 4 || i == 5)
-                        canvasCamera.MouseMove -= canvasCameraMouseMoveX;
-                }
-            }
-
-        }
-
-        private void canvasCameraMouseMoveY(object sender, MouseEventArgs e)
-        {
-            Line l0 = canvasCamera.Children[2] as Line;
-            l0.Y1 = e.GetPosition(canvasCamera).Y;
-            l0.Y2 = e.GetPosition(canvasCamera).Y;
-            Line l1 = canvasCamera.Children[3] as Line;
-            l1.Y1 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
-            l1.Y2 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
-            Line l2 = canvasCamera.Children[4] as Line;
-            l2.Y1 = e.GetPosition(canvasCamera).Y;
-            l2.Y2 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
-            Line l3 = canvasCamera.Children[5] as Line;
-            l3.Y1 = e.GetPosition(canvasCamera).Y;
-            l3.Y2 = canvasCamera.Height - e.GetPosition(canvasCamera).Y;
-        }
-        private void canvasCameraMouseMoveX(object sender, MouseEventArgs e)
-        {
-            Line l0 = canvasCamera.Children[4] as Line;
-            l0.X1 = e.GetPosition(canvasCamera).X;
-            l0.X2 = e.GetPosition(canvasCamera).X;
-            Line l1 = canvasCamera.Children[5] as Line;
-            l1.X1 = canvasCamera.Width - e.GetPosition(canvasCamera).X;
-            l1.X2 = canvasCamera.Width - e.GetPosition(canvasCamera).X;
-            Line l2 = canvasCamera.Children[2] as Line;
-            l2.X1 = e.GetPosition(canvasCamera).X;
-            l2.X2 = canvasCamera.Width - e.GetPosition(canvasCamera).X;
-            Line l3 = canvasCamera.Children[3] as Line;
-            l3.X1 = e.GetPosition(canvasCamera).X;
-            l3.X2 = canvasCamera.Width - e.GetPosition(canvasCamera).X;
-        }
+ 
 
         private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
         {
             foreach (Dxf.Line line in Lines)
             {
-                outputCommands.Text += String.Format("[v {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
+                outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
             }
             foreach (Dxf.Polyline pLine in Polylines)
             {
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
-                    outputCommands.Text += String.Format("[v {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
+                    outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
                 }
 
             }
@@ -964,7 +804,8 @@ namespace WpfApplication1
                 incomingData.Text += sp.ReadExisting();
             }));
         }
-        #endregion
+        #endregion+
+
 
         #region FS On a chip
         public void PopulateChipCanvas()
@@ -1169,6 +1010,11 @@ namespace WpfApplication1
 
         }
 
+        private void textLineSpacing_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
+
     }
     public class MyLine : Shape
     {
@@ -1217,4 +1063,5 @@ namespace WpfApplication1
         }
 
     }
+
 }
