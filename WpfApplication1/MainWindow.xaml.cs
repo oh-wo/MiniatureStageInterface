@@ -77,12 +77,11 @@ namespace WpfApplication1
             /*General initializing */
             // canvasDielectric.Children.Add(new Line() { X1 = 5, X2 = 100, Y1 = 5, Y2 = 100, StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Orange });
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
-            DisplayAvailableSerialPorts();
-            
-            PopulateChipCanvas();
+            connectToDue();
+
             //Canvas background colour opaque by default
             canvasDielectric.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
-            chipCanvas.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
+            //chipCanvas.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
             vScrollBar1.Value = 0.5;
             hScrollBar1.Value = 0.5;
 
@@ -118,27 +117,67 @@ namespace WpfApplication1
 
             CameraWindow cWindow = new CameraWindow();
             cWindow.Show();
-        }
 
+            
+        }
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            if (sp != null)
+            {
+                if (sp.IsOpen)
+                    sp.Close();
+                sp.Dispose();
+            }
+            base.OnClosing(e);
+        }
         #region Camera
 
-        
+
 
 
         #endregion
 
         #region Femtosecond Machining
-        public void DisplayAvailableSerialPorts()
+        public void connectToDue()
         {
+            this.stageConnectionState.Content = "not connected to stages";
+            SerialPort _sp = new SerialPort(){
+                BaudRate=9600,
+            };
+            string inString = "";
+            foreach (string spName in SerialPort.GetPortNames())
+            {
+                if (_sp.IsOpen)
+                {
+                    _sp.Close();
+                }
+                _sp.PortName = spName;
+                _sp.Open();
+                _sp.Write("[x]*");
+                int timeout = 10;
+                int counter = 0;
+                while (timeout > counter)
+                {
+                    inString += _sp.ReadExisting();
+                    Thread.Sleep(100);
+                    counter++;
+                }
+                _sp.Close();
+                if (inString.Contains("dielectric control due"))
+                {
+                    if (sp == null)
+                    {
+                        sp = new SerialPort();
+                    }
+                    if (sp.IsOpen)
+                        sp.Close();
+                    sp = _sp;
 
-            this.comboSerial.Items.Clear();
-            foreach (string comPort in SerialPort.GetPortNames())
-            {
-                this.comboSerial.Items.Add(comPort);
-            }
-            if (this.comboSerial.Items.Count > 0)
-            {
-                this.comboSerial.SelectedIndex = 1;
+                    sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+                    sp.Open();
+                    this.stageConnectionState.Content = "connected to stages";
+                    break;
+                }
             }
         }
         public void SubscribeDxf(Dxf dxf)
@@ -487,7 +526,7 @@ namespace WpfApplication1
                         }
                     }
                 }
-               
+
             }
             ShowSelectedLine();
         }
@@ -572,7 +611,7 @@ namespace WpfApplication1
         }
         void textSegmentLaserSpacing_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            
+
             if (e.Key == System.Windows.Input.Key.Enter)
             {
                 float laserSpacing = 0;
@@ -645,7 +684,7 @@ namespace WpfApplication1
         }
         void buttonRefreshSerial_Click(object sender, RoutedEventArgs e)
         {
-            DisplayAvailableSerialPorts();
+            connectToDue();
         }
 
         //UI Methods
@@ -755,7 +794,7 @@ namespace WpfApplication1
                 }
             }
         }
-       
+
 
         private void x(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -767,7 +806,7 @@ namespace WpfApplication1
             Mouse.OverrideCursor = Cursors.Arrow;
         }
 
- 
+
 
         private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
         {
@@ -788,233 +827,187 @@ namespace WpfApplication1
         {
             this.Dispatcher.BeginInvoke(new Action(delegate
             {
+                currentPos.isValid = false;
                 string commands = String.Format("{0}*\"", outputCommands.Text);
                 if (!sp.IsOpen)
                     sp.Open();
+
                 sp.Write(commands);
 
                 //sp.Close();
             }));
         }
+        string inputString = "";
+        string newCommand = "";
+        int indexLineEnds = -1;
         private void dataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            // incomingData.Text += e;
-            this.Dispatcher.BeginInvoke(new Action(delegate
+            //this reads in each line. 
+            //then, if we're trying to get the current information, we can pick out information
+            inputString += sp.ReadExisting();
+            indexLineEnds = inputString.IndexOf("\n");
+            while (indexLineEnds != -1)
             {
-                incomingData.Text += sp.ReadExisting();
-            }));
-        }
-        #endregion+
+                
+                indexLineEnds = indexLineEnds == 0 ? 1 : indexLineEnds+1;
+                newCommand = inputString.Substring(0, indexLineEnds);
+                inputString = inputString.Substring(indexLineEnds, (inputString.Length - indexLineEnds));
 
+                if (readingPosition)
+                {
+                    this.Dispatcher.BeginInvoke(new Action(delegate
+                         {
+                             if (newCommand.Contains("0 1 1="))
+                             {
+                                 currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                             }
+                             if (newCommand.Contains("0 2 1="))
+                             {
+                                 currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                                 readingPosition = false;
 
-        #region FS On a chip
-        public void PopulateChipCanvas()
-        {
-            chipCanvas.Children.Clear();
-            TextBox currentTextBox = new TextBox();
-            try
-            {
+                                 this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
+                             }
 
-                float height = (float)chipCanvas.Height / 2;
-                currentTextBox = textLength;
-                float d2 = float.Parse(textLength.Text);
-                currentTextBox = textVelocity;
-                double velocity = double.Parse(textVelocity.Text);
-                currentTextBox = textAcceleration;
-                double acceleration = double.Parse(textAcceleration.Text);
-                float d1 = (float)(Math.Pow(velocity, 2) / (2 * acceleration));
-                currentTextBox = textShotSpacing;
-                float shotSpacing = float.Parse(textShotSpacing.Text);
-                currentTextBox = textLength;
-                float length = float.Parse(textLength.Text);
-                PointF[] points = new PointF[3 + int.Parse(Math.Round(length / shotSpacing).ToString())];
-                float actualShotSpacing = length / (points.Length - 3);
-                points[0] = new PointF()
-                {
-                    X = 50,
-                    Y = height,
-                };
-                points[1] = new PointF()
-                {
-                    X = points[0].X + d1,
-                    Y = height,
-                };
-                for (int i = 2; i < points.Length - 1; i++)
-                {
-                    points[i] = new PointF()
-                    {
-                        X = points[i - 1].X + actualShotSpacing,
-                        Y = height,
-                    };
+                         }));
+                    currentPos.isValid = true;
+
                 }
-                points[points.Length - 1] = new PointF()
-                {
-                    X = points[points.Length - 2].X + d1,
-                    Y = height,
-                };
-                for (int i = 0; i < (points.Length - 1); i++)
-                {
-                    DoubleCollection x = new DoubleCollection();
-                    x.Add(2); x.Add(2);
-                    MyLine line = new MyLine()
-                    {
-                        StrokeThickness = 2,
-                        Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
-                        StrokeEndLineCap = (1 <= i && i < points.Length - 1) ? PenLineCap.Triangle : PenLineCap.Flat,
-                        X1 = points[i].X,
-                        X2 = points[i + 1].X,
-                        Y1 = points[i].Y,
-                        Y2 = points[i + 1].Y
-                    };
-                    if (!(1 <= i && i < points.Length - 2))
-                    {
-                        line.StrokeDashArray = x;
-                    }
-                    else
-                    {
-                        MyEllipse ellipse = new MyEllipse()
-                        {
-                            Clickable = true,
-                            Uid = "MyEllipse",
-                            Center = new System.Windows.Point() { X = (double)points[i + 1].X, Y = (double)points[i + 1].Y },
-                            Radius = 2,
-                            Stroke = (1 <= i && i < points.Length - 2) ? System.Windows.Media.Brushes.Green : System.Windows.Media.Brushes.White,
-                            StrokeThickness = 5,
-
-                        };
-                        chipCanvas.Children.Add(ellipse);
-                    };
-
-                    chipCanvas.Children.Add(line);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (ex.GetType().Name == "FormatException")
-                {
-                    //they probably entered the wrong kind of value into the text box such that it couldn't be parsed. 
-                    Thread x = new Thread(() => ShowValidationError(currentTextBox));
-                    x.Name = "Validation error";
-                    x.Start();
-                }
-            }
-
-
-
-        }
-
-        private void ShowValidationError(TextBox currentTextbox)
-        {
-            System.Windows.Media.Brush originalBrush = System.Windows.Media.Brushes.Red;
-            this.Dispatcher.BeginInvoke(new Action(delegate
-            {
-                labelValidation.Opacity = 1;
-                originalBrush = currentTextbox.BorderBrush;
-                currentTextbox.BorderBrush = System.Windows.Media.Brushes.Red;
-
-            }));
-            Thread.Sleep(1000);
-            for (int i = 100; i >= 0; i = i - 10)
-            {
                 this.Dispatcher.BeginInvoke(new Action(delegate
-        {
-            labelValidation.Opacity = ((double)i) / 100;
-        }));
-                Thread.Sleep(100);
-            };
-            this.Dispatcher.BeginInvoke(new Action(delegate
-            {
-                currentTextbox.BorderBrush = System.Windows.Media.Brushes.LightGray;
-            }));
+                {
 
-
-        }
-
-        private void fsChipDim_LostFocus(object sender, EventArgs e)
-        {
-            PopulateChipCanvas();
-        }
-
-        private void textVelocity_LostFocus(object sender, EventArgs e)
-        {
-            fsChipDim_LostFocus(sender, e);
+                    incomingData.Text += "[" + newCommand + "]";
+                }));
+                indexLineEnds = inputString.IndexOf("\n");
+            }
         }
         #endregion
 
-        private void buttonCameraStart_Click(object sender, RoutedEventArgs e)
-        {
 
-        }
-
-        private void NavigationTabs_SelectionChanged(object sender, EventArgs e)
-        {
-            switch (NavigationTabs.SelectedIndex)
-            {
-                case 0://Settings
-                    break;
-                case 1://Dielectric Machining
-                    break;
-                case 2: //FS Chip
-                    ConfigureOpenLoop col = new ConfigureOpenLoop();
-                    SubscribeOpenLoop(col);
-                    //   Thread configure = new Thread(() => col.Configure(sp));
-                    //  configure.Name = "Configure Open Loop";
-                    // configure.Start();
-
-                    break;
-            }
-        }
-
-        private void SetOpenLoopVelocity(object sender, ConfigureOpenLoop.OpenLoopArgs e)
-        {
-            this.Dispatcher.BeginInvoke(new Action(delegate
-            {
-                textVelocity.Text = e.Value.ToString();
-            }));
-        }
-
-        public void SubscribeOpenLoop(ConfigureOpenLoop ol)
-        {
-            ol.olEvent += new ConfigureOpenLoop.OpenLoopHandler(olChanged);
-        }
-
-        public void olChanged(ConfigureOpenLoop ol, ConfigureOpenLoop.OpenLoopArgs e)
-        {
-
-            this.Dispatcher.BeginInvoke(new Action(delegate
-               {
-                   Dictionary<String, Control> collection = new Dictionary<String, Control>();
-                   foreach (Control ctrl in FsChipGrid.Children.OfType<TextBox>())
-                   {
-                       collection.Add(ctrl.Name, ctrl);
-                   }
-                   ((TextBox)collection[e.Control]).Text = (e.Value * 70 / 1350).ToString();
-                   ((TextBox)collection[e.Control]).IsEnabled = true;
-                   ((TextBox)collection[e.Control]).Focus();
-                   NavigationTabs.Focus();
-               }));
-        }
-
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            if (sp == null)
-            {
-                sp = new SerialPort();
-            }
-            if (sp.IsOpen)
-                sp.Close();
-            sp.BaudRate = 9600;
-            sp.PortName = comboSerial.SelectedValue.ToString();
-            sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
-            sp.Open();
-
-        }
-
+        
+             
+        
         private void textLineSpacing_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
 
+        
+        public void Move(double xIncrement, double yIncrement)
+        {
+            if (0 <= currentPos.Y + yIncrement &&currentPos.Y + yIncrement <= 15 && 0<= currentPos.X + xIncrement && currentPos.X + xIncrement <= 19)
+            {
+                sp.Write(String.Format("[g {0} {1}]*", currentPos.X + xIncrement, currentPos.Y + yIncrement));
+                currentPos.X += xIncrement;
+                currentPos.Y += yIncrement;
+                this.Dispatcher.BeginInvoke(new Action(delegate
+                         {
+                             this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", (currentPos.X) / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
+                         }));
+            }
+        }
+        bool readingPosition = false;
+        public void GetCurrentPosition()
+        {
+            readingPosition = true;
+            sp.Write("[t]*");
+
+        }
+        FocalLocation currentPos = new FocalLocation()
+        {
+            isValid = false,
+            X = 0,
+            Y = 0
+        };
+        public class ScrollingTextBox : TextBox
+        {
+
+            protected override void OnInitialized(EventArgs e)
+            {
+                base.OnInitialized(e);
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+            }
+
+            protected override void OnTextChanged(TextChangedEventArgs e)
+            {
+                base.OnTextChanged(e);
+                CaretIndex = Text.Length;
+                ScrollToEnd();
+            }
+
+        }
+        
+        private void button_MoveRight_Click(object sender, RoutedEventArgs e)
+        {
+            if (!readingPosition)
+            {
+                if (!currentPos.isValid)
+                    GetCurrentPosition();
+                while (!currentPos.isValid) { }
+                Move((courseMovementSelected ? courseMovement : fineMovement), 0);
+                Thread.Sleep(500);
+                GetCurrentPosition();
+                while (!currentPos.isValid) { }
+            }
+        }
+        private void buttonMoveUp_click(object sender, RoutedEventArgs e)
+        {
+            if (!readingPosition)
+            {
+                if (!currentPos.isValid)
+                    GetCurrentPosition();
+                while (!currentPos.isValid) { }
+                Move(0, (courseMovementSelected ? courseMovement : fineMovement));
+                Thread.Sleep(500);
+            }
+        }
+
+        private void button_MoveLeft_Click(object sender, RoutedEventArgs e)
+        {
+            if (!readingPosition)
+            {
+                if (!currentPos.isValid)
+                    GetCurrentPosition();
+                while (!currentPos.isValid) { }
+                Move(-(courseMovementSelected ? courseMovement : fineMovement), 0);
+                Thread.Sleep(500);
+                GetCurrentPosition();
+                while (!currentPos.isValid) { }
+            }
+        }
+
+        private void button_MoveDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (!readingPosition)
+            {
+                if (!currentPos.isValid)
+                    GetCurrentPosition();
+                while (!currentPos.isValid) { }
+                Move(0, -(courseMovementSelected?courseMovement:fineMovement));
+                Thread.Sleep(500);
+                GetCurrentPosition();
+                while (!currentPos.isValid) { }
+            }
+        }
+        double courseMovement = 2;
+        double fineMovement = 0.1;
+        bool courseMovementSelected = true;
+        private void movementChanged(object sender, RoutedEventArgs e)
+        {
+            courseMovementSelected = this.movementCoarse.IsChecked??false;
+        }
+
+        private void button_Pew_Click(object sender, RoutedEventArgs e)
+        {
+            sp.Write("[q]*");
+        }
+    }
+    public class FocalLocation
+    {
+        public bool isValid { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
     }
     public class MyLine : Shape
     {
