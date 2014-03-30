@@ -27,12 +27,10 @@
         <Canvas ClipToBounds="True" HorizontalAlignment="Left"  Height="264" Margin="1634,442,-1768,-436" VerticalAlignment="Top" Width="426" Cursor="Arrow" x:Name="canvasCamera_Copy2" Background="Transparent" RenderTransformOrigin="0.352,0.235" />
 
         <WPFMediaKit:VideoCaptureElement x:Name="videoCapElement"
-                                 
-        	DesiredPixelWidth="320"
-        	DesiredPixelHeight="240"
-        	Stretch="Fill"
-        	VideoCaptureSource="{Binding CaptureDeviceName}"
-        	FPS="30" Margin="0,0,0,0"/>
+                     DesiredPixelWidth="1280" DesiredPixelHeight="1024" LoadedBehavior="Play"            
+Width="Auto" Height="Auto"
+        	 Stretch="Fill"
+        	FPS="13" Margin="0,0,0,0"/>
 
     </Grid>
 </Controls:MetroWindow>

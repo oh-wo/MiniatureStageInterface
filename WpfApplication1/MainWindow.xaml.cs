@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,9 +20,6 @@ using System.Threading;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 using WebcamControl;
-using Microsoft.Expression.Encoder.Devices;
-using MahApps.Metro;
-using MahApps;
 
 namespace WpfApplication1
 {
@@ -47,7 +45,7 @@ namespace WpfApplication1
         public List<Dxf.Polyline> Polylines = new List<Dxf.Polyline>();
         public List<Dxf.Arc> Arcs = new List<Dxf.Arc>();
         public List<Dxf.Circle> Circles = new List<Dxf.Circle>();
-        public static float lineSpacing = 50;
+        public static float lineSpacing = 10;
         //Global parameters
         SerialPort sPort;
         public SolidColorBrush brush = new SolidColorBrush(Colors.White);
@@ -66,19 +64,23 @@ namespace WpfApplication1
         public float scrollOffsetY = 0;
         public System.Windows.Controls.Image image;
         private DrawingContext _Context;
-
+        SerialPort arduinoSerial;
 
 
         private delegate void TextChanger();
         public MainWindow()
         {
             InitializeComponent();
-
             /*General initializing */
             // canvasDielectric.Children.Add(new Line() { X1 = 5, X2 = 100, Y1 = 5, Y2 = 100, StrokeThickness = 2, Stroke = System.Windows.Media.Brushes.Orange });
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
-            connectToDue();
-
+            //connectToDue();
+            configurePIStages();
+            arduinoSerial = new SerialPort();
+            arduinoSerial.BaudRate = 9600;
+            arduinoSerial.PortName = "COM15";
+            if (!arduinoSerial.IsOpen)
+                arduinoSerial.Open();
             //Canvas background colour opaque by default
             canvasDielectric.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
             //chipCanvas.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
@@ -120,6 +122,25 @@ namespace WpfApplication1
 
             
         }
+
+        public void configurePIStages()
+        {
+            sp = new SerialPort();
+            sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+            sp.BaudRate = 9600;
+            sp.PortName = "COM14";
+            sp.NewLine = "\n";
+            if (!sp.IsOpen)
+                sp.Open();
+            sp.WriteLine("1 err?");
+            sp.WriteLine("2 err?");
+            sp.WriteLine("1 svo 1 1");
+            sp.WriteLine("2 svo 1 1");
+            Thread.Sleep(500);
+            sp.WriteLine("1 frf 1");
+            sp.WriteLine("2 frf 1");
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             if (sp != null)
@@ -435,7 +456,11 @@ namespace WpfApplication1
                 {
                     for (int i = 0; i < Polylines[j].laserLines.Count; i++)
                     {
-                        Polylines[j].laserLines[i] = DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true, brush, Polylines[j].laserLines[i], true, "polyline");
+                        try
+                        {
+                            Polylines[j].laserLines[i] = DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true, brush, Polylines[j].laserLines[i], true, "polyline");
+                        }
+                        catch (Exception ex) { }
                     }
                 }
                 for (int j = 0; j < Lines.Count; j++)
@@ -798,45 +823,105 @@ namespace WpfApplication1
 
         private void x(object sender, DependencyPropertyChangedEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Hand;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Hand;
         }
 
         private void y(object sender, DependencyPropertyChangedEventArgs e)
         {
-            Mouse.OverrideCursor = Cursors.Arrow;
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Arrow;
         }
 
-
-
+        public class Command
+        {
+            public int index { get; set; }
+            public string command { get; set; }
+            public FocalLocation pos { get; set; }
+        }
+        public List<Command> commands = new List<Command>();
         private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
         {
+            commands.Clear();
+            int i = 0;
             foreach (Dxf.Line line in Lines)
             {
-                outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
+                //outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
+                float x = (float)Math.Round(line.p1.X / 10 + 7, 5);
+                float y = (float)Math.Round(line.p1.Y / 10 + 7, 5);
+                Command command = new Command()
+                {
+                 index=i,
+                 pos=new FocalLocation(){X=x,Y=y},
+                 command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}",x,y),
+                };
+                commands.Add(command);
+                i++;
             }
             foreach (Dxf.Polyline pLine in Polylines)
             {
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
-                    outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
+                   // outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
+                    float x = (float)Math.Round(laserLine.p1.X / 10 + 7, 5);
+                    float y = (float)Math.Round(laserLine.p1.Y / 10 + 7, 5);
+                    Command command = new Command()
+                    {
+                        index = i,
+                        pos = new FocalLocation() { X = x, Y = y },
+                        command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}\n", x, y),
+                    };
+                    commands.Add(command);
+                    i++;
                 }
 
             }
-        }SerialPort sp;
+        }
+        
+        SerialPort sp;
         private void pewpew(object sender, RoutedEventArgs e)
         {
-            this.Dispatcher.BeginInvoke(new Action(delegate
-            {
+            Thread x = new Thread(() => ExecutePewPew());
+            x.Start();
+        }
+        private void ExecutePewPew()
+        {
+            
                 currentPos.isValid = false;
-                string commands = String.Format("{0}*\"", outputCommands.Text);
+                // string commands = String.Format("{0}*\"", outputCommands.Text);
                 if (!sp.IsOpen)
                     sp.Open();
-
-                sp.Write(commands);
-
+                // sp.Write(commands);
                 //sp.Close();
-            }));
+                for (int i = 0; i < commands.Count(); i++)
+                {
+                    sp.WriteLine(commands[i].command);
+                    while (!isInPosition(commands[i].pos, 0.1))
+                    {
+                        currentPos.isValid = false;
+                        if (!currentPos.isValid)
+                            GetCurrentPosition();
+                        Thread.Sleep(100);
+                        while (!currentPos.isValid) {  }
+                    }
+                    ShootLaser();
+                    
+                }
+            
         }
+        private void ShootLaser()
+        {
+            arduinoSerial.Write("a\r\n");
+        }
+        private bool isInPosition(FocalLocation pos,double tolerance)
+        {
+            bool _isInPos = false;
+            if (pos.X - tolerance <= currentPos.X && currentPos.X <= pos.X + tolerance &&
+                pos.Y - tolerance <= currentPos.Y && currentPos.Y <= pos.Y + tolerance)
+            {
+                _isInPos = true;
+            }
+            return _isInPos;
+        }
+
         string inputString = "";
         string newCommand = "";
         int indexLineEnds = -1;
@@ -855,21 +940,33 @@ namespace WpfApplication1
 
                 if (readingPosition)
                 {
-                    this.Dispatcher.BeginInvoke(new Action(delegate
-                         {
+                    
                              if (newCommand.Contains("0 1 1="))
                              {
-                                 currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                                 try
+                                 {
+                                     currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                                 }
+                                 catch (Exception ex) { 
+                                 }
                              }
                              if (newCommand.Contains("0 2 1="))
                              {
-                                 currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                                 try
+                                 {
+                                     currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                                 }
+                                 catch (Exception ex)
+                                 {
+                                 }
                                  readingPosition = false;
+                                 
+                                 Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
 
-                                 this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
+                new Action(delegate { 
+                    this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5); }));
+                                
                              }
-
-                         }));
                     currentPos.isValid = true;
 
                 }
@@ -897,7 +994,7 @@ namespace WpfApplication1
         {
             if (0 <= currentPos.Y + yIncrement &&currentPos.Y + yIncrement <= 15 && 0<= currentPos.X + xIncrement && currentPos.X + xIncrement <= 19)
             {
-                sp.Write(String.Format("[g {0} {1}]*", currentPos.X + xIncrement, currentPos.Y + yIncrement));
+                sp.Write(String.Format("1 mov 1 {0}\n 2 mov 1 {1}\n", currentPos.X + xIncrement, currentPos.Y + yIncrement));
                 currentPos.X += xIncrement;
                 currentPos.Y += yIncrement;
                 this.Dispatcher.BeginInvoke(new Action(delegate
@@ -910,7 +1007,9 @@ namespace WpfApplication1
         public void GetCurrentPosition()
         {
             readingPosition = true;
-            sp.Write("[t]*");
+            sp.Write("1 pos?\n");
+            Thread.Sleep(1000);
+            sp.Write("2 pos?\n");
 
         }
         FocalLocation currentPos = new FocalLocation()
@@ -919,7 +1018,7 @@ namespace WpfApplication1
             X = 0,
             Y = 0
         };
-        public class ScrollingTextBox : TextBox
+        public class ScrollingTextBox : System.Windows.Controls.TextBox
         {
 
             protected override void OnInitialized(EventArgs e)
@@ -1000,7 +1099,12 @@ namespace WpfApplication1
 
         private void button_Pew_Click(object sender, RoutedEventArgs e)
         {
-            sp.Write("[q]*");
+            ShootLaser();
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            sp.Write("[y]*");
         }
     }
     public class FocalLocation
