@@ -35,13 +35,13 @@
         <Label Content="global spacing" HorizontalAlignment="Left" Margin="195,0,0,0" VerticalAlignment="Top"/>
         <TextBox x:Name="textLineSpacing" HorizontalAlignment="Left" Height="23" Margin="199,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" KeyUp="textLineSpacing_KeyUp" TextChanged="textLineSpacing_TextChanged" />
         <Label x:Name="labelUnits" Content="units detected" HorizontalAlignment="Left" Margin="664,10,0,0" VerticalAlignment="Top"/>
-        <Canvas ClipToBounds="True" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="Arrow" x:Name="canvasDielectric" Background="Aqua" />
+        <Canvas ClipToBounds="True" HorizontalAlignment="Left" MouseWheel="canvas_MouseWheel" Height="381" Margin="7,55,0,0" VerticalAlignment="Top" Width="561" Cursor="SizeAll" x:Name="canvasDielectric" Background="Aqua" MouseDown="canvasDielectric_MouseDown" MouseMove="canvasDielectric_MouseMove"/>
 
         <Label x:Name="labelCurrentFile" Content="no file chosen" HorizontalAlignment="Left" Margin="398,467,0,0" VerticalAlignment="Top" RenderTransformOrigin="-2.095,-0.567"/>
         <CheckBox x:Name="checkDisplayOrigin" Content="origin" HorizontalAlignment="Left" Margin="-4,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
         <CheckBox x:Name="checkStageBounds" Content="stage bounds" HorizontalAlignment="Left" Margin="140,477,0,0" VerticalAlignment="Top" IsChecked="True" Checked="checkDisplayOrigin_Checked" Unchecked="checkDisplayOrigin_Unchecked"/>
         <Label x:Name="Laser_spacing_" Content="local spacing" HorizontalAlignment="Left" Margin="326,-2,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textSegmentLaserSpacing" KeyUp="textSegmentLaserSpacing_KeyUp" HorizontalAlignment="Left" Height="23" Margin="329,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Controls:TextboxHelper.ClearTextButton="True"/>
+        <TextBox x:Name="textSegmentLaserSpacing" KeyUp="textSegmentLaserSpacing_KeyUp" HorizontalAlignment="Left" Height="23" Margin="329,24,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Controls:TextboxHelper.ClearTextButton="True" TextChanged="textSegmentLaserSpacing_TextChanged" IsEnabled="False"/>
         <ScrollBar x:Name="vScrollBar1" HorizontalAlignment="Left" Height="374" Margin="582,54,0,0" VerticalAlignment="Top" Width="18" Scroll="vScrollBar1_Scroll" RenderTransformOrigin="0.5,0.5">
             <ScrollBar.RenderTransform>
                 <TransformGroup>
@@ -54,7 +54,6 @@
         </ScrollBar>
         <ScrollBar x:Name="hScrollBar1" HorizontalAlignment="Left" Height="21" Margin="12,441,0,0" VerticalAlignment="Top" Width="558" Orientation="Horizontal" Scroll="hScrollBar1_Scroll" RenderTransformOrigin="0.502,-9.857"/>
         <TextBox x:Name="outputCommands" HorizontalAlignment="Left" Height="136" Margin="655,164,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="240"/>
-        <Button Content="Generate Commands" Click="ConvertLineListToOutputCommands" HorizontalAlignment="Left" Margin="664,55,0,0" VerticalAlignment="Top" Width="158"/>
         <Button Content="Pew pew" Click="pewpew" HorizontalAlignment="Left" Margin="664,91,0,0" VerticalAlignment="Top" Width="158"/>
         <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="655,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
         <TextBox x:Name="textClosedLoopVelocity" HorizontalAlignment="Left" Height="23" Margin="480,24,0,0" TextWrapping="Wrap" Text="4.00000" VerticalAlignment="Top" Width="120" ToolTip="closed loop velocity"/>

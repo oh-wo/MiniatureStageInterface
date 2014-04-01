@@ -402,6 +402,7 @@ namespace WpfApplication1
                         if (pline.verticies[i].Bulge == null)
                         {
                             Line laserLine = new Line();
+                            laserLine.parentIndex = z;
                             //straight line
                             laserLine.p1 = new PointF
                             {

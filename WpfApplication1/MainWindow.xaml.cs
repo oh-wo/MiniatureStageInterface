@@ -66,7 +66,6 @@ namespace WpfApplication1
         private DrawingContext _Context;
         SerialPort arduinoSerial;
 
-
         private delegate void TextChanger();
         public MainWindow()
         {
@@ -83,7 +82,7 @@ namespace WpfApplication1
                 arduinoSerial.PortName = "COM15";
                 if (!arduinoSerial.IsOpen)
                     arduinoSerial.Open();
-                this.arduinoConnectionState.Content = "Connected to arduino (shutter)"; 
+                this.arduinoConnectionState.Content = "Connected to arduino (shutter)";
             }
             catch (Exception ex)
             {
@@ -131,7 +130,7 @@ namespace WpfApplication1
                 cWindow.Show();
             }
             catch (Exception ex) { }
-            
+
         }
 
         public void configurePIStages()
@@ -154,7 +153,8 @@ namespace WpfApplication1
                 sp.WriteLine("2 frf 1");
                 this.stageConnectionState.Content = "Connected to stages";
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 this.stageConnectionState.Content = "Not connected to stages";
             }
         }
@@ -167,6 +167,7 @@ namespace WpfApplication1
                     sp.Close();
                 sp.Dispose();
             }
+            Application.Current.Shutdown(0);
             base.OnClosing(e);
         }
         #region Camera
@@ -180,8 +181,9 @@ namespace WpfApplication1
         public void connectToDue()
         {
             this.stageConnectionState.Content = "not connected to stages";
-            SerialPort _sp = new SerialPort(){
-                BaudRate=9600,
+            SerialPort _sp = new SerialPort()
+            {
+                BaudRate = 9600,
             };
             string inString = "";
             foreach (string spName in SerialPort.GetPortNames())
@@ -240,7 +242,7 @@ namespace WpfApplication1
         }
 
         //Dxf stuff
-
+        
         public Dxf.Line DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, SolidColorBrush b, Dxf.Line line, bool Clickable, string specifiedType)
         {
             //if from autocad then have to flip the y-axis
@@ -260,6 +262,7 @@ namespace WpfApplication1
                 ParentIndex = line.parentIndex,
                 Clickable = Clickable,
                 Uid = specifiedType,//"MyLine"
+                Cursor = Cursors.Hand,
             };
             li.Stroke = b;
 
@@ -276,6 +279,7 @@ namespace WpfApplication1
                     Radius = 2,
                     Stroke = b,
                     StrokeThickness = 5,
+                    Cursor = Cursors.Hand,
 
                 };
                 ellipse.MouseDown += new MouseButtonEventHandler(ellipse_MouseDown);
@@ -323,135 +327,6 @@ namespace WpfApplication1
                 DrawLine(stageBounds.X[0], stageBounds.Y[0], stageBounds.X[0], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsBrush, line, false, "");//left
                 DrawLine(stageBounds.X[1], stageBounds.Y[0], stageBounds.X[1], stageBounds.Y[1], xOffset, yOffset, scale, false, stageBoundsBrush, line, false, "");//right
             }
-        }
-        public List<Dxf.Line> ChangeLaserLineSpacing(List<Dxf.Line> _lines, float NewSpacing)
-        {
-            /*Function:
-             * finds the index of the lines which are to be changed
-             * removes those lines
-             * splits the span of the lines up into new lines for that span
-             * inserts these new lines at the previously found index, giving them the same parent index before
-             * */
-            int? linesStartIndex = null;
-            int? linesEndIndex = null;
-            bool firstFound = false;
-            Dxf.Line OriginalLine = new Dxf.Line();
-            List<Dxf.Line> NewLines = new List<Dxf.Line>();
-            for (int i = 0; i < _lines.Count; i++)
-            {
-                if (_lines[i].parentIndex == selectedLineParentIndex)
-                {
-
-                    if (!firstFound)
-                    {
-                        linesStartIndex = i;
-                        firstFound = true;
-                        OriginalLine.p1 = _lines[i].p1;
-                        OriginalLine.parentIndex = selectedLineParentIndex ?? 0;
-
-                    }
-                    OriginalLine.p2 = _lines[i].p2;//will get overwritten again and again until last line is found
-                    linesEndIndex = i;
-                }
-                else
-                {
-                    //error
-                }
-            }
-            if (linesStartIndex != null && linesEndIndex != null)
-            {
-                Dxf dxf = new Dxf();
-                NewLines = dxf.ConvertLineToLaserLines(OriginalLine, NewSpacing, (selectedLineParentIndex ?? 0));
-                foreach (Dxf.Line line in NewLines)
-                {
-                    line.laserSpacing = NewSpacing;
-                }
-                //remove the old lines
-                for (int i = linesEndIndex ?? 0; i >= linesStartIndex; i--)
-                {
-                    _lines.Remove(_lines[i]);
-                }
-                _lines.InsertRange(linesStartIndex ?? 0, NewLines);
-
-            }
-            return _lines;
-        }
-        public Dxf.Polyline ChangePolylineSpacing(Dxf.Polyline pline, int parentIndex, float _lineSpacing)
-        {
-            Dxf dxf = new Dxf();
-
-            pline.laserLines = new List<Dxf.Line>();
-            pline.laserSpacing = _lineSpacing;
-            if (pline.noVerticies > 0)
-            {
-                for (int i = 0; i < pline.noVerticies; i++)
-                {
-                    //display verticies to the user
-                    //this.textOutput.Text += String.Format("          Vertex {0}: ({1},{2}) {3}\r\n", i, pline.verticies[i].System.Windows.Point.X, pline.verticies[i].System.Windows.Point.Y, pline.verticies[i].Buldge != null ? pline.verticies[i].Buldge.ToString() : "");
-
-
-                    //convert vertex to laser line and convert bulges to lines if necessary. 
-                    //decimal lineLength = (decimal)Math.Sqrt(Math.Pow(pline.verticies[i+1].Point.Y-pline.verticies[i].Point.Y,2)+Math.Pow(pline.verticies[i+1].Point.X-pline.verticies[i].Point.X,2));
-                    if (pline.verticies[i].Bulge == null)
-                        {
-                        
-                            Dxf.Line _line = new Dxf.Line();
-                            //straight line
-                            _line.p1 = new PointF
-                            {
-                                X = pline.verticies[i].Point.X,
-                                Y = pline.verticies[i].Point.Y,
-                            };
-                            if (i != (pline.noVerticies - 1))
-                            {
-                                //link to next vertex in list
-                                _line.p2 = new PointF
-                                {
-                                    X = pline.verticies[i + 1].Point.X,
-                                    Y = pline.verticies[i + 1].Point.Y,
-                                };
-                            }
-                            else
-                            {
-                                if (pline.closed)
-                                {
-                                    //link back to the original vertex
-                                    _line.p2 = new PointF
-                                    {
-                                        X = pline.verticies[0].Point.X,
-                                        Y = pline.verticies[0].Point.Y,
-                                    };
-                                }
-                                else
-                                {
-                                    //do nothing
-                                }
-                            };
-                            
-                            pline.laserLines.AddRange(dxf.ConvertLineToLaserLines(_line,_lineSpacing,i));
-                        }
-                        else
-                        {
-                            if (i != (pline.noVerticies - 1))
-                            {
-                                //link to next vertex in list
-                                pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
-                            }
-                            else
-                            {
-                                if (pline.closed)
-                                {
-                                    //link back to the original vertex
-                                    pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
-                                }
-                            };
-                       
-                    }
-
-                }
-
-            };
-            return pline;
         }
         public void DrawDrawing()
         {
@@ -533,8 +408,10 @@ namespace WpfApplication1
         }
         void line_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            e.Handled = true;
+            textSegmentLaserSpacing.IsEnabled = true;
             MyLine _selLine = ((MyLine)sender);
-            
+
 
             foreach (UIElement ui in canvasDielectric.Children)
             {
@@ -594,16 +471,18 @@ namespace WpfApplication1
 
             }
             ShowSelectedLine();
+
         }
         void ellipse_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            e.Handled = true;
+            textSegmentLaserSpacing.IsEnabled = true;
             MyEllipse _selEll = ((MyEllipse)sender);
-            selectedType = "line";
-
             foreach (UIElement ui in canvasDielectric.Children)
             {
                 if (ui.Uid.StartsWith("MyLine"))
                 {
+                    selectedType = "line";
                     MyLine _uiLine = ((MyLine)ui);
                     if (_uiLine.Clickable)
                     {
@@ -636,9 +515,55 @@ namespace WpfApplication1
                         }
                     }
                 }
+                if (ui.Uid.StartsWith("MyPolyline"))
+                {
+                    selectedType = "polyline";
+                    MyLine _uiLine = ((MyLine)ui);
+                    if (_uiLine.Clickable)
+                    {
+                        if (_uiLine.ParentIndex == _selEll.ParentIndex)
+                        {
+                            _uiLine.Stroke = selectedBrush;
+                            selectedLineParentIndex = _selEll.ParentIndex;
+                        }
+
+                        else
+                        {
+                            _uiLine.Stroke = brush;
+                        }
+                    }
+                }
+
 
             }
             ShowSelectedLine();
+        }
+        void canvasDielectric_MouseDown(object sender, EventArgs e)
+        {
+            ClearSelectedLine();
+            DrawDrawing();
+            lastPos = null;
+
+            textSegmentLaserSpacing.Text = "";
+            textSegmentLaserSpacing.IsEnabled = false;
+        }
+        PointF lastPos;
+        void canvasDielectric_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (Mouse.LeftButton == MouseButtonState.Pressed)
+            {
+                PointF currentPos = new PointF() { 
+                    X = (float)e.GetPosition(canvasDielectric).X,
+                    Y = (float)e.GetPosition(canvasDielectric).Y,
+                };
+                if (lastPos != null)
+                {
+                    scrollOffsetX += currentPos.X-lastPos.X;
+                    scrollOffsetY += currentPos.Y - lastPos.Y;
+                    DrawDrawing();
+                }
+                lastPos = currentPos;
+            }
         }
         void checkStageBounds_Checked(object sender, EventArgs e)
         {
@@ -664,21 +589,29 @@ namespace WpfApplication1
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                ClearSelectedLine();
+                /*ClearSelectedLine();
                 int userInput = int.Parse(this.textLineSpacing.Text);
                 lineSpacing = userInput <= 0 ? 1 : userInput;
                 Dxf dxf = new Dxf();
                 this.SubscribeDxf(dxf);
                 Thread dxfThread = new Thread(() => dxf.Start(fullFile, lineSpacing));
                 dxfThread.Name = "Dxf";
-                dxfThread.Start();
+                dxfThread.Start();*/
+                decimal userInput = 0;
+                if (decimal.TryParse(this.textLineSpacing.Text, out userInput))
+                {
+                    int _laserSpacing = int.Parse((Math.Round(userInput)).ToString());
+                    for (int i = 0; i < Polylines.Count; i++)
+                    {
+                        ChangePolylineSpacing(Polylines[i], i, _laserSpacing);
+                    }
+                    DrawDrawing();
+                }
             }
         }
         void textSegmentLaserSpacing_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-
-            
-           if (e.Key == System.Windows.Input.Key.Enter)
+            if (e.Key == System.Windows.Input.Key.Enter)
             {
                 float laserSpacing = 0;
                 float.TryParse(this.textSegmentLaserSpacing.Text, out laserSpacing);
@@ -687,7 +620,7 @@ namespace WpfApplication1
                     switch (selectedType)
                     {
                         case "line":
-                            Lines = ChangeLaserLineSpacing(Lines, laserSpacing);
+                            //  Lines = ChangeLaserLineSpacing(Lines, laserSpacing);
                             DrawDrawing();
                             break;
                         case "polyline":
@@ -705,7 +638,93 @@ namespace WpfApplication1
 
                 }
             }
+
+            
         }
+        WpfApplication1.Dxf.Polyline ChangePolylineSpacing(WpfApplication1.Dxf.Polyline pLine, int parentIndex, float laserSpacing)
+        {
+            pLine.laserLines = new List<WpfApplication1.Dxf.Line>();
+            pLine.laserSpacing = laserSpacing;
+            if (pLine.noVerticies > 0)
+            {
+                for (int i = 0; i < pLine.noVerticies; i++)
+                {
+                    float X = 0;
+                    float Y = 0;
+                    if (i != (pLine.noVerticies - 1))
+                    {
+                        X = pLine.verticies[i + 1].Point.X - pLine.verticies[i].Point.X;
+                        Y = pLine.verticies[i + 1].Point.Y - pLine.verticies[i].Point.Y;
+                    }
+                    else
+                    {
+                        //is the last bit of the loop
+                        if (pLine.closed)
+                        {
+                            X = pLine.verticies[0].Point.X - pLine.verticies[i].Point.X;
+                            Y = pLine.verticies[0].Point.Y - pLine.verticies[i].Point.Y;
+                        }
+                        else
+                        {//do nothing
+                        }
+                    }
+                    float lineLength = (float)Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
+
+
+                    int numberLines = int.Parse(Math.Round((lineLength / laserSpacing)).ToString());
+                    numberLines = numberLines == 0 ? 1 : numberLines;//can't have 0 lines
+                    float dX = X == 0 ? 0 : X / numberLines;
+                    float dY = Y == 0 ? 0 : Y / numberLines;
+
+                    if (pLine.verticies[i].Bulge == null)
+                    {
+
+
+                        for (int j = 0; j < numberLines; j++)
+                        {
+                            WpfApplication1.Dxf.Line laserLine = new WpfApplication1.Dxf.Line();
+                            laserLine.parentIndex = parentIndex;
+                            //straight line
+
+                            laserLine.p1 = new PointF
+                            {
+                                X = pLine.verticies[i].Point.X + dX * j,
+                                Y = pLine.verticies[i].Point.Y + dY * j,
+                            };
+                            laserLine.p2 = new PointF
+                            {
+                                X = pLine.verticies[i].Point.X + dX * (j + 1),
+                                Y = pLine.verticies[i].Point.Y + dY * (j + 1),
+                            };
+
+                            pLine.laserLines.Add(laserLine);
+                        }
+                    }
+                    else
+                    {
+                        Dxf _dxf = new Dxf();
+                        if (i != (pLine.noVerticies - 1))
+                        {
+                            //link to next vertex in list
+                            pLine.laserLines.AddRange(_dxf.ConvertBulgeToLines(pLine.verticies[i].Point, pLine.verticies[i + 1].Point, pLine.verticies[i].Bulge ?? (float)0, MainWindow.lineSpacing, parentIndex));
+                        }
+                        else
+                        {
+                            if (pLine.closed)
+                            {
+                                //link back to the original vertex
+                                pLine.laserLines.AddRange(_dxf.ConvertBulgeToLines(pLine.verticies[i].Point, pLine.verticies[0].Point, pLine.verticies[i].Bulge ?? (float)0, MainWindow.lineSpacing, parentIndex));
+                            }
+                        };
+                    };
+
+                }
+
+            }
+
+            return pLine;
+        }
+
         void canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
             float currentScale = 0;
@@ -879,7 +898,7 @@ namespace WpfApplication1
             public FocalLocation pos { get; set; }
         }
         public List<Command> commands = new List<Command>();
-        private void ConvertLineListToOutputCommands(object sender, RoutedEventArgs e)
+        void GenerateCommands()
         {
             commands.Clear();
             int i = 0;
@@ -890,9 +909,9 @@ namespace WpfApplication1
                 float y = (float)Math.Round(line.p1.Y / 10 + 7, 5);
                 Command command = new Command()
                 {
-                 index=i,
-                 pos=new FocalLocation(){X=x,Y=y},
-                 command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}",x,y),
+                    index = i,
+                    pos = new FocalLocation() { X = x, Y = y },
+                    command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}", x, y),
                 };
                 commands.Add(command);
                 i++;
@@ -901,7 +920,7 @@ namespace WpfApplication1
             {
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
-                   // outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
+                    // outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
                     float x = (float)Math.Round(laserLine.p1.X / 10 + 7, 5);
                     float y = (float)Math.Round(laserLine.p1.Y / 10 + 7, 5);
                     Command command = new Command()
@@ -916,7 +935,7 @@ namespace WpfApplication1
 
             }
         }
-        
+
         SerialPort sp;
         private void pewpew(object sender, RoutedEventArgs e)
         {
@@ -925,34 +944,34 @@ namespace WpfApplication1
         }
         private void ExecutePewPew()
         {
-            
-                currentPos.isValid = false;
-                // string commands = String.Format("{0}*\"", outputCommands.Text);
-                if (!sp.IsOpen)
-                    sp.Open();
-                // sp.Write(commands);
-                //sp.Close();
-                for (int i = 0; i < commands.Count(); i++)
+            GenerateCommands();
+            currentPos.isValid = false;
+            // string commands = String.Format("{0}*\"", outputCommands.Text);
+            if (!sp.IsOpen)
+                sp.Open();
+            // sp.Write(commands);
+            //sp.Close();
+            for (int i = 0; i < commands.Count(); i++)
+            {
+                sp.WriteLine(commands[i].command);
+                while (!isInPosition(commands[i].pos, 0.1))
                 {
-                    sp.WriteLine(commands[i].command);
-                    while (!isInPosition(commands[i].pos, 0.1))
-                    {
-                        currentPos.isValid = false;
-                        if (!currentPos.isValid)
-                            GetCurrentPosition();
-                        Thread.Sleep(100);
-                        while (!currentPos.isValid) {  }
-                    }
-                    ShootLaser();
-                    
+                    currentPos.isValid = false;
+                    if (!currentPos.isValid)
+                        GetCurrentPosition();
+                    Thread.Sleep(100);
+                    while (!currentPos.isValid) { }
                 }
-            
+                ShootLaser();
+
+            }
+
         }
         private void ShootLaser()
         {
             arduinoSerial.Write("a\r\n");
         }
-        private bool isInPosition(FocalLocation pos,double tolerance)
+        private bool isInPosition(FocalLocation pos, double tolerance)
         {
             bool _isInPos = false;
             if (pos.X - tolerance <= currentPos.X && currentPos.X <= pos.X + tolerance &&
@@ -974,40 +993,43 @@ namespace WpfApplication1
             indexLineEnds = inputString.IndexOf("\n");
             while (indexLineEnds != -1)
             {
-                
-                indexLineEnds = indexLineEnds == 0 ? 1 : indexLineEnds+1;
+
+                indexLineEnds = indexLineEnds == 0 ? 1 : indexLineEnds + 1;
                 newCommand = inputString.Substring(0, indexLineEnds);
                 inputString = inputString.Substring(indexLineEnds, (inputString.Length - indexLineEnds));
 
                 if (readingPosition)
                 {
-                    
-                             if (newCommand.Contains("0 1 1="))
-                             {
-                                 try
-                                 {
-                                     currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
-                                 }
-                                 catch (Exception ex) { 
-                                 }
-                             }
-                             if (newCommand.Contains("0 2 1="))
-                             {
-                                 try
-                                 {
-                                     currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
-                                 }
-                                 catch (Exception ex)
-                                 {
-                                 }
-                                 readingPosition = false;
-                                 
-                                 Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
 
-                new Action(delegate { 
-                    this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5); }));
-                                
-                             }
+                    if (newCommand.Contains("0 1 1="))
+                    {
+                        try
+                        {
+                            currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                    if (newCommand.Contains("0 2 1="))
+                    {
+                        try
+                        {
+                            currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                        readingPosition = false;
+
+                        Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
+
+       new Action(delegate
+                        {
+                            this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
+                        }));
+
+                    }
                     currentPos.isValid = true;
 
                 }
@@ -1022,18 +1044,18 @@ namespace WpfApplication1
         #endregion
 
 
-        
-             
-        
+
+
+
         private void textLineSpacing_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
 
-        
+
         public void Move(double xIncrement, double yIncrement)
         {
-            if (0 <= currentPos.Y + yIncrement &&currentPos.Y + yIncrement <= 15 && 0<= currentPos.X + xIncrement && currentPos.X + xIncrement <= 19)
+            if (0 <= currentPos.Y + yIncrement && currentPos.Y + yIncrement <= 15 && 0 <= currentPos.X + xIncrement && currentPos.X + xIncrement <= 19)
             {
                 sp.Write(String.Format("1 mov 1 {0}\n 2 mov 1 {1}\n", currentPos.X + xIncrement, currentPos.Y + yIncrement));
                 currentPos.X += xIncrement;
@@ -1077,7 +1099,7 @@ namespace WpfApplication1
             }
 
         }
-        
+
         private void button_MoveRight_Click(object sender, RoutedEventArgs e)
         {
             if (!readingPosition)
@@ -1124,7 +1146,7 @@ namespace WpfApplication1
                 if (!currentPos.isValid)
                     GetCurrentPosition();
                 while (!currentPos.isValid) { }
-                Move(0, -(courseMovementSelected?courseMovement:fineMovement));
+                Move(0, -(courseMovementSelected ? courseMovement : fineMovement));
                 Thread.Sleep(500);
                 GetCurrentPosition();
                 while (!currentPos.isValid) { }
@@ -1135,7 +1157,7 @@ namespace WpfApplication1
         bool courseMovementSelected = true;
         private void movementChanged(object sender, RoutedEventArgs e)
         {
-            courseMovementSelected = this.movementCoarse.IsChecked??false;
+            courseMovementSelected = this.movementCoarse.IsChecked ?? false;
         }
 
         private void button_Pew_Click(object sender, RoutedEventArgs e)
@@ -1146,6 +1168,11 @@ namespace WpfApplication1
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             sp.Write("[y]*");
+        }
+
+        private void textSegmentLaserSpacing_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
         }
     }
     public class FocalLocation
