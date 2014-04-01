@@ -67,7 +67,8 @@
         <RadioButton x:Name="movementCoarse" Content="Coarse movement" HorizontalAlignment="Left" Margin="996,136,0,0" VerticalAlignment="Top" IsChecked="True" Checked="movementChanged"/>
         <RadioButton x:Name="movementFine" Content="Fine movement" HorizontalAlignment="Left" Margin="996,182,0,0" VerticalAlignment="Top" Checked="movementChanged"/>
         <Button x:Name="button_Pew" Content="Pew" HorizontalAlignment="Left" Margin="996,236,0,0" VerticalAlignment="Top" Width="75" Click="button_Pew_Click"/>
-        <Label x:Name="stageConnectionState" Content="not connected to stages" HorizontalAlignment="Left" Margin="735,541,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="stageConnectionState" Content="Not connected to stages" HorizontalAlignment="Left" Margin="12,525,0,0" VerticalAlignment="Top"/>
         <Button Content="TOGGLE CAL. LASER" HorizontalAlignment="Left" Margin="996,306,0,0" VerticalAlignment="Top" Width="172" Click="Button_Click_1"/>
+        <Label x:Name="arduinoConnectionState" Content="Not  connected to arduino (shutter)" HorizontalAlignment="Left" Margin="12,556,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Controls:MetroWindow>

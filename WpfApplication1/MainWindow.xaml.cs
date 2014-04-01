@@ -76,11 +76,19 @@ namespace WpfApplication1
             //DrawLine(6, 101, 6, 101, 0, 0, 0, false);
             //connectToDue();
             configurePIStages();
-            arduinoSerial = new SerialPort();
-            arduinoSerial.BaudRate = 9600;
-            arduinoSerial.PortName = "COM15";
-            if (!arduinoSerial.IsOpen)
-                arduinoSerial.Open();
+            try
+            {
+                arduinoSerial = new SerialPort();
+                arduinoSerial.BaudRate = 9600;
+                arduinoSerial.PortName = "COM15";
+                if (!arduinoSerial.IsOpen)
+                    arduinoSerial.Open();
+                this.arduinoConnectionState.Content = "Connected to arduino (shutter)"; 
+            }
+            catch (Exception ex)
+            {
+                this.arduinoConnectionState.Content = "Not  connected to arduino (shutter)";
+            }
             //Canvas background colour opaque by default
             canvasDielectric.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
             //chipCanvas.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 41, 51));
@@ -117,28 +125,38 @@ namespace WpfApplication1
             this.labelCurrentFile.Content = System.IO.Path.GetFileName(fullFile);
             this.textLineSpacing.Text = lineSpacing.ToString();
 
-            CameraWindow cWindow = new CameraWindow();
-            cWindow.Show();
-
+            try
+            {
+                CameraWindow cWindow = new CameraWindow();
+                cWindow.Show();
+            }
+            catch (Exception ex) { }
             
         }
 
         public void configurePIStages()
         {
-            sp = new SerialPort();
-            sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
-            sp.BaudRate = 9600;
-            sp.PortName = "COM14";
-            sp.NewLine = "\n";
-            if (!sp.IsOpen)
-                sp.Open();
-            sp.WriteLine("1 err?");
-            sp.WriteLine("2 err?");
-            sp.WriteLine("1 svo 1 1");
-            sp.WriteLine("2 svo 1 1");
-            Thread.Sleep(500);
-            sp.WriteLine("1 frf 1");
-            sp.WriteLine("2 frf 1");
+            try
+            {
+                sp = new SerialPort();
+                sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
+                sp.BaudRate = 9600;
+                sp.PortName = "COM14";
+                sp.NewLine = "\n";
+                if (!sp.IsOpen)
+                    sp.Open();
+                sp.WriteLine("1 err?");
+                sp.WriteLine("2 err?");
+                sp.WriteLine("1 svo 1 1");
+                sp.WriteLine("2 svo 1 1");
+                Thread.Sleep(500);
+                sp.WriteLine("1 frf 1");
+                sp.WriteLine("2 frf 1");
+                this.stageConnectionState.Content = "Connected to stages";
+            }
+            catch (Exception ex) {
+                this.stageConnectionState.Content = "Not connected to stages";
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -241,7 +259,7 @@ namespace WpfApplication1
                 StrokeEndLineCap = PenLineCap.Triangle,
                 ParentIndex = line.parentIndex,
                 Clickable = Clickable,
-                Uid = "MyLine",
+                Uid = specifiedType,//"MyLine"
             };
             li.Stroke = b;
 
@@ -373,59 +391,62 @@ namespace WpfApplication1
 
 
                     //convert vertex to laser line and convert bulges to lines if necessary. 
-
+                    //decimal lineLength = (decimal)Math.Sqrt(Math.Pow(pline.verticies[i+1].Point.Y-pline.verticies[i].Point.Y,2)+Math.Pow(pline.verticies[i+1].Point.X-pline.verticies[i].Point.X,2));
                     if (pline.verticies[i].Bulge == null)
-                    {
-                        Dxf.Line laserLine = new Dxf.Line();
-                        //straight line
-                        laserLine.p1 = new PointF
                         {
-                            X = pline.verticies[i].Point.X,
-                            Y = pline.verticies[i].Point.Y,
-                        };
-                        if (i != (pline.noVerticies - 1))
-                        {
-                            //link to next vertex in list
-                            laserLine.p2 = new PointF
+                        
+                            Dxf.Line _line = new Dxf.Line();
+                            //straight line
+                            _line.p1 = new PointF
                             {
-                                X = pline.verticies[i + 1].Point.X,
-                                Y = pline.verticies[i + 1].Point.Y,
+                                X = pline.verticies[i].Point.X,
+                                Y = pline.verticies[i].Point.Y,
                             };
-                        }
-                        else
-                        {
-                            if (pline.closed)
+                            if (i != (pline.noVerticies - 1))
                             {
-                                //link back to the original vertex
-                                laserLine.p2 = new PointF
+                                //link to next vertex in list
+                                _line.p2 = new PointF
                                 {
-                                    X = pline.verticies[0].Point.X,
-                                    Y = pline.verticies[0].Point.Y,
+                                    X = pline.verticies[i + 1].Point.X,
+                                    Y = pline.verticies[i + 1].Point.Y,
                                 };
                             }
                             else
                             {
-                                //do nothing
-                            }
-                        };
-                        pline.laserLines.Add(laserLine);
-                    }
-                    else
-                    {
-                        if (i != (pline.noVerticies - 1))
-                        {
-                            //link to next vertex in list
-                            pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
+                                if (pline.closed)
+                                {
+                                    //link back to the original vertex
+                                    _line.p2 = new PointF
+                                    {
+                                        X = pline.verticies[0].Point.X,
+                                        Y = pline.verticies[0].Point.Y,
+                                    };
+                                }
+                                else
+                                {
+                                    //do nothing
+                                }
+                            };
+                            
+                            pline.laserLines.AddRange(dxf.ConvertLineToLaserLines(_line,_lineSpacing,i));
                         }
                         else
                         {
-                            if (pline.closed)
+                            if (i != (pline.noVerticies - 1))
                             {
-                                //link back to the original vertex
-                                pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
+                                //link to next vertex in list
+                                pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[i + 1].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
                             }
-                        };
-                    };
+                            else
+                            {
+                                if (pline.closed)
+                                {
+                                    //link back to the original vertex
+                                    pline.laserLines.AddRange(dxf.ConvertBulgeToLines(pline.verticies[i].Point, pline.verticies[0].Point, pline.verticies[i].Bulge ?? (float)0, _lineSpacing, parentIndex));
+                                }
+                            };
+                       
+                    }
 
                 }
 
@@ -458,7 +479,7 @@ namespace WpfApplication1
                     {
                         try
                         {
-                            Polylines[j].laserLines[i] = DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true, brush, Polylines[j].laserLines[i], true, "polyline");
+                            Polylines[j].laserLines[i] = DrawLine(Polylines[j].laserLines[i].p1.X, Polylines[j].laserLines[i].p1.Y, Polylines[j].laserLines[i].p2.X, Polylines[j].laserLines[i].p2.Y, xOffset, yOffset, scale, true, brush, Polylines[j].laserLines[i], true, "MyPolyline");
                         }
                         catch (Exception ex) { }
                     }
@@ -513,43 +534,62 @@ namespace WpfApplication1
         void line_MouseDown(object sender, MouseButtonEventArgs e)
         {
             MyLine _selLine = ((MyLine)sender);
-            selectedType = "line";
+            
 
             foreach (UIElement ui in canvasDielectric.Children)
             {
-                if (ui.Uid.StartsWith("MyLine"))
+                switch (ui.Uid)
                 {
-                    MyLine _uiLine = ((MyLine)ui);
-                    if (_uiLine.Clickable)
-                    {
-                        if (_uiLine.ParentIndex == _selLine.ParentIndex)
+                    case "MyLine":
+                        selectedType = "line";
+                        MyLine _uiLine = ((MyLine)ui);
+                        if (_uiLine.Clickable)
                         {
-                            _uiLine.Stroke = selectedBrush;
-                            selectedLineParentIndex = _selLine.ParentIndex;
-                        }
+                            if (_uiLine.ParentIndex == _selLine.ParentIndex)
+                            {
+                                _uiLine.Stroke = selectedBrush;
+                                selectedLineParentIndex = _selLine.ParentIndex;
+                            }
 
-                        else
-                        {
-                            _uiLine.Stroke = brush;
+                            else
+                            {
+                                _uiLine.Stroke = brush;
+                            }
                         }
-                    }
-                }
-                if (ui.Uid.StartsWith("MyEllipse"))
-                {
-                    MyEllipse _selEll = ((MyEllipse)ui);
-                    if (_selEll.Clickable)
-                    {
-                        if (_selEll.ParentIndex == _selLine.ParentIndex)
+                        break;
+                    case "MyEllipse":
+                        MyEllipse _selEll = ((MyEllipse)ui);
+                        if (_selEll.Clickable)
                         {
-                            _selEll.Stroke = selectedBrush;
-                            selectedLineParentIndex = _selLine.ParentIndex;
-                        }
+                            if (_selEll.ParentIndex == _selLine.ParentIndex)
+                            {
+                                _selEll.Stroke = selectedBrush;
+                                selectedLineParentIndex = _selLine.ParentIndex;
+                            }
 
-                        else
-                        {
-                            _selEll.Stroke = brush;
+                            else
+                            {
+                                _selEll.Stroke = brush;
+                            }
                         }
-                    }
+                        break;
+                    case "MyPolyline":
+                        selectedType = "polyline";
+                        MyLine _uiPLine = ((MyLine)ui);
+                        if (_uiPLine.Clickable)
+                        {
+                            if (_uiPLine.ParentIndex == _selLine.ParentIndex)
+                            {
+                                _uiPLine.Stroke = selectedBrush;
+                                selectedLineParentIndex = _selLine.ParentIndex;
+                            }
+
+                            else
+                            {
+                                _uiPLine.Stroke = brush;
+                            }
+                        }
+                        break;
                 }
 
             }
@@ -637,7 +677,8 @@ namespace WpfApplication1
         void textSegmentLaserSpacing_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
 
-            if (e.Key == System.Windows.Input.Key.Enter)
+            
+           if (e.Key == System.Windows.Input.Key.Enter)
             {
                 float laserSpacing = 0;
                 float.TryParse(this.textSegmentLaserSpacing.Text, out laserSpacing);
