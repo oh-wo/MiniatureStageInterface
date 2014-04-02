@@ -394,6 +394,7 @@ namespace WpfApplication1
         void buttonChangeFile_Clicked(object sender, EventArgs e)
         {
             Microsoft.Win32.OpenFileDialog ofd = new Microsoft.Win32.OpenFileDialog();
+            Polylines.Clear();
             ofd.InitialDirectory = String.Format("{0}\\Files\\", System.IO.Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
             if (ofd.ShowDialog() ?? false)
             {
