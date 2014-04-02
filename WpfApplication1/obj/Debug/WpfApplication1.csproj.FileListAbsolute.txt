@@ -47,7 +47,3 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\MahApps.Metro.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\CameraWindow.baml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\CameraWindow.g.cs
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Api2.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Types.dll
-C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\Microsoft.Expression.Encoder.Utilities.dll

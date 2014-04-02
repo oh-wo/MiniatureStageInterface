@@ -969,7 +969,8 @@ namespace WpfApplication1
         }
         private void ShootLaser()
         {
-            arduinoSerial.Write("a\r\n");
+            if(arduinoSerial.IsOpen)
+                arduinoSerial.Write("a\r\n");
         }
         private bool isInPosition(FocalLocation pos, double tolerance)
         {
