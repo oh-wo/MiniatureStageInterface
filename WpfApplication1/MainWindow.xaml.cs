@@ -140,7 +140,7 @@ namespace WpfApplication1
                 sp = new SerialPort();
                 sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
                 sp.BaudRate = 9600;
-                sp.PortName = "COM14";
+                sp.PortName = "COM4";
                 sp.NewLine = "\n";
                 if (!sp.IsOpen)
                     sp.Open();
