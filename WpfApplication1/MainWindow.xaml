@@ -58,16 +58,29 @@
         <TextBox x:Name="incomingData" HorizontalAlignment="Left" Height="101" Margin="655,335,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="240"/>
         <TextBox x:Name="textClosedLoopVelocity" HorizontalAlignment="Left" Height="23" Margin="480,24,0,0" TextWrapping="Wrap" Text="4.00000" VerticalAlignment="Top" Width="120" ToolTip="closed loop velocity"/>
         <Label x:Name="Laser_spacing__Copy" Content="velocity" HorizontalAlignment="Left" Margin="480,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.701,0.921"/>
-        <Button x:Name="button_MoveUp" Content="^" HorizontalAlignment="Left" Margin="962,55,0,0" VerticalAlignment="Top" Width="75" Click="buttonMoveUp_click"/>
-        <Label x:Name="laserCurrentPosition" Content="Current position: ()" HorizontalAlignment="Left" Margin="977,24,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.816,0.146"/>
-        <Button x:Name="button_MoveDown" Content="'" HorizontalAlignment="Left" Margin="962,85,0,0" VerticalAlignment="Top" Width="75" Click="button_MoveDown_Click"/>
-        <Button x:Name="button_MoveRight" Content="&gt;" HorizontalAlignment="Left" Margin="1042,55,0,0" VerticalAlignment="Top" Width="43" Height="55" Click="button_MoveRight_Click"/>
-        <Button x:Name="button_MoveLeft" Content="&lt;" HorizontalAlignment="Left" Margin="916,55,0,0" VerticalAlignment="Top" Width="41" Height="55" Click="button_MoveLeft_Click"/>
-        <RadioButton x:Name="movementCoarse" Content="Coarse movement" HorizontalAlignment="Left" Margin="996,136,0,0" VerticalAlignment="Top" IsChecked="True" Checked="movementChanged"/>
-        <RadioButton x:Name="movementFine" Content="Fine movement" HorizontalAlignment="Left" Margin="996,182,0,0" VerticalAlignment="Top" Checked="movementChanged"/>
-        <Button x:Name="button_Pew" Content="Pew" HorizontalAlignment="Left" Margin="996,236,0,0" VerticalAlignment="Top" Width="75" Click="button_Pew_Click"/>
+        <Button x:Name="button_MoveUp" Content="^" HorizontalAlignment="Left" Margin="965,86,0,0" VerticalAlignment="Top" Width="75" Click="buttonMoveUp_click"/>
+        <Label x:Name="laserCurrentPosition" Content="Current position: ()" HorizontalAlignment="Left" Margin="916,55,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.816,0.146"/>
+        <Button x:Name="button_MoveDown" Content="'" HorizontalAlignment="Left" Margin="965,116,0,0" VerticalAlignment="Top" Width="75" Click="button_MoveDown_Click"/>
+        <Button x:Name="button_MoveRight" Content="&gt;" HorizontalAlignment="Left" Margin="1045,86,0,0" VerticalAlignment="Top" Width="43" Height="55" Click="button_MoveRight_Click"/>
+        <Button x:Name="button_MoveLeft" Content="&lt;" HorizontalAlignment="Left" Margin="919,86,0,0" VerticalAlignment="Top" Width="41" Height="55" Click="button_MoveLeft_Click"/>
+        <RadioButton x:Name="movementCoarse" Content="Coarse movement" HorizontalAlignment="Left" Margin="999,167,0,0" VerticalAlignment="Top" IsChecked="True" Checked="movementChanged"/>
+        <RadioButton x:Name="movementFine" Content="Fine movement" HorizontalAlignment="Left" Margin="999,213,0,0" VerticalAlignment="Top" Checked="movementChanged"/>
+        <Button x:Name="button_Pew" Content="Pew" HorizontalAlignment="Left" Margin="999,267,0,0" VerticalAlignment="Top" Width="75" Click="button_Pew_Click"/>
         <Label x:Name="stageConnectionState" Content="Not connected to stages" HorizontalAlignment="Left" Margin="12,525,0,0" VerticalAlignment="Top"/>
         <Button Content="TOGGLE CAL. LASER" HorizontalAlignment="Left" Margin="996,306,0,0" VerticalAlignment="Top" Width="172" Click="Button_Click_1"/>
         <Label x:Name="arduinoConnectionState" Content="Not  connected to arduino (shutter)" HorizontalAlignment="Left" Margin="12,556,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbCoarseMovement" HorizontalAlignment="Left" Height="23" Margin="916,381,0,0" TextWrapping="Wrap" Text="2" VerticalAlignment="Top" Width="120" UndoLimit="103" KeyUp="tbCoarseMovement_KeyUp"/>
+        <Label Content="Coarse movement" HorizontalAlignment="Left" Margin="916,353,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label10" Content="Fine movement" HorizontalAlignment="Left" Margin="916,444,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbFineMovement" HorizontalAlignment="Left" Height="23" Margin="916,478,0,0" TextWrapping="Wrap" Text="0.1" VerticalAlignment="Top" Width="120" KeyUp="tbFineMovement_KeyUp"/>
+        <Label x:Name="focusLabel" Content="Label" HorizontalAlignment="Left" Margin="1591,469,0,0" VerticalAlignment="Top" Focusable="True"/>
+        <TextBox x:Name="tbAbsMoveX" HorizontalAlignment="Left" Height="23" Margin="920,27,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="69" KeyUp="tbAbsMoveX_KeyUp"/>
+        <Label x:Name="Absolute_Move" Content="Absolute Move" HorizontalAlignment="Left" Margin="920,0,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbAbsMoveY" HorizontalAlignment="Left" Height="23" Margin="999,27,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="75" KeyUp="tbAbsMoveY_KeyUp"/>
+        <Label Content="Microscope&lt;&gt;Objective" HorizontalAlignment="Left" Margin="916,598,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbOffsetX" HorizontalAlignment="Left" Height="23" Margin="916,644,0,0" TextWrapping="Wrap" Text="5" VerticalAlignment="Top" Width="59" KeyUp="tbOffsetX_KeyUp"/>
+        <TextBox x:Name="tbOffsetY" HorizontalAlignment="Left" Height="23" Margin="985,644,0,0" TextWrapping="Wrap" Text="5" VerticalAlignment="Top" Width="69" KeyUp="tbOffsetY_KeyUp"/>
+        <RadioButton x:Name="offsetMicroscope" Content="Microscope" GroupName="offset" HorizontalAlignment="Left" Margin="899,690,0,0" VerticalAlignment="Top" IsChecked="True" Checked="offsetMicroscope_checked"/>
+        <RadioButton x:Name="offsetObjective" Content="Objective" GroupName="offset" HorizontalAlignment="Left" Margin="999,690,0,0" VerticalAlignment="Top" Checked="offsetObjective_checked"/>
     </Grid>
 </Controls:MetroWindow>

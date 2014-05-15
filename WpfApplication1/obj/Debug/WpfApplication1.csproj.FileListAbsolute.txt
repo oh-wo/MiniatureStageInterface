@@ -47,3 +47,9 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\MahApps.Metro.dll
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\CameraWindow.baml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\CameraWindow.g.cs
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.DirectShow.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.dll
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.xml
+C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.DirectShow.xml

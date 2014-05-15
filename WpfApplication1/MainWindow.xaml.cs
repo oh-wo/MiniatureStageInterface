@@ -20,6 +20,7 @@ using System.Threading;
 using System.IO.Ports;
 using System.Runtime.InteropServices;
 using WebcamControl;
+using System.Text.RegularExpressions;
 
 namespace WpfApplication1
 {
@@ -79,7 +80,7 @@ namespace WpfApplication1
             {
                 arduinoSerial = new SerialPort();
                 arduinoSerial.BaudRate = 9600;
-                arduinoSerial.PortName = "COM15";
+                arduinoSerial.PortName = "COM5";
                 if (!arduinoSerial.IsOpen)
                     arduinoSerial.Open();
                 this.arduinoConnectionState.Content = "Connected to arduino (shutter)";
@@ -123,13 +124,17 @@ namespace WpfApplication1
             /*General UI setup */
             this.labelCurrentFile.Content = System.IO.Path.GetFileName(fullFile);
             this.textLineSpacing.Text = lineSpacing.ToString();
-
+            this.tbOffsetX.Text = Properties.Settings.Default["offsetX"].ToString();
+            this.tbOffsetY.Text = Properties.Settings.Default["offsetY"].ToString();
             try
             {
                 CameraWindow cWindow = new CameraWindow();
                 cWindow.Show();
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+
+            }
 
         }
 
@@ -142,16 +147,21 @@ namespace WpfApplication1
                 sp.BaudRate = 9600;
                 sp.PortName = "COM4";
                 sp.NewLine = "\n";
+                sp.ReceivedBytesThreshold = 4;
+                sp.Parity = Parity.None;
+
                 if (!sp.IsOpen)
                     sp.Open();
-                sp.WriteLine("1 err?");
-                sp.WriteLine("2 err?");
-                sp.WriteLine("1 svo 1 1");
-                sp.WriteLine("2 svo 1 1");
+                SerialWriteLine("1 err?");
+                SerialWriteLine("2 err?");
+                SerialWriteLine("1 svo 1 1");
+                SerialWriteLine("2 svo 1 1");
                 Thread.Sleep(500);
-                sp.WriteLine("1 frf 1");
-                sp.WriteLine("2 frf 1");
+                SerialWriteLine("1 frf 1");
+                SerialWriteLine("2 frf 1");
                 this.stageConnectionState.Content = "Connected to stages";
+                Thread.Sleep(1000);
+                MoveAbsolute(7.5, 9.5);
             }
             catch (Exception ex)
             {
@@ -242,7 +252,7 @@ namespace WpfApplication1
         }
 
         //Dxf stuff
-        
+
         public Dxf.Line DrawLine(float X1, float Y1, float X2, float Y2, float xOffset, float yOffset, float scale, bool fromAutoCad, SolidColorBrush b, Dxf.Line line, bool Clickable, string specifiedType)
         {
             //if from autocad then have to flip the y-axis
@@ -553,13 +563,14 @@ namespace WpfApplication1
         {
             if (Mouse.LeftButton == MouseButtonState.Pressed)
             {
-                PointF currentPos = new PointF() { 
+                PointF currentPos = new PointF()
+                {
                     X = (float)e.GetPosition(canvasDielectric).X,
                     Y = (float)e.GetPosition(canvasDielectric).Y,
                 };
                 if (lastPos != null)
                 {
-                    scrollOffsetX += currentPos.X-lastPos.X;
+                    scrollOffsetX += currentPos.X - lastPos.X;
                     scrollOffsetY += currentPos.Y - lastPos.Y;
                     DrawDrawing();
                 }
@@ -640,7 +651,7 @@ namespace WpfApplication1
                 }
             }
 
-            
+
         }
         WpfApplication1.Dxf.Polyline ChangePolylineSpacing(WpfApplication1.Dxf.Polyline pLine, int parentIndex, float laserSpacing)
         {
@@ -906,13 +917,13 @@ namespace WpfApplication1
             foreach (Dxf.Line line in Lines)
             {
                 //outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(line.p1.X / 10 + 7, 5), (float)Math.Round(line.p1.Y / 10 + 7, 5));
-                float x = (float)Math.Round(line.p1.X / 10 + 7, 5);
-                float y = (float)Math.Round(line.p1.Y / 10 + 7, 5);
+                float x = (float)Math.Round(line.p1.X, 5);
+                float y = (float)Math.Round(line.p1.Y, 5);
                 Command command = new Command()
                 {
                     index = i,
                     pos = new FocalLocation() { X = x, Y = y },
-                    command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}", x, y),
+                    command = String.Format("1 mov 1 {0:0.0000} \n 2 mov 1 {1:0.0000}", x, y),
                 };
                 commands.Add(command);
                 i++;
@@ -922,13 +933,13 @@ namespace WpfApplication1
                 foreach (Dxf.Line laserLine in pLine.laserLines)
                 {
                     // outputCommands.Text += String.Format("[w {0} {1} 0.1]", (float)Math.Round(laserLine.p1.X / 10 + 7, 5), (float)Math.Round(laserLine.p1.Y / 10 + 7, 5));
-                    float x = (float)Math.Round(laserLine.p1.X / 10 + 7, 5);
-                    float y = (float)Math.Round(laserLine.p1.Y / 10 + 7, 5);
+                    float x = (float)Math.Round(laserLine.p1.X, 5);
+                    float y = (float)Math.Round(laserLine.p1.Y, 5);
                     Command command = new Command()
                     {
                         index = i,
                         pos = new FocalLocation() { X = x, Y = y },
-                        command = String.Format("1 mov 1 {0} \n 2 mov 1 {1}\n", x, y),
+                        command = String.Format("1 mov 1 {0:0.0000} \n 2 mov 1 {1:0.0000}\n", x, y),
                     };
                     commands.Add(command);
                     i++;
@@ -950,12 +961,12 @@ namespace WpfApplication1
             // string commands = String.Format("{0}*\"", outputCommands.Text);
             if (!sp.IsOpen)
                 sp.Open();
-            // sp.Write(commands);
+            // SerialWrite(commands);
             //sp.Close();
             for (int i = 0; i < commands.Count(); i++)
             {
-                sp.WriteLine(commands[i].command);
-                while (!isInPosition(commands[i].pos, 0.1))
+                SerialWriteLine(commands[i].command);
+                while (!isInPosition(commands[i].pos, 0.00001))
                 {
                     currentPos.isValid = false;
                     if (!currentPos.isValid)
@@ -970,8 +981,8 @@ namespace WpfApplication1
         }
         private void ShootLaser()
         {
-            if(arduinoSerial.IsOpen)
-                arduinoSerial.Write("a\r\n");
+            if (arduinoSerial.IsOpen)
+                arduinoSerial.Write("r\r\n");
         }
         private bool isInPosition(FocalLocation pos, double tolerance)
         {
@@ -987,6 +998,12 @@ namespace WpfApplication1
         string inputString = "";
         string newCommand = "";
         int indexLineEnds = -1;
+        String pos1Regex = "0 1 1=[0-9]+.[0-9]+\n";
+        String pos2Regex = "0 2 1=[0-9]+.[0-9]+\n";
+        String error1Regex = "0 1 [0-9]+\n";
+        String error2Regex = "0 2 [0-9]+\n";
+        int serialCount = 0;
+        int inputStringLength = 1000000;
         private void dataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             //this reads in each line. 
@@ -995,59 +1012,90 @@ namespace WpfApplication1
             indexLineEnds = inputString.IndexOf("\n");
             while (indexLineEnds != -1)
             {
-
-                indexLineEnds = indexLineEnds == 0 ? 1 : indexLineEnds + 1;
-                newCommand = inputString.Substring(0, indexLineEnds);
-                inputString = inputString.Substring(indexLineEnds, (inputString.Length - indexLineEnds));
-
-                if (readingPosition)
+                    Match pos1match = Regex.Match(inputString, pos1Regex);
+                    if (pos1match.Value != "")
+                    {
+                        try
+                        {
+                            currentPos.X = double.Parse(pos1match.Value.Replace("\n", "").Replace("0 1 1=",""));
+                            inputString = inputString.Remove(0, pos1match.Index + pos1match.Value.Length);
+                            readingPosition = false;
+                            currentPos.isValid = true;
+                            Thread x = new Thread(() => updatePos(currentPos.X, currentPos.Y));
+                            x.Start();
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                    Match pos2match = Regex.Match(inputString, pos2Regex);
+                    if (pos2match.Value != "")
+                    {
+                        try
+                        {
+                            currentPos.Y = double.Parse(pos2match.Value.Replace("\n", "").Replace("0 2 1=", ""));
+                            inputString = inputString.Remove(0, pos2match.Index + pos2match.Value.Length);
+                            readingPosition = false;
+                            currentPos.isValid = true;
+                            Thread x = new Thread(() => updatePos(currentPos.X, currentPos.Y));
+                            x.Start();
+                        }
+                        catch (Exception ex)
+                        {
+                        }
+                    }
+                Match error1match = Regex.Match(inputString, error1Regex);
+                if (error1match.Value != "")
                 {
-
-                    if (newCommand.Contains("0 1 1="))
+                    try
                     {
-                        try
-                        {
-                            currentPos.X = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
-                        }
-                        catch (Exception ex)
-                        {
-                        }
+                        inputString = inputString.Remove(0, error1match.Index + error1match.Value.Length);
                     }
-                    if (newCommand.Contains("0 2 1="))
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            currentPos.Y = double.Parse(newCommand.Substring(6, (newCommand.Length - 6 - 1)));
-                        }
-                        catch (Exception ex)
-                        {
-                        }
-                        readingPosition = false;
-
-                        Application.Current.Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle,
-
-       new Action(delegate
-                        {
-                            this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", currentPos.X / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
-                        }));
-
                     }
-                    currentPos.isValid = true;
-
                 }
-                this.Dispatcher.BeginInvoke(new Action(delegate
+                Match error2match = Regex.Match(inputString, error2Regex);
+                if (error2match.Value != "")
                 {
-
-                    incomingData.Text += "[" + newCommand + "]";
-                }));
+                    try
+                    {
+                        inputString = inputString.Remove(0, error2match.Index + error2match.Value.Length);
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                    
+                }
+                //LEAVE THE THIS IN!!!!
                 indexLineEnds = inputString.IndexOf("\n");
+                if (inputString.Length == inputStringLength)
+                {
+                    serialCount++;
+                    if (serialCount > 10)
+                    {
+                        indexLineEnds = -1;
+                    }
+                }
+                else
+                {
+                    serialCount = 0;
+                    inputStringLength = inputString.Length;
+                }
+                //LEAVE THE THIS IN!!!!
             }
         }
         #endregion
 
 
 
-
+        private void updatePos(double x,double y)
+        {
+            this.laserCurrentPosition.Dispatcher.Invoke(new Action(delegate
+            {
+                this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00000},{1:0.00000})", x,y);
+            }));
+        }
 
         private void textLineSpacing_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -1057,24 +1105,98 @@ namespace WpfApplication1
 
         public void Move(double xIncrement, double yIncrement)
         {
-            if (0 <= currentPos.Y + yIncrement && currentPos.Y + yIncrement <= 15 && 0 <= currentPos.X + xIncrement && currentPos.X + xIncrement <= 19)
+            double x = currentPos.X + xIncrement;
+            double y = currentPos.Y + yIncrement;
+            if (0 <= y && y <= 15 && 0 <= x && x <= 19)
             {
-                sp.Write(String.Format("1 mov 1 {0}\n 2 mov 1 {1}\n", currentPos.X + xIncrement, currentPos.Y + yIncrement));
-                currentPos.X += xIncrement;
-                currentPos.Y += yIncrement;
-                this.Dispatcher.BeginInvoke(new Action(delegate
-                         {
-                             this.laserCurrentPosition.Content = String.Format("Current position: ({0:0.00},{1:0.00})", (currentPos.X) / 19 * 10 - 5, currentPos.Y / 15 * 10 - 5);
-                         }));
+                SerialWrite(String.Format("1 err? \n"));
+                SerialWrite(String.Format("2 err? \n"));
+                SerialWrite(String.Format("1 mov 1 {0:0.0000}\n", x));
+                SerialWrite(String.Format("2 mov 1 {0:0.0000}\n", y));
+
+                FocalLocation fl = new FocalLocation()
+                {
+                    X = x,
+                    Y = y,
+                };
+                int count = 0;
+                while (!isInPosition(fl, 0.00001))
+                {
+                    currentPos.isValid = false;
+                    if (!currentPos.isValid)
+                    {
+                        GetCurrentPosition();
+                    }
+                    Thread.Sleep(100);
+                    if (count > 5)
+                    {
+                        break;
+                    }
+                    count++;
+                }
+            }
+            clickingArrowButtons = false;
+        }
+        public void SerialWrite(string text)
+        {
+            if (sp.IsOpen)
+            {
+                sp.Write(text);
+                Thread.Sleep(500);
+            }
+        }
+        public void SerialWriteLine(string text)
+        {
+            if (sp.IsOpen)
+            {
+                sp.WriteLine(text);
+                Thread.Sleep(500);
+            }
+        }
+        private static readonly Object serialWriteLock = new Object();
+        bool dontStop = false;
+        public void MoveAbsolute(double x, double y)
+        {
+            if (0 <= y && y <= 15 && 0 <= x && x <= 19)
+            {
+                dontStop = true;
+                SerialWrite(String.Format("1 err? \n"));
+                SerialWrite(String.Format("2 err?\n"));
+                SerialWrite(String.Format("1 mov 1 {0:0.0000}\n", x));
+                SerialWrite(String.Format("2 mov 1 {0:0.0000}\n", y));
+
+                FocalLocation fl = new FocalLocation()
+                {
+                    X = x,
+                    Y = y,
+                };
+                int count = 0;
+                dontStop = false;
+                while (!isInPosition(fl, 0.00001)&&!dontStop)
+                {
+                    currentPos.isValid = false;
+                    if (!currentPos.isValid)
+                    {
+                        GetCurrentPosition();
+                    }
+                    Thread.Sleep(100);
+                    if (count > 5)
+                    {
+                        SerialWrite(String.Format("1 err? \n"));
+                        SerialWrite(String.Format("2 err? \n"));
+                        SerialWrite(String.Format("1 mov 1 {0:0.0000}\n", x));
+                        SerialWrite(String.Format("2 mov 1 {0:0.0000}\n", y));
+                    }
+                    count++;
+                }
             }
         }
         bool readingPosition = false;
         public void GetCurrentPosition()
         {
             readingPosition = true;
-            sp.Write("1 pos?\n");
-            Thread.Sleep(1000);
-            sp.Write("2 pos?\n");
+            SerialWrite("1 pos?\n");
+            SerialWrite("2 pos?\n");
 
         }
         FocalLocation currentPos = new FocalLocation()
@@ -1104,57 +1226,61 @@ namespace WpfApplication1
 
         private void button_MoveRight_Click(object sender, RoutedEventArgs e)
         {
-            if (!readingPosition)
-            {
-                if (!currentPos.isValid)
-                    GetCurrentPosition();
-                while (!currentPos.isValid) { }
-                Move((courseMovementSelected ? courseMovement : fineMovement), 0);
-                Thread.Sleep(500);
-                GetCurrentPosition();
-                while (!currentPos.isValid) { }
-            }
+            Thread x = new Thread(() => Move((courseMovementSelected ? coarseMovement : fineMovement), 0));
+            x.Start();
+            //if (!readingPosition)
+            //{
+            //    if (!currentPos.isValid)
+            //        GetCurrentPosition();
+            //    while (!currentPos.isValid) { }
+               
+            //    Thread.Sleep(500);
+            //    GetCurrentPosition();
+            //    while (!currentPos.isValid) { }
+            //}
         }
         private void buttonMoveUp_click(object sender, RoutedEventArgs e)
         {
-            if (!readingPosition)
-            {
-                if (!currentPos.isValid)
-                    GetCurrentPosition();
-                while (!currentPos.isValid) { }
-                Move(0, (courseMovementSelected ? courseMovement : fineMovement));
-                Thread.Sleep(500);
-            }
+            Thread x = new Thread(() => Move(0, (courseMovementSelected ? coarseMovement : fineMovement)));
+            x.Start();
+            //if (!readingPosition)
+            //{
+            //    if (!currentPos.isValid)
+            //        GetCurrentPosition();
+            //    while (!currentPos.isValid) { }
+            //    Move(0, (courseMovementSelected ? coarseMovement : fineMovement));
+            //    Thread.Sleep(500);
+            //    while (!currentPos.isValid) { }
+            //}
         }
-
+        bool clickingArrowButtons = false;
         private void button_MoveLeft_Click(object sender, RoutedEventArgs e)
         {
-            if (!readingPosition)
+            if (!clickingArrowButtons)
             {
-                if (!currentPos.isValid)
-                    GetCurrentPosition();
-                while (!currentPos.isValid) { }
-                Move(-(courseMovementSelected ? courseMovement : fineMovement), 0);
-                Thread.Sleep(500);
-                GetCurrentPosition();
-                while (!currentPos.isValid) { }
+                clickingArrowButtons = true;
+                Thread x = new Thread(() => Move(-(courseMovementSelected ? coarseMovement : fineMovement), 0));
+                x.Start();
             }
         }
 
         private void button_MoveDown_Click(object sender, RoutedEventArgs e)
         {
-            if (!readingPosition)
-            {
-                if (!currentPos.isValid)
-                    GetCurrentPosition();
-                while (!currentPos.isValid) { }
-                Move(0, -(courseMovementSelected ? courseMovement : fineMovement));
-                Thread.Sleep(500);
-                GetCurrentPosition();
-                while (!currentPos.isValid) { }
-            }
+            Thread x = new Thread(() => Move(0, -(courseMovementSelected ? coarseMovement : fineMovement)));
+            x.Start();
+            
+            //if (!readingPosition)
+            //{
+            //    if (!currentPos.isValid)
+            //        GetCurrentPosition();
+            //    while (!currentPos.isValid) { }
+            //    
+            //    Thread.Sleep(500);
+            //    GetCurrentPosition();
+            //    while (!currentPos.isValid) { }
+            //}
         }
-        double courseMovement = 2;
+        double coarseMovement = 2;
         double fineMovement = 0.1;
         bool courseMovementSelected = true;
         private void movementChanged(object sender, RoutedEventArgs e)
@@ -1169,13 +1295,152 @@ namespace WpfApplication1
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            sp.Write("[y]*");
+            SerialWrite("[y]*");
         }
 
         private void textSegmentLaserSpacing_TextChanged(object sender, TextChangedEventArgs e)
         {
 
         }
+
+
+        private void tbCoarseMovement_KeyUp(object sender, KeyEventArgs e)
+        {
+            
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                if (double.TryParse(this.tbCoarseMovement.Text, out coarseMovement))
+                {
+                    //all good
+                }
+                else
+                {
+                    //oop! 
+                    this.tbCoarseMovement.Text = coarseMovement.ToString();
+                }
+
+            }
+        }
+        private void tbFineMovement_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                if (double.TryParse(this.tbFineMovement.Text, out fineMovement))
+                {
+                    //all good
+                }
+                else
+                {
+                    //oop! 
+                    this.tbFineMovement.Text = fineMovement.ToString();
+                }
+
+            }
+        }
+
+        private void tbAbsMoveX_KeyUp(object sender, KeyEventArgs e)
+        {
+            
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                double newXPos = 0;
+                if (double.TryParse(this.tbAbsMoveX.Text, out newXPos))
+                {
+                    //all good
+                    Thread X = new Thread(()=>MoveAbsolute(newXPos, currentPos.Y));
+                    X.Start();
+                    
+                }
+                else
+                {
+                    //oop! 
+                    this.tbAbsMoveX.Text = currentPos.X.ToString();
+                }
+
+            }
+        }
+        private void tbAbsMoveY_KeyUp(object sender, KeyEventArgs e)
+        {
+
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                double newYPos = 0;
+                if (double.TryParse(this.tbAbsMoveY.Text, out newYPos))
+                {
+                    //all good
+                    Thread X = new Thread(() => MoveAbsolute(currentPos.X, newYPos));
+                    X.Start();
+
+                }
+                else
+                {
+                    //oop! 
+                    this.tbAbsMoveY.Text = currentPos.Y.ToString();
+                }
+
+            }
+        }
+        private void tbOffsetY_KeyUp(object sender, KeyEventArgs e)
+        {
+            double offsetY=0;
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                if (double.TryParse(this.tbOffsetY.Text, out offsetY))
+                {
+                    //all good
+                    Properties.Settings.Default["offsetY"] = offsetY;
+                }
+                else
+                {
+                    //oop! 
+                    this.tbOffsetY.Text = Properties.Settings.Default["offsetY"].ToString();
+                }
+
+            }
+        }
+        private void tbOffsetX_KeyUp(object sender, KeyEventArgs e)
+        {
+            double offsetX = 0;
+            if (e.Key == Key.Enter)
+            {
+                this.focusLabel.Focus();
+                if (double.TryParse(this.tbOffsetX.Text, out offsetX))
+                {
+                    //all good
+                }
+                else
+                {
+                    //oop! 
+                    this.tbOffsetX.Text = Properties.Settings.Default["offsetX"].ToString();
+                }
+
+            }
+        }
+
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Move(0, 0);
+        }
+        private void offsetObjective_checked(object sender, RoutedEventArgs e)
+        {
+            Thread X = new Thread(() => Move((double)Properties.Settings.Default["offsetX"], (double)Properties.Settings.Default["offsetY"]));
+            X.Start();
+        }
+
+        private void offsetMicroscope_checked(object sender, RoutedEventArgs e)
+        {
+            Thread X = new Thread(() => Move(-(double)Properties.Settings.Default["offsetX"], -(double)Properties.Settings.Default["offsetY"]));
+            X.Start();
+        }
+
+
+
     }
     public class FocalLocation
     {
