@@ -53,3 +53,6 @@ C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\De
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.xml
 C:\Users\obod001\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\AForge.Video.DirectShow.xml
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\WpfApplication1\bin\Debug\WpfApplication1.exe.config
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.exe
+C:\Users\Owen\Documents\GitHub\MiniatureStageInterface\WpfApplication1\obj\Debug\WpfApplication1.pdb
