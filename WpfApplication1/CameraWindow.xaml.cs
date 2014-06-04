@@ -40,10 +40,11 @@ namespace WpfApplication1
         public CameraWindow()
         {
             InitializeComponent();
-            this.Left = System.Windows.Forms.Screen.AllScreens[0].Bounds.Left;
-            this.Top = System.Windows.Forms.Screen.AllScreens[0].Bounds.Top;
-            this.Width = System.Windows.Forms.Screen.AllScreens[0].Bounds.Width;
-            this.Height = System.Windows.Forms.Screen.AllScreens[0].Bounds.Height;
+            System.Windows.Forms.Screen screen = System.Windows.Forms.Screen.AllScreens.FirstOrDefault(s => !s.Primary && s.Bounds.Width > 800);
+            this.Left = screen.Bounds.Left;
+            this.Top = screen.Bounds.Top;
+            this.Width = screen.Bounds.Width;
+            this.Height = screen.Bounds.Height;
             StartCamera("UI154xLE-M_4002785771");
         }
 

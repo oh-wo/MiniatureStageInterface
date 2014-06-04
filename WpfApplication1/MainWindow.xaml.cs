@@ -145,7 +145,7 @@ namespace WpfApplication1
                 sp = new SerialPort();
                 sp.DataReceived += new SerialDataReceivedEventHandler(dataReceived);
                 sp.BaudRate = 9600;
-                sp.PortName = "COM4";
+                sp.PortName = "COM6";
                 sp.NewLine = "\n";
                 sp.ReceivedBytesThreshold = 4;
                 sp.Parity = Parity.None;
@@ -1394,6 +1394,7 @@ namespace WpfApplication1
                 {
                     //all good
                     Properties.Settings.Default["offsetY"] = offsetY;
+                    Properties.Settings.Default.Save();
                 }
                 else
                 {
@@ -1412,6 +1413,8 @@ namespace WpfApplication1
                 if (double.TryParse(this.tbOffsetX.Text, out offsetX))
                 {
                     //all good
+                    Properties.Settings.Default["offsetX"] = offsetX;
+                    Properties.Settings.Default.Save();
                 }
                 else
                 {
